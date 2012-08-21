@@ -31,7 +31,15 @@ c
       logical firstcall
       save firstcall,stname,slat,slon,selev,nsta,scompt,snetwk
       data firstcall/.true./
-      
+
+cf2py intent(in)  stlfile
+cf2py intent(in)  snam
+cf2py intent(in)  scom 
+cf2py intent(in)  snet 
+cf2py intent(out) flat  
+cf2py intent(out) flon  
+cf2py intent(out) felev  
+
 c read in station list - in alphabetical order!
       if (firstcall) then
          firstcall=.false.
@@ -143,6 +151,14 @@ c     21-22      i2                      day
       integer i,i1,i2,count,itemp,nrev,evtime
       save polfileold,statname,begtime,endtime,nrev,nstat,nth
 
+cf2py intent(in) polfile
+cf2py intent(in) snam
+cf2py intent(in) evyr  
+cf2py intent(in) evmon  
+cf2py intent(in) evday 
+cf2py intent(in) evhr 
+cf2py intent(out) stpol   
+
 c read in polarity reversal file - in alphabetical order
       if (polfile.ne.polfileold) then
          print *,'Reading polarity reversal file ',polfile
@@ -233,6 +249,11 @@ c
       logical firstcall
       save firstcall,stname,corr_val,nsta,scompt,snetwk
       data firstcall/.true./
+cf2py intent(in) stlfile  
+cf2py intent(in) snam
+cf2py intent(in) scom  
+cf2py intent(in) snet  
+cf2py intent(out) qcor       
       
 c read in station list - in alphabetical order!
       if (firstcall) then

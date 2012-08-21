@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#
 # Sample main driver program for using the focal mechanism subroutines.  
 # The polarity input format is the "phase" format of the SCEDC, similar to FPFIT.
 # Takeoff angle uncertainty is expresses as a suite of 1D velocity models.
@@ -32,9 +35,48 @@
 #     16         a1     P polarity : U, u, +, D, d, or -
 #
 
-      include 'param.inc'
-from rot.py import dang0, ncoor
+import hash
+import math # should use numpy eventually
+import numpy as np
+from hash_utils import fortran_include
 
+
+npick0, nmc0, nmax0 = fortran_include('param.inc')
+dang0, ncoor        = fortran_include('rot.inc')
+
+# initialize arrays
+
+# input arrays
+sname     = np.empty(npick0, 'a4', 'F')
+scomp     = np.empty(npick0, 'a3', 'F')
+ssnet     = np.empty(npick0, 'a2', 'F')
+pickpol   = np.empty(npick0, 'a1', 'F')
+pickonset = np.empty(npick0, 'a1', 'F')
+p_pol     = np.empty(npick0, int, 'F')
+p_qual    = np.empty(npick0, int, 'F')
+spol      = np.empty(npick0, int, 'F')
+p_azi_mc  = np.empty((npick0,nmc0), float, 'F')
+p_the_mc  = np.empty((npick0,nmc0), float, 'F')
+index     = np.empty(nmc0, int, 'F')
+qdep2     = np.empty(nmc0, float, 'F')
+
+# Output arrays
+f1norm  = np.empty((3,nmax0), float, 'F')
+f2norm  = np.empty((3,nmax0), float, 'F')
+strike2 = np.empty(nmax0, float, 'F')
+dip2    = np.empty(nmax0, float, 'F')
+rake2   = np.empty(nmax0, float, 'F')
+str_avg = np.empty(5, float, 'F')
+dip_avg = np.empty(5, float, 'F')
+rak_avg = np.empty(5, float, 'F')
+var_est = np.empty((2,5), float, 'F')
+var_avg = np.empty(5, float, 'F')
+mfrac   = np.empty(5, float, 'F')
+stdr    = np.empty(5, float, 'F')
+prob    = np.empty(5, float, 'F')
+qual    = np.empty(5, 'a', 'F')
+      
+summary = '''
 c variables for storing earthquake input information  
       character*16 icusp            ! event ID
       real qlat,qlon,qdep           ! location
@@ -48,7 +90,7 @@ c variables for storing earthquake input information
       character*1 magtype           ! magnitude type
       character*1 locqual           ! location quality
       character*1 cns,cew           ! north/south and east/west codes
-c
+
 c variables for polarity information, input to HASH subroutines
       character*4 sname(npick0)                        ! station name
       character*3 scomp(npick0)                        ! station component
@@ -60,7 +102,7 @@ c variables for polarity information, input to HASH subroutines
       real qdep2(nmc0)                                 ! new depth, for each trail
       integer nmc                                      ! number of trails with different azimuth and take-off angles
       integer npol                                     ! number of polarity readings
-c
+
 c variables for set of acceptable mechanisms, output of HASH subroutines
       integer nout2                                    ! number of acceptable mechanisms returned
       integer nmult                                    ! number of solutions (1 if no mulitples)
@@ -79,272 +121,258 @@ c control parameters
       integer maxout                                   ! max number of acceptable mechanisms output
       real badfrac                                     ! assumed rate of polarity error (fraction)
       real cangle                                      ! definition of "close" == 45 degrees
-c
-c file names
-      character*100 outfile1,outfile2,plfile,fpfile,stfile
+'''
+# file names
+#character*100 outfile1,outfile2,plfile,fpfile,stfile
 
-      degrad=180./3.1415927
-      rad=1./degrad
-      
-      print *,'Enter station list file'       
-      read (*,'(a)') stfile
+degrad = 180. / 3.1415927
+rad = 1. / degrad
 
-      print *,'Enter station polarity reversal file'       
-      read (*,'(a)') plfile
+stfile = raw_input('Enter station list file')
 
-      print *,'Enter name of input file (FPFIT-like format)'       
-      read (*,'(a)') fpfile
-      open (12,file=fpfile,status='old')
+plfile = raw_input('Enter station polarity reversal file')
 
-      print *,'Enter output file name for focal mechanisms'
-      read (*,'(a)') outfile1
-      open (13,file=outfile1)
+fpfile = raw_input('Enter name of input file (FPFIT-like format)')
+fh12 = open(fpfile)
 
-      print *,'Enter output file name for acceptable planes'
-      read (*,'(a)') outfile2
-      open (11,file=outfile2)
+outfile1 = raw_input('Enter output file name for focal mechanisms')
+fh13 = open(outfile1)
 
-      print *,'Enter mininum number of polarities (e.g., 8)'
-      read *,npolmin
+outfile2 = raw_input('Enter output file name for acceptable planes')
+fh11 = open(outfile2)
 
-      print *,'Enter maximum azimuthal gap (e.g., 90)'
-      read *,max_agap
+npolmin = raw_input('Enter mininum number of polarities (e.g., 8)')
 
-      print *,'Enter maximum takeoff angle gap (e.g., 60)'
-      read *,max_pgap
+max_agap = raw_input('Enter maximum azimuthal gap (e.g., 90)')
 
-      print *,'Enter grid angle for focal mech search, in degrees 
-     &  (min ',dang0,')'
-      read *,dang
-      dang2=max(dang0,dang) ! don't do finer than dang0
-      
-      print *,'Enter number of trials (e.g., 30)'
-      read *,nmc
+max_pgap = raw_input('Enter maximum takeoff angle gap (e.g., 60)')
 
-      print *,'Enter maxout for focal mech. output (e.g., 500)'
-      read *,maxout
+dang = raw_input('Enter grid angle for focal mech search, in degrees (min {0})'.format(dang0))
 
-      print *,'Enter fraction of picks presumed bad (e.g., 0.10)'
-      read *,badfrac
+dang2=max(dang0,dang) # don't do finer than dang0
 
-      print *,'Enter maximum allowed source-station distance, 
-     &         in km (e.g., 120)'
-      read *,delmax
+nmc = raw_input('Enter number of trials (e.g., 30)')
 
-      print *,'Enter angle for computing mechanisms probability, 
-     &         in degrees (e.g., 45)'
-      read *,cangle
-      
-      print *,'Enter probability threshold for multiples (e.g., 0.1)'
-      read *,prob_max
+maxout = raw_input('Enter maxout for focal mech. output (e.g., 500)')
 
-c make tables of takeoff angles for various velocity models
-      ntab=10
-      call MK_TABLE(ntab)
+badfrac = raw_input('Enter fraction of picks presumed bad (e.g., 0.10)')
 
-20    continue
+delmax = raw_input('Enter maximum allowed source-station distance, in km (e.g., 120)')
 
-c read in earthquake location, etc      ! SCEDC format - ** YOU MAY NEED TO CHANGE THE INPUT FORMAT **
-      read (12,25,end=999) iyr,imon,idy,ihr,imn,qsec,ilatd,cns,qlatm,
-     &                ilond,cew,qlonm,qdep,seh,sez,qmag,icusp
-25    format (i4,4i2,f5.2,i2,a1,f5.2,i3,a1,f5.2,f5.2,49x,
-     &                f5.2,1x,f5.2,40x,f4.2,6x,a16)  
-      qlat=real(ilatd)+(qlatm/60.0)
-      if (cns.eq.'S') then
-        qlat=-qlat
-      end if
-      qlon=-(real(ilond)+(qlonm/60.0))
-      if (cew.eq.'E') then
-        qlon=-qlon
-      end if
-      aspect=cos(qlat/degrad)
-      if (sez.eq.0.) sez=1.   ! set parameters not given in input file
-      terr=-9               
-      rms=-9
-      nppick=-9
-      nspick=-9
-      evtype='L'
-      magtype='X'
-      locqual='X'
-            
-c choose a new source location and velocity model for each trial 
-      qdep2(1)=qdep
-      index(1)=1
-      do 50 nm=2,nmc
-        call RAN_NORM(val)
-        qdep2(nm)=qdep+sez*val    ! randomly perturbed source depth
-        index(nm)=mod(nm,ntab)+1  ! index used to choose velocity model
-50    continue
-
-c read in polarities       ! SCEDC format - ** YOU MAY NEED TO CHANGE THE INPUT FORMAT **
-      k=1
-30    continue
-        read (12,35,end=40) sname(k),snet(k),scomp(k),
-     &                      pickonset(k),pickpol(k)
-35      format (a4,1x,a2,2x,a3,1x,a1,1x,a1)
-        if (sname(k).eq.'    ')  goto 40 ! end of data for this event
-        call GETSTAT_TRI(stfile,sname(k),scomp(k),snet(k),
-     &                   flat,flon,felv)  ! SCSN station information - ** YOU MAY NEED TO USE YOUR OWN SUBROUTINE **
-        if (flat.eq.999.) go to 30
-        dx=(flon-qlon)*111.2*aspect
-        dy=(flat-qlat)*111.2
-        range=sqrt(dx**2+dy**2)
-        qazi=90.-atan2(dy,dx)*degrad
-        if (qazi.lt.0.) qazi=qazi+360.
-        if (range.gt.delmax) go to 30
-        if (pickpol(k).eq.'U'.or.
-     &                    pickpol(k).eq.'u'.or.
-     &                    pickpol(k).eq.'+') then
-          p_pol(k)=1
-        else if (pickpol(k).eq.'D'.or.
-     &                    pickpol(k).eq.'d'.or.
-     &                    pickpol(k).eq.'-') then
-          p_pol(k)=-1
-        else
-          goto 30
-        end if
-        if ((pickonset(k).eq.'I').or.               
-     &      (pickonset(k).eq.'i')) then
-          p_qual(k)=0
-        else
-          p_qual(k)=1
-        end if
-        call CHECK_POL(plfile,sname(k),iyr,imon,idy,ihr,spol)  
-                          ! SCSN station polarity reversal information - ** YOU MAY NEED TO USE YOUR OWN SUBROUTINE **        
-        p_pol(k)=p_pol(k)*spol
-        do 105 nm=1,nmc  ! find azimuth and takeoff angle for each trial
-          p_azi_mc(k,nm)=qazi
-          call GET_TTS(index(nm),range,qdep2(nm),
-     &                 p_the_mc(k,nm),iflag)
-105     continue
-        k=k+1
-      goto 30
-40    continue
-      npol=k-1
-
-c view polarity data
-      do 250 k=1,npol 
-          print *,k,' ',sname(k),p_azi_mc(k,1),p_the_mc(k,1),
-     &                  p_pol(k)
-250   continue
-
-c stop if there aren't enough polarities
-      print *,'cid = ',icusp,'  npol = ',npol
-      if (npol.lt.npolmin) then
-        str_avg(1)=999
-        dip_avg(1)=99
-        rak_avg(1)=999
-        var_est(1,1)=99
-        var_est(2,1)=99
-        mfrac(1)=0.99
-        qual(1)='F'
-        prob(1)=0.0
-        nout1=0
-        nout2=0
-        nmult=0
-        goto 400
-      end if
-
-c determine maximum azimuthal and takeoff gap in polarity observations
-c and stop if either gap is too big
-      call GET_GAP(npol,p_azi_mc,p_the_mc,magap,mpgap)
-      if ((magap.gt.max_agap).or.(mpgap.gt.max_pgap)) then
-        str_avg(1)=999
-        dip_avg(1)=99
-        rak_avg(1)=999
-        var_est(1,1)=99
-        var_est(2,1)=99
-        mfrac(1)=0.99
-        qual(1)='E'
-        prob(1)=0.0
-        nout1=0
-        nout2=0
-        nmult=0
-        goto 400
-      end if
-
-c determine maximum acceptable number misfit polarities
-      nmismax=max(nint(npol*badfrac),2)                    
-      nextra=max(nint(npol*badfrac*0.5),2)  
-
-c find the set of acceptable focal mechanisms for all trials            
-      call FOCALMC(p_azi_mc,p_the_mc,p_pol,p_qual,npol,nmc,
-     &       dang2,nmax0,nextra,nmismax,nf2,strike2,dip2,
-     &       rake2,f1norm,f2norm)
-      nout2=min(nmax0,nf2)  ! number mechs returned from sub
-      nout1=min(maxout,nf2)  ! number mechs to return
+cangle = raw_input('Enter angle for computing mechanisms probability, in degrees (e.g., 45)')
  
-c find the probable mechanism from the set of acceptable solutions          
-      call MECH_PROB(nout2,f1norm,f2norm,cangle,prob_max,nmult,
-     &          str_avg,dip_avg,rak_avg,prob,var_est)           
+ prob_max = raw_input('Enter probability threshold for multiples (e.g., 0.1)')   
 
-      do 390 imult=1,nmult
-      
-      var_avg(imult)=(var_est(1,imult)+var_est(2,imult))/2.
-      print *,'cid = ',icusp,imult,'  mech = ',
-     &          str_avg(imult),dip_avg(imult),rak_avg(imult)
+# make tables of takeoff angles for various velocity models
+ntab = 10
+ 
+ntab = mk_table(ntab)
 
-c find misfit for prefered solution
-      call GET_MISF(npol,p_azi_mc,p_the_mc,p_pol,p_qual,str_avg(imult),
-     &       dip_avg(imult),rak_avg(imult),mfrac(imult),stdr(imult))
-      
-c solution quality rating  ** YOU MAY WISH TO DEVELOP YOUR OWN QUALITY RATING SYSTEM **
-      if ((prob(imult).gt.0.8).and.(var_avg(imult).le.25).and.
-     &     (mfrac(imult).le.0.15).and.(stdr(imult).ge.0.5)) then
-        qual(imult)='A'
-      else if ((prob(imult).gt.0.6).and.(var_avg(imult).le.35).and.
-     &  (mfrac(imult).le.0.2).and.(stdr(imult).ge.0.4)) then
-        qual(imult)='B'
-      else if ((prob(imult).gt.0.5).and.(var_avg(imult).le.45).and.
-     &  (mfrac(imult).le.0.3).and.(stdr(imult).ge.0.3)) then
-        qual(imult)='C'
-      else
-        qual(imult)='D'
-      end if
+# start of event loop - not necessary for one event?
+#20    continue
 
-390   continue
+while True:
+	# read in earthquake location, etc SCEDC format - ** YOU MAY NEED TO CHANGE THE INPUT FORMAT **
+	line = fh12.readline()
+	if not line:
+		break
+	
+	iyr    = int(line[0:4])
+	imon   = int(line[4:6])
+	idy    = int(line[6:8])
+	ihr    = int(line[8:10])
+	imn    = int(line[10:12])
+	qsec   = float(line[12:17])
+	ilatd  = int(line[17:19])
+	cns    = line[19]
+	qlatm  = float(line[20:25])
+	ilond  = int(line[25:28])
+	cew    = line[28]
+	qlonm  = float(line[29:34])
+	qdep   = float(line[34:39]) # then 49x
+	seh    = float(line[88:93]) # then 1x
+	sez    = float(line[94:99]) # then 40x
+	qmag   = float(line[139:143]) # then 6x
+	icusp  = int(line[149:165])
+	
+	qlat = ilatd + (qlatm / 60.0)
+	if ('S' in cns):
+		qlat *= -1
+	qlon = -(ilond + (qlonm / 60.0))
+	if ('E' in cew):
+		qlon *= -1
+	aspect = math.cos(qlat / degrad) # convert using python later.
+	
+	# set parameters not given in input file
+	if not sez:
+		sez = 1.
+	terr = -9
+	rms = -9
+	nppick = -9
+	nspick = -9
+	evtype = 'L'
+	magtype = 'X'
+	locqual = 'X'
+	
+	# choose a new source location and velocity model for each trial
+	qdep2[0] = qdep
+	index[0] = 1
+    for nm in range(1,nmc):
+		val = ran_norm(val)
+		qdep2[nm] = qdep + sez * val # randomly perturbed source depth
+		index[nm] = (nm % ntab) + 1  # index used to choose velocity model
+		
+	# read in polarities - SCEDC format - ** YOU MAY NEED TO CHANGE THE INPUT FORMAT **
+	k = 0
+	#30    continue
+	while True:
+		ph = fh12.readline()
+		sname = ph[0:3]
+		snet = ph[4:6]
+		scomp = ph[8:11]
+		pickonset = ph[12]
+		pickpol = ph[14]
+        #read (12,35,end=40) sname(k),snet(k),scomp(k),pickonset(k),pickpol(k)
+        #format (a4,1x,a2,2x,a3,1x,a1,1x,a1)
+        if (sname[k] == '    '):
+			#goto 40 ! end of data for this event
+			break
+		
+		flat,flon,felv = getstat_tri(stfile,sname[k],scomp[k],snet[k])  # SCSN station information - ** YOU MAY NEED TO USE YOUR OWN SUBROUTINE **
+		
+		if (flat == 999.):
+			continue
+		
+		# obspy or another python mod (antelope) could do this on WGS84
+        dx = (flon - qlon) * 111.2 * aspect
+        dy = (flat - qlat) * 111.2
+        dist = np.sqrt(dx**2 + dy**2)
+        qazi = 90. - np.atan2(dy,dx) * degrad
+        if (qazi < 0.):
+			qazi = qazi + 360.
+		if (dist > delmax):
+			continue
+		if (pickpol[k] in 'Uu+'):
+			p_pol[k] = 1
+		elif (pickpol[k] in 'Dd-'):
+			p_pol[k] = -1
+        else:
+			continue
+        
+        if (pickonset[k] in 'Ii'):
+			p_qual[k] = 0
+        else:
+			p_qual[k] = 1
+		
+        spol = check_pol(plfile,sname[k],iyr,imon,idy,ihr)  # SCSN station polarity reversal information - ** YOU MAY NEED TO USE YOUR OWN SUBROUTINE **
+        p_pol[k] = p_pol[k] * spol
+        
+        # find azimuth and takeoff angle for each trial
+        for nm in range(nmc):
+			p_azi_mc[k,nm] = qazi
+			get_tts(index[nm],dist,qdep2[nm],p_the_mc[k,nm],iflag)
+		
+		k += 1
+		continue
+	npol = k - 1
+	
+	# view polarity data
+	for k in range(npol):
+		print '{0}   {1} {2} {3} {4}'.format(k,sname(k),p_azi_mc(k,1),p_the_mc(k,1),p_pol(k))
+	
+	# stop if there aren't enough polarities
+    print 'cid = {0}  npol = {1}'.format(icusp,npol)
+    if (npol < npolmin):
+		str_avg[1] = 999
+        dip_avg[1] = 99
+        rak_avg[1] = 999
+        var_est[1,1] = 99
+        var_est[2,1] = 99
+        mfrac[1] = 0.99
+        qual[1] = 'F'
+        prob[1] = 0.0
+        nout1 = 0
+        nout2 = 0
+        nmult = 0
+        #goto 400
+   
+    # determine maximum azimuthal and takeoff gap in polarity observations and stop if either gap is too big
+    magap,mpgap = get_gap(npol,p_azi_mc,p_the_mc)
+    if ((magap > max_agap) or (mpgap > max_pgap)):
+		str_avg[1] = 999
+        dip_avg[1] = 99
+        rak_avg[1] = 999
+        var_est[1,1] = 99
+        var_est[2,1] = 99
+        mfrac[1] = 0.99
+        qual[1] = 'E'
+        prob[1] = 0.0
+        nout1 = 0
+        nout2 = 0
+        nmult = 0
+        #goto 400
+    
+    if str_avg[1] == 999:
+		pass
+	else:
+	    # determine maximum acceptable number misfit polarities
+	    nmismax = max(int(npol * badfrac),2)        # nint
+	    nextra  = max(int(npol * badfrac * 0.5),2)  # nint
+	    
+	    # find the set of acceptable focal mechanisms for all trials
+	    nf2,strike2,dip2,rake2,f1norm,f2norm = focalmc(p_azi_mc,p_the_mc,p_pol,p_qual,npol,nmc,dang2,nmax0,nextra,nmismax)
+	    nout2 = min(nmax0,nf2)  # number mechs returned from sub
+	    nout1 = min(maxout,nf2) # number mechs to return
+	    
+	    # find the probable mechanism from the set of acceptable solutions
+	    nmult,str_avg,dip_avg,rak_avg,prob,var_est = mech_prob(f1norm,f2norm,cangle,prob_max) # nout2
+	    
+	    for imult in range(nmult):
+			var_avg(imult) = (var_est[1,imult] + var_est[2,imult]) / 2.
+			print 'cid = {0} {1}  mech = {2} {3} {4}'.format(icusp,imult,str_avg(imult),dip_avg(imult),rak_avg(imult))
+			# find misfit for prefered solution
+			mfrac[imult],stdr[imult] =  get_misf(p_azi_mc,p_the_mc,p_pol,p_qual,str_avg[imult],dip_avg[imult],rak_avg[imult]) # npol
+			
+			# solution quality rating  ** YOU MAY WISH TO DEVELOP YOUR OWN QUALITY RATING SYSTEM **
+			if ((prob[imult] > 0.8) and (var_avg[imult] < 25) and (mfrac[imult] <= 0.15) and (stdr[imult] >= 0.5)):
+				qual[imult]='A'
+			elif ((prob[imult] > 0.6) and (var_avg[imult] <= 35) and (mfrac[imult] <= 0.2) and (stdr[imult] >= 0.4)):
+				qual[imult]='B'
+			elif ((prob[imult] > 0.5) and (var_avg[imult] <= 45) and (mfrac[imult] <= 0.3) and (stdr(imult) >= 0.3)):
+				qual[imult]='C'
+			else:
+				qual[imult]='D'
+	
+	if (nmult > 1):
+		mflag='*'
+	else:
+		mflag=' '
+	
+	format13 = ' '.join(['{{{0}}}'.format(s) for s in range(32)]) + '\n'
+	for i in range(nmult):
+		# output prefered mechanism  ** YOU MAY WISH TO CHANGE THE OUTPUT FORMAT **
+		fh13.write(format13.format(icusp,iyr,imon,idy,ihr,imn,qsec,evtype,
+                  qmag,magtype,qlat,qlon,qdep,locqual,rms,seh,sez,terr,
+                  nppick+nspick,nppick,nspick,int(str_avg[i]),
+                  int(dip_avg[i]),int(rak_avg[i]),int(var_est[1,i]),
+                  int(var_est[2,i]),npol,int(mfrac[i]*100.),
+                  qual[i],int(100*prob[i]),int(100*stdr[i]),mflag)
+    
+    # output set of acceptable mechanisms  ** YOU MAY WISH TO CHANGE THE OUTPUT FORMAT **
+    format11 = ' '.join(['{{{0}}}'.format(s) for s in range(24)]) + '\n'
+    fh11.write(format11.format(iyr,imon,idy,ihr,imn,qsec,qmag,qlat,qlon,
+              qdep,sez,seh,npol,nout2,icusp,str_avg[1],dip_avg[1],
+              rak_avg[1],var_est[1,1],var_est[2,1], mfrac[1],qual[1],
+              prob[1],stdr[1]))
+    format11 = ' '.join(['{{{0}}}'.format(s) for s in range(9)]) + '\n'
+    for ic in range(nout1):
+		fh11.write(format11.format(strike2[ic],dip2[ic],rake2[ic],
+		           f1norm[1,ic], f1norm[2,ic],f1norm[3,ic],f2norm[1,ic],
+		           f2norm[2,ic],f2norm[3,ic]))
 
-400   continue
-       
-      if (nmult.gt.1) then
-        mflag='*'
-      else
-        mflag=' '
-      end if
-      do i=1,nmult
-c output prefered mechanism  ** YOU MAY WISH TO CHANGE THE OUTPUT FORMAT **
-      write (13,411) icusp,iyr,imon,idy,ihr,imn,qsec,evtype,
-     &   qmag,magtype,qlat,qlon,qdep,locqual,rms,seh,sez,terr,
-     &   nppick+nspick,nppick,nspick,
-     &   nint(str_avg(i)),nint(dip_avg(i)),nint(rak_avg(i)),
-     &   nint(var_est(1,i)),nint(var_est(2,i)),npol,nint(mfrac(i)*100.),
-     &   qual(i),nint(100*prob(i)),nint(100*stdr(i)),mflag
-      end do
-411   format(a16,1x,i4,1x,i2,1x,i2,1x,i2,1x,i2,1x,f6.3,1x,a1,1x,
-     &  f5.3,1x,a1,1x,f9.5,1x,f10.5,1x,f7.3,1x,a1,1x,f7.3,1x,f7.3,
-     &  1x,f7.3,1x,f7.3,3x,i4,1x,i4,1x,i4,1x,i4,1x,i3,1x,i4,3x,i2,
-     &  1x,i2,1x,i3,1x,i2,1x,a1,1x,i3,1x,i2,1x,a1)
+	continue # next earthquake line
 
-c output set of acceptable mechanisms  ** YOU MAY WISH TO CHANGE THE OUTPUT FORMAT **
-      write (11,412) iyr,imon,idy,ihr,imn,qsec,qmag,
-     &   qlat,qlon,qdep,sez,seh,npol,nout2,icusp,
-     &   str_avg(1),dip_avg(1),rak_avg(1),var_est(1,1),var_est(2,1),
-     &   mfrac(1),qual(1),prob(1),stdr(1)
-412   format (i4,1x,i2,1x,i2,1x,i2,1x,i2,1x,f6.3,2x,f3.1,1x,f9.4,1x,
-     &   f10.4,1x,f6.2,1x,f8.4,1x,f8.4,1x,i5,1x,i5,1x,a16,1x,f7.1,1x,
-     &   f6.1,1x,f7.1,1x,f6.1,1x,f6.1,1x,f7.3,2x,a1,1x,f7.3,1x,f4.2)
-      do 500 ic=1,nout1
-        write (11,550) strike2(ic),dip2(ic),rake2(ic),f1norm(1,ic),
-     &      f1norm(2,ic),f1norm(3,ic),f2norm(1,ic),f2norm(2,ic),
-     &      f2norm(3,ic)
-500   continue
-550   format (5x,3f9.2,6f9.4)
+fh11.close()
+fh12.close()
+fh13.close()
 
-800   continue
-      goto 20
-
-999   close (11)
-      close (12)
-      close (13)
-      stop
-      end

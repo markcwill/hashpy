@@ -1,1 +1,3 @@
-f2py -c -m hash fmech_subs.f uncert_subs.f util_subs.f pol_subs.f vel_subs.f
+#!/usr/bin/env bash
+# the station subs is pretty useless if the funcs are replaced...
+f2py -c -m hash fmech_subs.f uncert_subs.f util_subs.f pol_subs.f vel_subs.f station_subs.f
