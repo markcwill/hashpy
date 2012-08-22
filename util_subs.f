@@ -87,6 +87,7 @@ c ------------------------------------------------------------ c
 c normally-distributed random numbers, from numerical recipes      
       subroutine RAN_NORM(fran)
       save jran,ifirst
+cf2py intent(out) fran
       im=120050                          !overflow at 2**28
       ia=2311
       ic=25367
