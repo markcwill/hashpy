@@ -25,6 +25,12 @@ OBJS4=	fmech_subs.o \
 	util_subs.o \
         vel_subs.o
 
+SRC=    fmech_subs.f uncert_subs.f util_subs.f \
+        pol_subs.f vel_subs.f station_subs.f vel_subs2.f
+
+hashpy: Makefile $(SRC)
+	f2py -c -m hashpy $(SRC)     
+
 hash_driver1: Makefile hash_driver1.f $(OBJS1)
 	f77  hash_driver1.f $(OBJS1) -O -o hash_driver1
 
@@ -64,5 +70,5 @@ util_subs.o : Makefile util_subs.f
 vel_subs.o : Makefile vel_subs.f
 	f77 vel_subs.f -O -c
 
-
+hashpy : Makefile
 
