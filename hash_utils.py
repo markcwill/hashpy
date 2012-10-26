@@ -2,11 +2,18 @@
 # -*- coding: utf-8 -*-
 #
 #  hash_utils.py
+#
+# - by MArk
+# utilities for running HASH using the python version of hash_driver2
+# (hash_driver2.py)
 
 def parameter(**kwargs):
+	'''returns variables inside a fortran 'parameter' call'''
+	# FUTURE: could just make them all globals and import from namespace
 	return [kwargs[key] for key in kwargs]
 
 def fortran_include(fname):
+	'''functions similar to a fortran include'''
 	vars = []
 	f_inc = open(fname)
 	for line in f_inc:
@@ -20,6 +27,7 @@ def fortran_include(fname):
 	return vars
 	
 def get_sta_coords(stfile):
+	'''Stub which reads in the HASH example station file'''
 	f = open(stfile)
 	sta_coords = {}
 	for s in f:
@@ -35,9 +43,15 @@ def get_sta_coords(stfile):
 	return sta_coords
 
 def test_stereo(azimuths,takeoffs,polarities,sdr=[]):
+	'''
+	Plots points with given azimuths, takeoff angles, and 
+	polarities on a stereonet. Will also plot both planes
+	of a double-couple given a strike/dip/rake
+	'''
 	import matplotlib.pyplot as plt
 	import mplstereonet
 	from obspy.imaging.beachball import AuxPlane
+	
 	fig = plt.figure()
 	ax = fig.add_subplot(111, projection='stereonet')
 	up = polarities > 0

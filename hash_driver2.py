@@ -135,7 +135,7 @@ if 1:
     num_vel_mods = int(inp_vars[15])
     vmfile = inp_vars[16:16+num_vel_mods]
     for i in range(num_vel_mods):
-		ntab = mk_table_add(i+1,vmfile[i])  
+        ntab = mk_table_add(i+1,vmfile[i])  
 else:
     stfile   = raw_input('Enter station list file: ')
     plfile   = raw_input('Enter station polarity reversal file: ')
@@ -391,19 +391,20 @@ while True:
     
     #test_stereo(p_azi_mc[:npol,0],p_the_mc[:npol,0],p_pol[:npol],sdr=[str_avg[0],dip_avg[0],rak_avg[0]])
 
-    if False:
+    go_again = raw_input("Continue or stop (and graph)? [Y/n]: ")
+    
+    if go_again == '' or go_again in 'Yesyes':
+        continue # next earthquake line
+    else:
         test_stereo(p_azi_mc[:npol,0],p_the_mc[:npol,0],p_pol[:npol],sdr=[str_avg[0],dip_avg[0],rak_avg[0]])
         fh11.close()
         fh12.close()
         fh13.close()
         break
-    else:
-        continue # next earthquake line
-
 fh11.close()
 fh12.close()
 fh13.close()
-test_stereo(p_azi_mc[:npol,0],p_the_mc[:npol,0],p_pol[:npol],sdr=[str_avg[0],dip_avg[0],rak_avg[0]])
+#test_stereo(p_azi_mc[:npol,0],p_the_mc[:npol,0],p_pol[:npol],sdr=[str_avg[0],dip_avg[0],rak_avg[0]])
 
 
 
