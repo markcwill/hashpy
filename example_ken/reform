@@ -1,0 +1,23 @@
+#!/usr/local/bin/perl
+
+$numargs = @ARGV;
+$arg_1 = $ARGV[0];
+$arg_2 = $ARGV[1];
+
+if ($numargs < 2) {
+   print ("\n");
+   print ("  usage: reform [input] [ouput]\n");
+   die   ("\n");
+  }
+
+   open(INPUT,"$ARGV[0]");
+   open(OUTPUT,">$ARGV[1]");
+
+    while(<INPUT>) {
+        ($test) = split(/\s+/,$_);
+        chop($mag); 
+        print OUTPUT ("$test\n");
+     }  
+
+
+
