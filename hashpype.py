@@ -3,7 +3,6 @@
 #
 #  hashpype.py
 
-from sys import argv
 from hashpy import *
 import numpy as np
 from hash_utils import fortran_include, get_sta_coords, test_stereo
@@ -11,14 +10,7 @@ from ant_utils import add_antelope_path, open_db_or_string
 from obspy_ext.antelope import *
 add_antelope_path()
 
-test_orid = 946268
-
-test_table_list =  ['vz.socal',
-					'vz.north',
-					'vz.lab1',
-					'vz.sgm1',
-					'vz.vb1']
-
+# for HASH compatiblity, change later.
 degrad = 180. / np.pi
 rad = 1. / degrad
 
@@ -61,17 +53,20 @@ class FocalMech(object):
 	prob    = None
 	qual    = None
 	
-	# Chosen fm run setings:
-	npolmin  = 8 #raw_input('Enter mininum number of polarities (e.g., 8) :')
-	max_agap = 90 #raw_input('Enter maximum azimuthal gap (e.g., 90): ')
-	max_pgap = 60 #raw_input('Enter maximum takeoff angle gap (e.g., 60): ')
-	dang     = 5 #raw_input('Enter grid angle for focal mech search, in degrees (min {0}): '.format(dang0))
-	nmc      = 30 #raw_input('Enter number of trials (e.g., 30): ')
-	maxout   = 500 #raw_input('Enter maxout for focal mech. output (e.g., 500): ')
-	badfrac  = 0.1 #raw_input('Enter fraction of picks presumed bad (e.g., 0.10): ')
-	delmax   = 120 #raw_input('Enter maximum allowed source-station distance, in km (e.g., 120): ')
-	cangle   = 45 #raw_input('Enter angle for computing mechanisms probability, in degrees (e.g., 45): ')
-	prob_max = 0.25 #raw_input('Enter probability threshold for multiples (e.g., 0.1): ')
+	# Chosen fm run setings: (pf file should look like this:)
+	# dbhash.pf -----------------------------------------------------
+	# Defaults
+	npolmin  = 8    # Enter mininum number of polarities (e.g., 8)
+	max_agap = 90   # Enter maximum azimuthal gap (e.g., 90)
+	max_pgap = 60   # Enter maximum takeoff angle gap (e.g., 60)
+	dang     = 5    # Enter grid angle for focal mech search, in degrees 5(min {0})
+	nmc      = 30   # Enter number of trials (e.g., 30)
+	maxout   = 500  # Enter maxout for focal mech. output (e.g., 500)
+	badfrac  = 0.1  # Enter fraction of picks presumed bad (e.g., 0.10)
+	delmax   = 500  # Enter maximum allowed source-station distance, in km (e.g., 120)
+	cangle   = 45   # Enter angle for computing mechanisms probability, in degrees (e.g., 45)
+	prob_max = 0.1 # Enter probability threshold for multiples (e.g., 0.1)
+	#----------------------------------------------------------------
 	
 	# Mark's spec'd object variables
 	vmodels = []
@@ -80,10 +75,9 @@ class FocalMech(object):
 	
 	dist = None
 	qazi = None
-	
-	@property
-	def num_vel_mods(self):
-		return len(self.vmodels)
+	flat = None
+	flon = None
+	felv = None
 	
 	# polarity reversals, [-1,1] stub for now
 	spol = 1
@@ -97,7 +91,7 @@ class FocalMech(object):
 		dang0, ncoor        = fortran_include('rot.inc')
 		
 		# initialize arrays
-		self.dang2=max(self.dang0, self.dang)
+		self.dang2=max(dang0, self.dang)
 		
 		# Input arrays
 		self.sname     = np.empty(npick0, 'a4', 'F')
@@ -132,7 +126,12 @@ class FocalMech(object):
 		# Other (added for Python classiness)
 		self.dist    = np.empty(npick0, float)
 		self.qazi    = np.empty(npick0, float)
+		self.flat    = np.empty(npick0, float)
+		self.flon    = np.empty(npick0, float)
+		self.felv    = np.empty(npick0, float)
+		self.esaz    = np.empty(npick0, float)
 		
+		# Save include vars for other fucntions to access
 		self.npick0 = npick0
 		self.nmc0   = nmc0
 		self.nmax0  = nmax0
@@ -162,6 +161,7 @@ class FocalMech(object):
 		db, oflag = open_db_or_string(dbname)
 		if orid is None:
 			dbv = db.process(['dbopen event', 'dbsubset evid == '+str(evid)])
+			dbv.record = 0
 			orid = dbv.getv('prefor')[0]
 		db = db.process([ 'dbopen origin', 'dbsubset orid == '+str(orid),
 						'dbjoin origerr', 'dbjoin assoc',  'dbjoin arrival',
@@ -172,6 +172,8 @@ class FocalMech(object):
 						)
 		
 		phases = AttribDbptr(db)
+		self.nrecs = len(phases)
+		assert len(phases) > 0, "No picks for this ORID: {0}".format(orid)
 		ph = phases[0]
 		self.tstamp = ph['origin.time']
 		self.qlat   = ph['origin.lat']
@@ -198,6 +200,7 @@ class FocalMech(object):
 			self.pickpol[k]   = ph.fm
 			
 			flat,flon,felv = ph['site.lat'],ph['site.lon'],ph['site.elev']
+			self.esaz[k] = ph['esaz']
 			#print '{0} {1} {2} {3} {4} {5} {6} {7}'.format(k, sname[k], snet[k], scomp[k], pickonset[k], pickpol[k], flat, flon)
 			
 			# dist @ azi, get from db OR obspy or another python mod (antelope) could do this on WGS84
@@ -221,6 +224,9 @@ class FocalMech(object):
 			# save them for other functions -MCW
 			self.dist[k] = dist
 			self.qazi[k] = qazi
+			self.flat[k] = flat
+			self.flon[k] = flon
+			self.felv[k] = felv
 			
 			if (self.pickonset[k] in 'Ii'):
 				self.p_qual[k] = 0
@@ -244,7 +250,7 @@ class FocalMech(object):
 		self.index[0] = 1
 		for nm in range(1,self.nmc):
 			val = ran_norm()
-			self.qdep2[nm] = self.qdep + self.sez * val # randomly perturbed source depth
+			self.qdep2[nm] = abs(self.qdep + self.sez * val) # randomly perturbed source depth
 			self.index[nm] = (nm % self.ntab) + 1  # index used to choose velocity model
 			
 	def calculate_takeoff_angles(self):
@@ -288,37 +294,88 @@ class FocalMech(object):
 		# find the probable mechanism from the set of acceptable solutions
 		nmult, self.str_avg, self.dip_avg, self.rak_avg, self.prob, self.var_est = mech_prob(self.f1norm[:,:self.nout2], self.f2norm[:,:self.nout2], self.cangle, self.prob_max, self.nout2) # nout2
 		
-		misfits = '''
-        for imult in range(nmult):
-            self.var_avg[imult] = (self.var_est[0,imult] + self.var_est[1,imult]) / 2.
-            print 'cid = {0} {1}  mech = {2} {3} {4}'.format(self.icusp, imult, self.str_avg[imult], self.dip_avg[imult], self.rak_avg[imult])
-            # find misfit for prefered solution
-            self.mfrac[imult], self.stdr[imult] = get_misf(self.p_azi_mc[:self.npol,0], self.p_the_mc[:self.npol,0], self.p_pol[:self.npol], self.p_qual[:self.npol], self.str_avg[imult], self.dip_avg[imult], self.rak_avg[imult], self.npol) # npol
-            
-            # solution quality rating  ** YOU MAY WISH TO DEVELOP YOUR OWN QUALITY RATING SYSTEM **
-            if ((prob[imult] > 0.8) and (var_avg[imult] < 25) and (mfrac[imult] <= 0.15) and (stdr[imult] >= 0.5)):
-                qual[imult]='A'
-            elif ((prob[imult] > 0.6) and (var_avg[imult] <= 35) and (mfrac[imult] <= 0.2) and (stdr[imult] >= 0.4)):
-                qual[imult]='B'
-            elif ((prob[imult] > 0.5) and (var_avg[imult] <= 45) and (mfrac[imult] <= 0.3) and (stdr[imult] >= 0.3)):
-                qual[imult]='C'
-            else:
-                qual[imult]='D'
-        '''
+		for imult in range(nmult):
+			self.var_avg[imult] = (self.var_est[0,imult] + self.var_est[1,imult]) / 2.
+			#print 'cid = {0} {1}  mech = {2} {3} {4}'.format(self.icusp, imult, self.str_avg[imult], self.dip_avg[imult], self.rak_avg[imult])
+			# find misfit for prefered solution
+			self.mfrac[imult], self.stdr[imult] = get_misf(self.p_azi_mc[:self.npol,0], self.p_the_mc[:self.npol,0], self.p_pol[:self.npol], self.p_qual[:self.npol], self.str_avg[imult], self.dip_avg[imult], self.rak_avg[imult], self.npol) # npol
+			
+			# HASH default solution quality rating
+			if ((self.prob[imult] > 0.8) and (self.var_avg[imult] < 25) and (self.mfrac[imult] <= 0.15) and (self.stdr[imult] >= 0.5)):
+				self.qual[imult]='A'
+			elif ((self.prob[imult] > 0.6) and (self.var_avg[imult] <= 35) and (self.mfrac[imult] <= 0.2) and (self.stdr[imult] >= 0.4)):
+				self.qual[imult]='B'
+			elif ((self.prob[imult] > 0.5) and (self.var_avg[imult] <= 45) and (self.mfrac[imult] <= 0.3) and (self.stdr[imult] >= 0.3)):
+				self.qual[imult]='C'
+			else:
+				self.qual[imult]='D'
+
 
 	def plot_beachball(self):
+		'''
 		test_stereo(self.p_azi_mc[:self.npol,0], self.p_the_mc[:self.npol,0], self.p_pol[:self.npol], sdr=[self.str_avg[0], self.dip_avg[0], self.rak_avg[0]])
+		azimuths,takeoffs,polarities,sdr=[]
+		'''
+		import matplotlib.pyplot as plt
+		import mplstereonet
+		from obspy.imaging.beachball import AuxPlane
 		
-		
-foo = FocalMech()
+		# pull out variables from mechanism
+		azimuths = self.p_azi_mc[:self.npol,0]
+		takeoffs = self.p_the_mc[:self.npol,0]
+		polarities = self.p_pol[:self.npol]
+		strike1,dip1,rake1 = self.str_avg[0], self.dip_avg[0], self.rak_avg[0]
+		strike2,dip2,rake2 = AuxPlane(strike1, dip1, rake1)
+		up = polarities > 0
+		dn = polarities < 0
+		# plot stations, trial planes, avg planes
+		fig = plt.figure()
+		ax = fig.add_subplot(111, projection='stereonet')
+		for n in range(self.nout1):
+			s1, d1, r1 = self.strike2[n], self.dip2[n], self.rake2[n]
+			s2, d2, r2 = AuxPlane(s1, d1, r1)
+			h_rk = ax.plane(s1,d1, color='#999999')
+			#h_rk = ax.plane(s2,d2,'#888888')
+		h_rk = ax.plane(strike1, dip1, color='black', linewidth=3)
+		h_rk = ax.rake( strike1, dip1, -rake1, 'ko')
+		h_rk = ax.plane(strike2, dip2, color='black', linewidth=3)
+		#h_rk = ax.rake(azimuths[up]+90.,takeoffs[up],90, 'wo', markersize=8, markeredgewidth=2, markerfacecolor=None)
+		#h_rk = ax.rake(azimuths[dn]+90.,takeoffs[dn],90, 'r+', markersize=8, markeredgewidth=2)
+		#for i in range(self.npol):
+		#	h_rk = ax.rake(azimuths[i]+90,takeoffs[i]+5,90, marker='$   {0}$'.format(self.sname[i]), color='black',markersize=20)
+		plt.show()
+#------------------------------------------
+# for testing:
+
+test_orid = 933757 # 2012 206 (shot SPE3)
+
+c_evid = '''
+379439 2012167
+380226 2012174
+380653 2012175
+380828 2012175
+'''
+
+test_table_list =  ['vz.socal',
+					'vz.north',
+					'vz.lab1',
+					'vz.sgm1',
+					'vz.vb1']
+
+test_table_list = ['vz.pickema1', 'vz.pickema2', 'vz.pickema3']
+
+foo = FocalMech(maxout=100)
 foo.get_phases_from_db('/data/2012/206/reno', orid=test_orid)
 foo.load_velocity_models(test_table_list)
 foo.generate_trial_data()
 foo.calculate_takeoff_angles()
+foo.calculate_hash_focalmech()
+foo.plot_beachball()
 
-
-	#def __repr__(self):
-	#	for k in range(npol):
-	#		print '{0}   {1} {2} {3} {4}'.format(k,sname[k],p_azi_mc[k,0],p_the_mc[k,0],p_pol[k])
-	
-
+# Code to make a quick and dirty station map
+if False:
+	figure()
+	plot(foo.flon[:foo.npol],foo.flat[:foo.npol],'o')
+	for i in range(foo.npol):
+		text(foo.flon[i],foo.flat[i],foo.sname[i])
+	plot(foo.qlon, foo.qlat, 'ro')
