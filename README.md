@@ -7,3 +7,11 @@ The driver program has been ported to python, and the end goal is to replace it 
 Right now the only supportly input is BRTT Antelope Datascope databases. The port of the driver supports using the FPFIT-style input files. Eventually, this flat text file functionality will be ported over.
 
 This is just a draft implementation, lots of non-bakcwards compatibillty changes ahead...
+
+* Hardebeck, Jeanne L. and Peter M. Shearer, A new method for determining first-
+  motion focal mechanisms, Bulletin of the Seismological Society of America, 92,
+  2264-2276, 2002.
+* Hardebeck, Jeanne L. and Peter M. Shearer, Using S/P Amplitude Ratios to
+  Constrain the Focal Mechanisms of Small Earthquakes, Bulletin of the
+  Seismological Society of America, 93, 2434-2444, 2003.
+
