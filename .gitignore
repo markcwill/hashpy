@@ -1,0 +1,8 @@
+*DS_Store
+*.pyc
+*.o
+*.so
+test2.out
+test2.out2
+*.png
+test_examples
