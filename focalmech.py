@@ -17,17 +17,6 @@ import numpy as np
 degrad = 180. / np.pi
 rad = 1. / degrad
 
-hash_inputs = { 'npolmin':'int',
-				'max_agap':'int',
-				'max_pgap':'int',
-				'dang':'int',
-				'nmc':'int',
-				'maxout':'int',
-				'badfrac':'float',
-				'delmax':'int',
-				'cangle':'int',
-				'prob_max':'float'}
-
 
 class FocalMech(object):
 	'''First motion focal mechanisms'''
@@ -162,10 +151,24 @@ class FocalMech(object):
 		
 	def load_pf(self, pffile='dbhash.pf'):
 		'''update some run settings from a pf file'''
+		
 		raise NotImplementedError("This doesn't quite work yet")
+		
 		from obspy_ext.antelope import add_antelope_path
 		add_antelope_path()
 		import antelope.stock as pf
+		
+		hash_inputs = { 'npolmin':'int',
+				'max_agap':'int',
+				'max_pgap':'int',
+				'dang':'int',
+				'nmc':'int',
+				'maxout':'int',
+				'badfrac':'float',
+				'delmax':'int',
+				'cangle':'int',
+				'prob_max':'float'}
+				
 		pf_map = { 'float': pf.pfget_double,
 					'int'  : pf.pfget_int }
 		for key in hash_inputs:

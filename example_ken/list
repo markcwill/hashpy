@@ -1,5 +1,0 @@
-model_interp.pl kds.crh limits vz.kds  
-model_interp.pl kds2.crh limits vz.kds2 
-model_interp.pl pickema1.crh limits vz.pickema1  
-model_interp.pl pickema2.crh limits vz.pickema2  
-model_interp.pl pickema3.crh limits vz.pickema3 
