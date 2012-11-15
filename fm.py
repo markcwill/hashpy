@@ -18,7 +18,7 @@ degrad = 180. / np.pi
 rad = 1. / degrad
 
 
-class FocalMech(object):
+class HashRun(object):
 	'''First motion focal mechanisms'''
 	# These MUST be the same as the fortran includes!!
 	# (They are compiled into the Fortran subroutines)
@@ -103,7 +103,7 @@ class FocalMech(object):
 		self.dang2=max(dang0, self.dang)
 		
 		# Input arrays
-		self.sname     = np.empty(npick0, 'a4', 'F')
+		self.sname     = np.empty(npick0, 'a6', 'F')
 		self.scomp     = np.empty(npick0, 'a3', 'F')
 		self.snet      = np.empty(npick0, 'a2', 'F')
 		self.pickpol   = np.empty(npick0, 'a1', 'F')
@@ -448,3 +448,135 @@ class FocalMech(object):
 		ax.plot(self.qlon, self.qlat, 'ro')
 		plt.show()
 
+class NodalPlane(list):
+	'''Version of obspy NodalPlane, but list accessible
+	
+	>>> p = NodalPlane(145, 45, 67)
+	>>> NodalPlane(strike=145, dip=45, rake=67)
+	[145, 45, 67]
+	
+	'''
+	_keys = ['strike','dip','rake']
+	
+	@property
+	def aux_plane(self):
+		'''Return Auxiliary plane'''
+		from obspy.imaging.beachball import AuxPlane
+		auxplane = AuxPlane(*self)
+		return NodalPlane(*auxplane)
+	
+	def __init__(self, *args, **kwargs):
+		super(NodalPlane,self).__init__([None,None,None])
+		
+		if args:
+			if isinstance(args[0], list) or isinstance(args[0], tuple) and len(args[0]) == 3 :
+				self[:] = args[0]
+			elif len(args) == 3:
+				self[:] = args
+			else:
+				pass
+		if kwargs:
+			for key in kwargs:
+				if key in self._keys:
+					self.__setattr__(key, kwargs[key])
+	
+	def __getindex__(self,key):
+		'''Maps an attribute key to a list index'''
+		# just three, so do it explicity for now...
+		if   key == 'strike':
+			index = 0
+		elif key == 'dip':
+			index = 1
+		elif key == 'rake':
+			index = 2
+		else:
+			index = None
+		return index
+		
+	def __getattr__(self, key):
+		index = self.__getindex__(key)
+		if index is not None:
+			return self[index]
+		else:
+			raise AttributeError("Attribute must be 'strike', 'dip', or 'rake'")
+		
+	def __setattr__(self, key, value):
+		index = self.__getindex__(key)
+		if index:
+			self[index] = value
+		else:
+			raise AttributeError("Attribute must be 'strike', 'dip', or 'rake'")
+			
+			
+class FocalMech(object):
+	'''Stub'''
+	planes = None # AttribDict of 2 obspy NodalPlanes
+	picks  = None # array of station/azimuth/takeoff/polarities
+	data   = None # a HashRun object, e.g.
+	_dt = np.dtype([('station', 'a6'), ('azimuth', float), ('takeoff',float), ('polarity','a2')])
+	
+	def __init__(self):
+		'''Build'''
+		planes = AttribDict({'primary': [], 'aux': []})
+		
+	def load_hash(self, hro=HashRun() ):
+		'''Map HASH variables to data for methods to use
+		
+		If you don't specify a HashRun object these fields will just be junk
+		'''
+		from obspy.imaging.beachball import AuxPlane
+		
+		n = hro.npol
+		picks = np.empty(n, dtype=_dt)
+		picks['station'] = hro.sname[:n]
+		picks['azimuth'] = hro.p_azi_mc[:n,0]
+		picks['takeoff'] = hro.p_the_mc[:n,0]
+		picks['polarity'] = hro.p_pol[:n]
+		plane1 = NodalPlane(hro.str_avg[0], hro.dip_avg[0], hro.rak_avg[0])
+		plane2 = AuxPlane(*plane1)
+		
+		self.data = hro
+		self.picks = picks
+		self.planes = {'main':plane1, 'aux':plane2}
+		
+	def load_fplane(self, orid=[]):
+		'''stub'''
+	
+	def plot(self, labels = False):
+		'''stub'''
+		import matplotlib.pyplot as plt
+		import mplstereonet
+		
+		fig = plt.figure()
+		ax = fig.add_subplot(111, projection='stereonet')
+		# pull out variables from mechanism
+		azimuths = self.picks['azimuth']
+		# HASH takeoffs are 0-180 from vertical UP!!
+		# Stereonet angles 0-90 inward (dip)
+		# Classic FM's are toa from center???
+		takeoffs = abs(self.picks['takeoff'] - 90)
+		polarities = self.picks['polarity']
+		strike1,dip1,rake1 = self.planes['main']
+		strike2,dip2,rake2 = self.planes['aux']
+		up = polarities > 0
+		dn = polarities < 0
+		if False:
+			# plot HASH trial planes (nout2) OR avg planes (nmult)
+			for n in range(self.data.nout2):
+				s1, d1, r1 = self.data.strike2[n], self.data.dip2[n], self.data.rake2[n]
+				s2, d2, r2 = AuxPlane(s1, d1, r1)
+				h_rk = ax.plane(s1,d1, color='#999999')
+				h_rk = ax.plane(s2,d2,'#888888')
+		# plot best fit average plane
+		h_rk = ax.plane(strike1, dip1, color='black', linewidth=3)
+		h_rk = ax.rake( strike1, dip1, -rake1, 'k^', markersize=8)
+		h_rk = ax.plane(strike2, dip2, color='black', linewidth=3)
+		# plot station takeoffs
+		h_rk = ax.rake(azimuths[up]-90.,takeoffs[up],90, 'wo', markersize=8, markeredgewidth=2, markerfacecolor=None)
+		h_rk = ax.rake(azimuths[dn]-90.,takeoffs[dn],90, 'ko', markersize=8, markeredgewidth=2)
+		# hack to throw in station names for temp debugging...
+		if labels:
+			for i in range(len(self.picks)):
+				h_rk = ax.rake(azimuths[i]-90,takeoffs[i]+5,90, marker='$   {0}$'.format(self.picks[i]['station']), color='black',markersize=20)
+		# and go.
+		plt.show()
