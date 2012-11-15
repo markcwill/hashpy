@@ -1,0 +1,1132 @@
+94 1211104155034 1455118 3706 181323 31  0  0   1                  23              7  10                                           3143312 230
+IR2 IPD0                   0                               258121           51  10   1     X   VHZ
+SWM IPU0                   0                               528103            3  10   1     X   VHZ
+PYR IPU0                   0                               379110          342  10   1     X   VHZ
+SSN EPU1                   0                              1378 86          216  10   1     X   VHZ
+ABL IPU0                   0                               875 94          320  10   1     X   VHZ
+PTD IPD0                   0                               317115          213  10   1     X   VHZ
+GRH IPU0                   0                                90152           36  10   1     X   VHZ
+ECF IPU0                   0                               497104          299  10   1     X   VHZ
+BMT IPD0                   0                               994 92            1  10   1     X   VHZ
+TPR IPD0                   0                               169134          171  10   1     X   VHZ
+TPO IPU0                   0                               793 95           27  10   1     X   VHZ
+FTC IPD0                   0                               746 96          340  10   1     X   VHZ
+DBM EPD1                   0                               852 94           16  10   1     X   VHZ
+WSP IPD0                   0                               395109            5  10   1     X   VHZ
+CJV IPD0                   0                               540102           54  10   1     X   VHZ
+STT IPD0                   0                               624100           13  10   1     X   VHZ
+THC EPD1                   0                               742 96          357  10   1     X   VHZ
+FIL IPU0                   0                               284118          315  10   1     X   VHZ
+TJR EPD1                   0                               880 94          352  10   1     X   VHZ
+QAL IPD0                   0                               570101          351  10   1     X   VHZ
+LHU IPD0                   0                               512103           22  10   1     X   VHZ
+SYL IPD0                   0                               197129           51  10   1     X   VHZ
+NHL IPD0                   0                               167135            6  10   1     X   VHZ
+SMF IPD0                   0                               292117          147  10   1     X   VHZ
+BRCYIPU0                   0                                73157           10  10   1     X   EHZ
+CPCPIPD0                   0                                36168          166  10   1     X   EHZ
+LA00IPD0                   0                               213127          135  10   1     X   EHZ
+LA01IPD0                   0                               205128          127  10   1     X   EHZ
+RESBIPU0                   0                                86153           46  10   1     X   EHZ
+SMIPIPD0                   0                                51163          297  10   1     X   EHZ
+KSRGIPU0                   0                               243123          147  10   1     X   HHZ
+                                                                 3143312
+94 1251005220234 1447118 3727 185424 33  0  0   0                  24              3   9                                           3145744 240
+IR2 IPD0                   0                               261121           51  10   1     X   VHZ
+PYR IPU0                   0                               380111          343  10   1     X   VHZ
+SIP IPU0                   0                               152138          255  10   1     X   VHZ
+ECF IPU0                   0                               495105          299  10   1     X   VHZ
+SLG EPD1                   0                               433108          250  10   1     X   VHZ
+LRR IPD0                   0                               630100           60  10   1     X   VHZ
+TPR IPD0                   0                               168135          169  10   1     X   VHZ
+LJB EPD1                   0                               810 95           61  10   1     X   VHZ
+JNH EPD1                   0                               652 99           69  10   1     X   VHZ
+XTL IPD0                   0                               700 98           85  10   1     X   VHZ
+OAK IPU0                   0                               203129          312  10   1     X   VHZ
+HYS EPD1                   0                              1190 89           54  10   1     X   VHZ
+DBM IPD0                   0                               854 94           16  10   1     X   VHZ
+WSP IPD0                   0                               397110            6  10   1     X   VHZ
+LEO IPD0                   0                               522104           34  10   1     X   VHZ
+TWL IPU0                   0                                48165           30  10   1     X   VHZ
+CJV IPD0                   0                               543103           54  10   1     X   VHZ
+STT EPD1                   0                               626100           13  10   1     X   VHZ
+FIL IPU0                   0                               283119          316  10   1     X   VHZ
+CAL EPD1                   0                              1141 89           33  10   1     X   VHZ
+LHU IPD0                   0                               515104           22  10   1     X   VHZ
+FOX EPD1                   0                               664 99           33  10   1     X   VHZ
+SYL IPD0                   0                               200129           51  10   1     X   VHZ
+NHL IPD0                   0                               168135            7  10   1     X   VHZ
+VRD IPD0                   0                               315116           95  10   1     X   VHZ
+BRCYIPU0                   0                                75156           12  10   1     X   EHZ
+CWHPIPU0                   0                                49164           66  10   1     X   EHZ
+LA01IPU0                   0                               207129          126  10   1     X   EHZ
+PIRUIPU0                   0                               250123          320  10   1     X   EHZ
+SFPWIPU0                   0                               188131           74  10   1     X   HLZ
+SMGCIPU0                   0                               206129          347  10   1     X   EHN
+KSRGIPD0                   0                               243124          146  10   1     X   HHZ
+PWGBIPU0                   0                               134142          319  10   1     X   HHZ
+                                                                 3145744
+94 128 744463234 1435118 3729 189634 94  0  0   1                  34              9  18                                           3146815 340
+IR2 IPD0                   0                               263122           51  10   1     X   VHZ
+SBB IPD0                   0                               886 94           56  10   1     X   VHZ
+MWC IPU0                   0                               518104           92  10   1     X   VHZ
+PAS EPD1                   0                               426109          104  10   1     X   VHZ
+PEC EPD1                   0                              1397 87          106  10   1     X   VHZ
+CIS EPD1                   0                               947 93          168  10   1     X   VHZ
+CLC IPD0                   0                              1990 81           28  10   1     X   VHZ
+SSN IPD0                   0                              1373 87          216  10   1     X   VHZ
+CIW IPD0                   0                               862 94          176  10   1     X   VLZ
+YEG EPU1                   0                              1813 82          317  10   1     X   VHZ
+WSC EPD1                   0                              1763 83           22  10   1     X   VHZ
+SIP IPU0                   0                               151139          255  10   1     X   VHZ
+SAD IPD0                   0                               181133          193  10   1     X   VHZ
+ABL EPU1                   0                               876 94          321  10   1     X   VHZ
+PTD IPD0                   0                               312117          213  10   1     X   VHZ
+RYS IPU0                   0                               808 96          304  10   1     X   VHZ
+WSH IPD0                   0                              1835 82           34  10   1     X   VHZ
+GRH IPU0                   0                                95152           37  10   1     X   VHZ
+LRL EPD1                   0                              1627 84           32  10   1     X   VHZ
+WJP EPD1                   0                              1309 88            6  10   1     X   VHZ
+SME EPU1                   0                              1252 88          112  10   1     X   VHZ
+PVR IPD0                   0                               588101          157  10   1     X   VHZ
+SUN IPD0                   0                               853 95           92  10   1     X   VHZ
+PEM IPU0                   0                               695 98           97  10   1     X   VHZ
+ECF IPU0                   0                               496105          299  10   1     X   VHZ
+TOW IPD0                   0                              1915 81           24  10   1     X   VHZ
+SLG IPD0                   0                               432108          251  10   1     X   VHZ
+HOD EPD1                   0                              1428 86           62  10   1     X   VHZ
+LRR IPD0                   0                               632100           60  10   1     X   VHZ
+BMT IPD0                   0                               998 92            1  10   1     X   VHZ
+SRT IPD0                   0                              1803 82           26  10   1     X   VHZ
+WNM IPD0                   0                              1900 81           20  10   1     X   VHZ
+TPR IPD0                   0                               166136          169  10   1     X   VHZ
+LJB IPD0                   0                               811 95           61  10   1     X   VHZ
+JNH IPD0                   0                               653 99           69  10   1     X   VHZ
+BLK EPD1                   0                              1598 84           54  10   1     X   VHZ
+GFP IPD0                   0                               302118          113  10   1     X   VLZ
+BTL EPU1                   0                              1486 86           89  10   1     X   VHZ
+WBS IPD0                   0                              1509 85           17  10   1     X   VHZ
+DTP IPD0                   0                              1348 87           32  10   1     X   VHZ
+XTL IPD0                   0                               701 98           85  10   1     X   VHZ
+OAK IPU0                   0                               204130          313  10   1     X   VHZ
+PVP IPD0                   0                               539103          158  10   1     X   VLZ
+CSP IPD0                   0                              1163 89           87  10   1     X   VHZ
+TPO IPD0                   0                               798 96           27  10   1     X   VHZ
+SCY IPU0                   0                               212128          134  10   1     X   VHZ
+ELM IPD0                   0                               957 93           70  10   1     X   VHZ
+FTC IPD0                   0                               748 97          340  10   1     X   VHZ
+SND IPD0                   0                              1047 90           16  10   1     X   VHZ
+HYS IPD0                   0                              1192 89           54  10   1     X   VHZ
+DBM IPD0                   0                               857 95           16  10   1     X   VHZ
+SBK IPU0                   0                              1336 87           46  10   1     X   VHZ
+WSP IPD0                   0                               399110            6  10   1     X   VHZ
+ARV IPD0                   0                              1006 92          349  10   1     X   VHZ
+PLE IPD0                   0                               910 93          333  10   1     X   VHZ
+LOK IPD0                   0                               692 98          321  10   1     X   VHZ
+LEO IPD0                   0                               524104           34  10   1     X   VHZ
+LLN IPD0                   0                               763 97           69  10   1     X   VHZ
+TWL IPU0                   0                                50164           29  10   1     X   VHZ
+CJV IPD0                   0                               545103           54  10   1     X   VHZ
+STT IPU0                   0                               629100           13  10   1     X   VHZ
+THC IPD0                   0                               745 97          357  10   1     X   VHZ
+FIL IPU0                   0                               284120          316  10   1     X   VHZ
+TJR IPD0                   0                               884 94          353  10   1     X   VHZ
+QAL IPD0                   0                               574102          351  10   1     X   VHZ
+CAL IPD0                   0                              1143 89           33  10   1     X   VHZ
+ELS IPU0                   0                              1279 88          121  10   1     X   VHZ
+JAW IPD0                   0                              1309 88           24  10   1     X   VHZ
+GSA IPU0                   0                               467106          104  10   1     X   VLZ
+LHU IPD0                   0                               517104           22  10   1     X   VHZ
+GVR EPU1                   0                               507105          115  10   1     X   VHZ
+CFL IPD0                   0                               559103           79  10   1     X   VHZ
+FOX IPD0                   0                               666 99           32  10   1     X   VHZ
+SYL IPD0                   0                               202130           51  10   1     X   VHZ
+NHL IPD0                   0                               171135            7  10   1     X   VHZ
+PLS IPU0                   0                              1053 90          118  10   1     X   VHZ
+WIN EPU1                   0                              1526 85          114  10   1     X   VHZ
+SMF IPD0                   0                               290119          146  10   1     X   VHZ
+VRD IPD0                   0                               315117           95  10   1     X   VHZ
+BRCYIPU0                   0                                78156           12  10   1     X   EHZ
+CPCPIPD0                   0                                33169          158  10   1     X   EHZ
+CSNRIPU0                   0                                83155           87  10   1     X   EHZ
+CWHPIPU0                   0                                50164           64  10   1     X   EHZ
+FLMRIPU0                   0                               345114          304  10   1     X   EHZ
+JFPPIPU0                   0                               141141           55  10   1     X   ELZ
+LA00IPD0                   0                               213128          134  10   1     X   EHZ
+LA01IPD0                   0                               206129          126  10   1     X   EHZ
+NWHPIPU0                   0                               184133           26  10   1     X   ELZ
+PIRUIPU0                   0                               251123          320  10   1     X   EHZ
+RESBIPU0                   0                                91153           45  10   1     X   ELN
+SFMIIPU0                   0                               152139           77  10   1     X   ELZ
+SFPWIPU0                   0                               189132           73  10   1     X   ELZ
+SFYPIPD0                   0                               167136           91  10   1     X   EHZ
+PWGBIPU0                   0                               136142          320  10   1     X   ELN
+                                                                 3146815
+94 1281547206834 1429118 3663 177920 23  0  0   0                  20              6   9                                           3146907 200
+IR2 IPD0                   0                               256121           49  10   1     X   VHZ
+CIS IPD0                   0                               944 92          168  10   1     X   VHZ
+SWM IPU0                   0                               532102            3  10   1     X   VHZ
+PYR IPU0                   0                               386109          342  10   1     X   VHZ
+SIP IPU0                   0                               161135          257  10   1     X   VHZ
+SAD IPD0                   0                               182131          196  10   1     X   VHZ
+SLG IPD0                   0                               442106          251  10   1     X   VHZ
+BMT IPD0                   0                               999 91            1  10   1     X   VHZ
+JNH IPD0                   0                               644 99           69  10   1     X   VHZ
+OAK IPU0                   0                               212126          311  10   1     X   VHZ
+SCY IPD0                   0                               204128          136  10   1     X   VHZ
+FTC IPD0                   0                               753 96          339  10   1     X   VHZ
+DBM IPD0                   0                               855 94           16  10   1     X   VHZ
+WSP IPD0                   0                               399109            4  10   1     X   VHZ
+LEO IPD0                   0                               519103           33  10   1     X   VHZ
+TWL IPU0                   0                                47164           17  10   1     X   VHZ
+THC IPD0                   0                               747 96          356  10   1     X   VHZ
+FIL IPD0                   0                               292117          315  10   1     X   VHZ
+TJR IPD0                   0                               886 93          352  10   1     X   VHZ
+QAL IPD0                   0                               576101          350  10   1     X   VHZ
+NHL IPD0                   0                               171133            3  10   1     X   VHZ
+BRCYIPU0                   0                                77155            5  10   1     X   EHZ
+LA00IPU0                   0                               205127          136  10   1     X   EHZ
+                                                                 3146907
+94 129 752215234 1430118 3748 192026 58  0  0   0                  26              9  12                                           3147167 260
+IR2 IPD0                   0                               265122           51  10   1     X   VHZ
+SBB EPD1                   0                               889 94           56  10   1     X   VHZ
+MWC IPU0                   0                               521104           92  10   1     X   VHZ
+PAS IPD0                   0                               429109          103  10   1     X   VHZ
+PYR IPU0                   0                               382112          344  10   1     X   VHZ
+SSN EPU1                   0                              1371 87          216  10   1     X   VHZ
+SIP IPU0                   0                               148140          255  10   1     X   VHZ
+SAD IPD0                   0                               179134          192  10   1     X   VHZ
+PTD IPD0                   0                               309117          213  10   1     X   VHZ
+GRH IPU0                   0                                98151           38  10   1     X   VHZ
+PVR EPD1                   0                               588102          157  10   1     X   VHZ
+ECF IPU0                   0                               494105          300  10   1     X   VHZ
+SLG IPD0                   0                               429109          250  10   1     X   VHZ
+HOD IPU0                   0                              1431 86           62  10   1     X   VHZ
+LRR IPD0                   0                               635100           60  10   1     X   VHZ
+BMT EPD1                   0                               999 92            1  10   1     X   VHZ
+LJB IPD0                   0                               814 96           61  10   1     X   VHZ
+JNH IPD0                   0                               656100           69  10   1     X   VHZ
+GFP IPU0                   0                               304118          113  10   1     X   VLZ
+XTL IPD0                   0                               704 98           85  10   1     X   VHZ
+OAK IPU0                   0                               202130          313  10   1     X   VHZ
+PVP IPD0                   0                               540104          158  10   1     X   VLZ
+TPO EPD1                   0                               800 96           27  10   1     X   VHZ
+SCY IPD0                   0                               214129          133  10   1     X   VHZ
+FTC EPD1                   0                               748 97          340  10   1     X   VHZ
+HYS EPD1                   0                              1194 89           54  10   1     X   VHZ
+DBM IPD0                   0                               858 95           16  10   1     X   VHZ
+WSP IPD0                   0                               400111            6  10   1     X   VHZ
+PLE EPD1                   0                               909 94          333  10   1     X   VHZ
+LOK EPD1                   0                               691 99          321  10   1     X   VHZ
+LEO IPD0                   0                               526104           34  10   1     X   VHZ
+LLN IPD0                   0                               766 97           69  10   1     X   VHZ
+TWL IPU0                   0                                52164           31  10   1     X   VHZ
+CJV IPD0                   0                               548103           54  10   1     X   VHZ
+STT IPD0                   0                               630100           14  10   1     X   VHZ
+THC IPD0                   0                               746 97          357  10   1     X   VHZ
+FIL IPU0                   0                               283120          317  10   1     X   VHZ
+TJR IPD0                   0                               884 94          353  10   1     X   VHZ
+QAL IPD0                   0                               574102          352  10   1     X   VHZ
+CAL EPD1                   0                              1145 89           33  10   1     X   VHZ
+JAW EPD1                   0                              1311 88           24  10   1     X   VHZ
+LHU IPD0                   0                               519104           22  10   1     X   VHZ
+CFL IPD0                   0                               562103           79  10   1     X   VHZ
+FOX EPD1                   0                               668 99           33  10   1     X   VHZ
+SYL IPD0                   0                               205130           51  10   1     X   VHZ
+NHL IPD0                   0                               172135            8  10   1     X   VHZ
+SMF EPD1                   0                               291119          146  10   1     X   VHZ
+VRD IPD0                   0                               318117           95  10   1     X   VHZ
+BRCYIPU0                   0                                79156           14  10   1     X   EHZ
+CSNRIPU0                   0                                86154           87  10   1     X   EHZ
+CWHPIPU0                   0                                53164           64  10   1     X   EHZ
+JFPPIPU0                   0                               144141           55  10   1     X   EHZ
+NWHPIPD0                   0                               186133           27  10   1     X   EHZ
+PIRUIPU0                   0                               250124          321  10   1     X   EHZ
+SFPWIPD0                   0                               192132           73  10   1     X   HLZ
+SMGCIPU0                   0                               209129          348  10   1     X   ELN
+SSAPIPU0                   0                                82155          264  10   1     X   EHZ
+KLVCIPU0                   0                               620101          136  10   1     X   HHZ
+                                                                 3147167
+94 131 713167334 1451118 3693 179222 39  0  0   0                  22              5  10                                           3148047 220
+IR2 IPD0                   0                               256121           51  10   1     X   VHZ
+MWC EPU1                   0                               513103           92  10   1     X   VHZ
+SWM IPU0                   0                               528103            3  10   1     X   VHZ
+PYR IPU0                   0                               381110          342  10   1     X   VHZ
+SIP IPU0                   0                               157136          255  10   1     X   VHZ
+SAD IPD0                   0                               185131          194  10   1     X   VHZ
+PTD IPD0                   0                               317115          214  10   1     X   VHZ
+GRH IPU0                   0                                90152           35  10   1     X   VHZ
+SLG IPD0                   0                               439107          250  10   1     X   VHZ
+LRR IPD0                   0                               625 99           60  10   1     X   VHZ
+BMT EPD1                   0                               995 91            1  10   1     X   VHZ
+TPR IPD0                   0                               168134          171  10   1     X   VHZ
+JNH EPD1                   0                               647 99           69  10   1     X   VHZ
+GFP EPD1                   0                               298117          114  10   1     X   VLZ
+XTL IPD0                   0                               695 97           85  10   1     X   VHZ
+OAK EPU1                   0                               206128          311  10   1     X   VHZ
+SCY IPD0                   0                               211127          136  10   1     X   VHZ
+DBM EPD1                   0                               852 94           16  10   1     X   VHZ
+WSP IPD0                   0                               395109            5  10   1     X   VHZ
+ARV IPU0                   0                              1004 91          349  10   1     X   VHZ
+LEO IPD0                   0                               518103           33  10   1     X   VHZ
+TWL IPU0                   0                                44165           24  10   1     X   VHZ
+CJV EPD1                   0                               538102           54  10   1     X   VHZ
+STT IPD0                   0                               624 99           13  10   1     X   VHZ
+FIL EPU1                   0                               286118          315  10   1     X   VHZ
+TJR EPD1                   0                               881 93          352  10   1     X   VHZ
+QAL IPD0                   0                               571101          351  10   1     X   VHZ
+CAL EPD1                   0                              1137 89           33  10   1     X   VHZ
+LHU IPD0                   0                               512103           21  10   1     X   VHZ
+SYL EPD1                   0                               196129           51  10   1     X   VHZ
+VRD IPD0                   0                               310115           96  10   1     X   VHZ
+BCPPIPD0                   0                                88152          240  10   1     X   EHZ
+LA00IPU0                   0                               212127          136  10   1     X   EHZ
+LA01IPU0                   0                               203128          127  10   1     X   EHZ
+MPKPIPU0                   0                               250122          282  10   1     X   EHZ
+PIRUIPU0                   0                               252121          319  10   1     X   EHZ
+SMGCIPU0                   0                               207127          346  10   1     X   EHZ
+SSAPIPU0                   0                                91151          262  10   1     X   EHZ
+PWGBIPU0                   0                               137140          317  10   1     X   HHZ
+                                                                 3148047
+94 2 5 711451134 1441118 3700 182024 50  0  0   0                  24              4   6                                           3149674 240
+IR2 IPD0                   0                               259121           50  10   1     X   VHZ
+SBB IPD0                   0                               882 94           56  10   1     X   VHZ
+CIS IPD0                   0                               947 92          168  10   1     X   VHZ
+PYR IPU0                   0                               382110          342  10   1     X   VHZ
+SAD IPD0                   0                               183132          194  10   1     X   VHZ
+GRH IPU0                   0                                92152           35  10   1     X   VHZ
+PVR IPD0                   0                               587101          157  10   1     X   VHZ
+SLG IPD0                   0                               437107          251  10   1     X   VHZ
+BMT IPD0                   0                               997 92            1  10   1     X   VHZ
+TPR IPD0                   0                               166135          171  10   1     X   VHZ
+LJB IPD0                   0                               806 95           61  10   1     X   VHZ
+JNH IPD0                   0                               649 99           69  10   1     X   VHZ
+GFP IPD0                   0                               298117          114  10   1     X   VLZ
+XTL IPD0                   0                               696 98           85  10   1     X   VHZ
+OAK IPU0                   0                               207128          312  10   1     X   VHZ
+PVP IPD0                   0                               539103          159  10   1     X   VLZ
+TPO IPD0                   0                               795 95           27  10   1     X   VHZ
+SCY IPU0                   0                               210127          135  10   1     X   VHZ
+DBM IPD0                   0                               854 94           16  10   1     X   VHZ
+WSP IPD0                   0                               397109            5  10   1     X   VHZ
+LOK IPD0                   0                               694 98          321  10   1     X   VHZ
+LEO EPD1                   0                               520103           33  10   1     X   VHZ
+TWL IPU0                   0                                47165           25  10   1     X   VHZ
+CJV IPD0                   0                               540102           53  10   1     X   VHZ
+STT IPD0                   0                               626100           13  10   1     X   VHZ
+THC IPD0                   0                               745 96          357  10   1     X   VHZ
+FIL IPU0                   0                               286118          315  10   1     X   VHZ
+TJR IPD0                   0                               883 94          352  10   1     X   VHZ
+QAL IPD0                   0                               573101          351  10   1     X   VHZ
+LHU IPD0                   0                               514103           21  10   1     X   VHZ
+CFL IPD0                   0                               555102           79  10   1     X   VHZ
+FOX EPD1                   0                               663 98           32  10   1     X   VHZ
+SYL IPD0                   0                               198129           50  10   1     X   VHZ
+NHL EPU1                   0                               169134            5  10   1     X   VHZ
+SMF IPU0                   0                               289118          147  10   1     X   VHZ
+MNT IPD0                   0                               288118           33  10   1     X   VHZ
+VVD EPD1                   0                               230125          349  10   1     X   VHZ
+BLC IPU0                   0                                52163          274  10   1     X   VHZ
+VRD IPD0                   0                               311116           95  10   1     X   VHZ
+BCPPIPD0                   0                                86153          241  10   1     X   EHZ
+BRCYIPU0                   0                                76156            9  10   1     X   EHZ
+CWHPIPU0                   0                                45165           62  10   1     X   EHZ
+FLMRIPD0                   0                               348113          303  10   1     X   EHZ
+LA01IPU0                   0                               203129          127  10   1     X   EHZ
+MPKPIPU0                   0                               249122          282  10   1     X   EHZ
+PIRUIPD0                   0                               253122          319  10   1     X   EHZ
+SMGCIPU0                   0                               208128          346  10   1     X   EHZ
+SMIPIPU0                   0                                53163          299  10   1     X   EHZ
+SSAPIPU0                   0                                90152          263  10   1     X   EHZ
+PWGBIPU0                   0                               138140          318  10   1     X   HHZ
+                                                                 3149674
+94 210 419260834 1453118 3721 183125 60  0  0   0                  25              5   6                                           3150936 250
+IR2 IPD0                   0                               260121           51  10   1     X   VHZ
+PAS IPU0                   0                               426108          104  10   1     X   VHZ
+CIS IPU0                   0                               950 92          168  10   1     X   VHZ
+SWM IPU0                   0                               528103            4  10   1     X   VHZ
+PYR IPU0                   0                               379111          343  10   1     X   VHZ
+CIW IPD0                   0                               866 94          176  10   1     X   VLZ
+SYP IPD0                   0                              1288 88          284  10   1     X   VHZ
+SLC IPU0                   0                              1045 90          286  10   1     X   VHZ
+SIP IPU0                   0                               153137          254  10   1     X   VHZ
+SAD IPD0                   0                               184132          193  10   1     X   VHZ
+ABL IPU0                   0                               874 94          320  10   1     X   VHZ
+PTD IPD0                   0                               315116          213  10   1     X   VHZ
+RYS IPU0                   0                               808 95          304  10   1     X   VHZ
+GRH IPU0                   0                                92152           37  10   1     X   VHZ
+SLG IPD0                   0                               435107          250  10   1     X   VHZ
+LRR IPD0                   0                               629100           60  10   1     X   VHZ
+BMT IPD0                   0                               995 92            1  10   1     X   VHZ
+TPR IPD0                   0                               169134          170  10   1     X   VHZ
+LJB IPD0                   0                               808 95           61  10   1     X   VHZ
+JNH IPD0                   0                               651 99           69  10   1     X   VHZ
+DTP EPD1                   0                              1344 87           32  10   1     X   VHZ
+XTL IPD0                   0                               699 98           85  10   1     X   VHZ
+OAK IPU0                   0                               203129          312  10   1     X   VHZ
+CSP EPU1                   0                              1162 89           87  10   1     X   VHZ
+TPO EPD1                   0                               794 95           27  10   1     X   VHZ
+ELM IPU0                   0                               954 92           71  10   1     X   VHZ
+FTC IPD0                   0                               746 96          340  10   1     X   VHZ
+SND IPD0                   0                              1043 90           16  10   1     X   VHZ
+HYS IPD0                   0                              1189 89           54  10   1     X   VHZ
+DBM IPD0                   0                               853 94           16  10   1     X   VHZ
+WSP IPD0                   0                               395110            5  10   1     X   VHZ
+ARV IPD0                   0                              1003 91          349  10   1     X   VHZ
+PLE IPD0                   0                               907 93          333  10   1     X   VHZ
+LOK EPD1                   0                               690 98          321  10   1     X   VHZ
+LEO IPD0                   0                               520103           34  10   1     X   VHZ
+LLN IPD0                   0                               761 96           69  10   1     X   VHZ
+TWL IPU0                   0                                46165           29  10   1     X   VHZ
+STT IPD0                   0                               625100           13  10   1     X   VHZ
+THC IPD0                   0                               742 97          357  10   1     X   VHZ
+FIL IPU0                   0                               282119          316  10   1     X   VHZ
+TJR IPD0                   0                               880 94          353  10   1     X   VHZ
+QAL IPD0                   0                               571101          351  10   1     X   VHZ
+CAL IPD0                   0                              1139 89           33  10   1     X   VHZ
+JAW IPD0                   0                              1306 87           24  10   1     X   VHZ
+LHU IPD0                   0                               514104           22  10   1     X   VHZ
+CFL IPD0                   0                               557102           80  10   1     X   VHZ
+FOX IPD0                   0                               662 99           33  10   1     X   VHZ
+SYL IPD0                   0                               199129           51  10   1     X   VHZ
+NHL IPD0                   0                               167135            7  10   1     X   VHZ
+SMF IPD0                   0                               292118          147  10   1     X   VHZ
+MNT IPD0                   0                               288118           34  10   1     X   VHZ
+VVD IPD0                   0                               227125          350  10   1     X   VHZ
+BLC IPU0                   0                                49164          272  10   1     X   VHZ
+VRD IPD0                   0                               314116           96  10   1     X   VHZ
+BRCYIPU0                   0                                74157           12  10   1     X   EHZ
+CWHPIPU0                   0                                47165           67  10   1     X   EHZ
+MPKPIPU0                   0                               246123          282  10   1     X   EHZ
+SFPWIPD0                   0                               187131           74  10   1     X   HLZ
+NMHPIPD0                   0                                65159          100  10   1     X   EHZ
+SSAPIPU0                   0                                87153          262  10   1     X   EHZ
+                                                                 3150936
+94 210 446407334 1447118 3721 184523 51  0  0   0                  23              5  10                                           3150947 230
+IR2 IPD0                   0                               260121           51  10   1     X   VHZ
+SBB IPD0                   0                               884 94           56  10   1     X   VHZ
+PAS IPU0                   0                               425108          104  10   1     X   VHZ
+SWM IPU0                   0                               529103            4  10   1     X   VHZ
+PYR IPU0                   0                               380111          343  10   1     X   VHZ
+SSN IPU0                   0                              1376 87          216  10   1     X   VHZ
+SIP IPU0                   0                               153138          255  10   1     X   VHZ
+SAD IPD0                   0                               183132          193  10   1     X   VHZ
+ABL IPD0                   0                               875 94          321  10   1     X   VHZ
+PTD IPD0                   0                               314116          213  10   1     X   VHZ
+GRH IPU0                   0                                93152           37  10   1     X   VHZ
+SUN IPU0                   0                               852 94           92  10   1     X   VHZ
+PEM IPD0                   0                               694 98           97  10   1     X   VHZ
+ECF IPU0                   0                               496105          299  10   1     X   VHZ
+SLG IPD0                   0                               434108          250  10   1     X   VHZ
+LRR IPD0                   0                               629100           60  10   1     X   VHZ
+TPR IPD0                   0                               168135          170  10   1     X   VHZ
+LJB IPD0                   0                               809 95           61  10   1     X   VHZ
+XTL IPD0                   0                               699 98           85  10   1     X   VHZ
+OAK IPU0                   0                               203129          312  10   1     X   VHZ
+TPO IPD0                   0                               795 95           27  10   1     X   VHZ
+HYS IPD0                   0                              1189 89           54  10   1     X   VHZ
+DBM IPD0                   0                               854 94           16  10   1     X   VHZ
+WSP IPD0                   0                               397110            5  10   1     X   VHZ
+LEO IPD0                   0                               521103           34  10   1     X   VHZ
+TWL IPU0                   0                                47165           29  10   1     X   VHZ
+CJV IPD0                   0                               542103           54  10   1     X   VHZ
+STT IPD0                   0                               626100           13  10   1     X   VHZ
+THC IPD0                   0                               743 97          357  10   1     X   VHZ
+FIL IPU0                   0                               283119          316  10   1     X   VHZ
+TJR IPD0                   0                               882 94          353  10   1     X   VHZ
+QAL IPD0                   0                               572102          351  10   1     X   VHZ
+CAL IPD0                   0                              1140 89           33  10   1     X   VHZ
+LHU IPD0                   0                               515104           22  10   1     X   VHZ
+SIP IPU0                   0                               153138          255  10   1     X   VHN
+CFL IPD0                   0                               558102           79  10   1     X   VHZ
+FOX IPD0                   0                               663 99           32  10   1     X   VHZ
+SYL IPD0                   0                               200129           51  10   1     X   VHZ
+MNT IPD0                   0                               289118           34  10   1     X   VHZ
+VVD IPU0                   0                               229125          350  10   1     X   VHZ
+BLC IPU0                   0                                49164          273  10   1     X   VHZ
+BAL IPU0                   0                               327115          283  10   1     X   VHZ
+VRD IPD0                   0                               314116           95  10   1     X   VHZ
+BRCYIPD0                   0                                75156           12  10   1     X   EHZ
+CWHPIPU0                   0                                48165           65  10   1     X   EHZ
+LA00IPD0                   0                               214127          135  10   1     X   EHZ
+MPKPIPU0                   0                               246123          282  10   1     X   EHZ
+PIRUIPU0                   0                               250122          320  10   1     X   EHZ
+SFPWIPD0                   0                               187131           74  10   1     X   HLZ
+SSAPIPU0                   0                                87153          262  10   1     X   EHZ
+PWGBIPD0                   0                               135141          319  10   1     X   HHZ
+                                                                 3150947
+94 213 904566434 1427118 3677 177421 33  0  0   0                  21              3   3                                           3151649 210
+IR2 IPD0                   0                               257120           50  10   1     X   VHZ
+SWM IPU0                   0                               532102            3  10   1     X   VHZ
+PYR IPU0                   0                               386109          342  10   1     X   VHZ
+SIP IPU0                   0                               159135          256  10   1     X   VHZ
+SAD IPD0                   0                               181131          195  10   1     X   VHZ
+PTD IPD0                   0                               315115          214  10   1     X   VHZ
+BMT IPD0                   0                               999 91            1  10   1     X   VHZ
+TPR IPD0                   0                               163135          172  10   1     X   VHZ
+LJB IPD0                   0                               805 95           61  10   1     X   VHZ
+JNH IPD0                   0                               647 98           69  10   1     X   VHZ
+GFP IPU0                   0                               294117          114  10   1     X   VLZ
+XTL IPD0                   0                               693 97           85  10   1     X   VHZ
+TPO IPD0                   0                               795 95           26  10   1     X   VHZ
+DBM IPD0                   0                               856 94           16  10   1     X   VHZ
+LOK IPD0                   0                               698 97          321  10   1     X   VHZ
+LEO IPD0                   0                               520103           33  10   1     X   VHZ
+TWL IPU0                   0                                48164           20  10   1     X   VHZ
+STT IPD0                   0                               628 99           13  10   1     X   VHZ
+FIL IPU0                   0                               290117          315  10   1     X   VHZ
+TJR IPD0                   0                               886 93          352  10   1     X   VHZ
+QAL IPD0                   0                               576101          351  10   1     X   VHZ
+CAL IPD0                   0                              1139 89           32  10   1     X   VHZ
+LHU IPD0                   0                               516103           21  10   1     X   VHZ
+CFL IPD0                   0                               552102           79  10   1     X   VHZ
+SYL IPD0                   0                               197129           49  10   1     X   VHZ
+MNT IPD0                   0                               289117           32  10   1     X   VHZ
+BLC IPU0                   0                                56161          276  10   1     X   VHZ
+BRCYIPU0                   0                                78155            6  10   1     X   EHZ
+LA00IPD0                   0                               207127          135  10   1     X   EHZ
+LA01IPU0                   0                               198128          127  10   1     X   EHZ
+MGUYIPD0                   0                                87152           82  10   1     X   EHZ
+NMHPIPU0                   0                                58161           97  10   1     X   EHZ
+SSAPIPU0                   0                                93151          265  10   1     X   EHZ
+                                                                 3151649
+94 2141319476534 1450118 3703 179623 50  0  0   0                  23              7  13                                           3152142 230
+IR2 IPD0                   0                               258121           51  10   1     X   VHZ
+CIS IPU0                   0                               949 92          168  10   1     X   VHZ
+PYR IPU0                   0                               380110          342  10   1     X   VHZ
+SSN IPU0                   0                              1378 86          216  10   1     X   VHZ
+SLC IPU0                   0                              1047 89          286  10   1     X   VHZ
+SIP IPU0                   0                               156136          255  10   1     X   VHZ
+SAD IPD0                   0                               184131          194  10   1     X   VHZ
+PTD IPD0                   0                               316115          213  10   1     X   VHZ
+RYS IPD0                   0                               810 95          303  10   1     X   VHZ
+GRH IPU0                   0                                91152           36  10   1     X   VHZ
+SLG IPD0                   0                               437107          250  10   1     X   VHZ
+LRR IPD0                   0                               627 99           60  10   1     X   VHZ
+BMT IPD0                   0                               995 91            1  10   1     X   VHZ
+TPR IPD0                   0                               168134          171  10   1     X   VHZ
+LJB IPD0                   0                               806 95           61  10   1     X   VHZ
+JNH IPD0                   0                               649 99           69  10   1     X   VHZ
+DTP IPD0                   0                              1343 87           32  10   1     X   VHZ
+XTL IPD0                   0                               697 97           85  10   1     X   VHZ
+OAK IPU0                   0                               205128          311  10   1     X   VHZ
+FTC IPD0                   0                               747 96          340  10   1     X   VHZ
+HYS IPD0                   0                              1187 89           54  10   1     X   VHZ
+DBM IPD0                   0                               853 94           16  10   1     X   VHZ
+WSP IPD0                   0                               396109            5  10   1     X   VHZ
+LOK IPD0                   0                               692 97          321  10   1     X   VHZ
+LEO IPD0                   0                               519103           34  10   1     X   VHZ
+LLN IPD0                   0                               759 96           69  10   1     X   VHZ
+TWL IPU0                   0                                45165           26  10   1     X   VHZ
+CJV IPD0                   0                               540102           54  10   1     X   VHZ
+STT IPD0                   0                               625 99           13  10   1     X   VHZ
+THC IPD0                   0                               743 96          357  10   1     X   VHZ
+FIL IPU0                   0                               285118          315  10   1     X   VHZ
+TJR IPD0                   0                               881 93          352  10   1     X   VHZ
+QAL IPD0                   0                               571101          351  10   1     X   VHZ
+CAL IPD0                   0                              1138 89           33  10   1     X   VHZ
+LHU IPD0                   0                               513103           22  10   1     X   VHZ
+CFL IPD0                   0                               555102           79  10   1     X   VHZ
+FOX IPD0                   0                               661 98           32  10   1     X   VHZ
+SYL IPD0                   0                               197129           51  10   1     X   VHZ
+NHL EPU1                   0                               167134            6  10   1     X   VHZ
+MNT IPD0                   0                               287118           34  10   1     X   VHZ
+VVD EPD1                   0                               228124          349  10   1     X   VHZ
+BAL IPU0                   0                               330114          283  10   1     X   VHZ
+BLC IPU0                   0                                51163          272  10   1     X   VHZ
+BRCYIPU0                   0                                74156           10  10   1     X   EHZ
+EFRNIPD0                   0                                55162          102  10   1     X   EHZ
+LA01IPU0                   0                               204128          127  10   1     X   EHZ
+MGUYIPD0                   0                                91152           85  10   1     X   EHZ
+MPKPIPU0                   0                               248122          282  10   1     X   EHZ
+PIRUIPU0                   0                               252122          319  10   1     X   EHZ
+SSAPIPU0                   0                                89152          262  10   1     X   EHZ
+                                                                 3152142
+94 215 159474334 1450118 3714 181925 61  0  0   0                  25              1   6                                           2148509 250
+IR2 IPD0                   0                               259121           51  10   1     X   VHZ
+SBB IPD0                   0                               883 94           56  10   1     X   VHZ
+MWC IPU0                   0                               516103           92  10   1     X   VHZ
+CIS IPD0                   0                               949 92          168  10   1     X   VHZ
+SWM IPU0                   0                               529103            4  10   1     X   VHZ
+PYR IPU0                   0                               380110          343  10   1     X   VHZ
+SSN IPU0                   0                              1377 87          216  10   1     X   VHZ
+SLC IPU0                   0                              1046 89          286  10   1     X   VHZ
+SIP IPU0                   0                               154137          255  10   1     X   VHZ
+SAD IPD0                   0                               184132          193  10   1     X   VHZ
+PTD IPD0                   0                               315115          213  10   1     X   VHZ
+GRH IPU0                   0                                92152           37  10   1     X   VHZ
+PVR IPD0                   0                               590101          157  10   1     X   VHZ
+SUN IPU0                   0                               851 94           92  10   1     X   VHZ
+PEM IPD0                   0                               693 98           97  10   1     X   VHZ
+ECF IPD0                   0                               497104          299  10   1     X   VHZ
+SLG IPD0                   0                               435107          250  10   1     X   VHZ
+BMT IPD0                   0                               995 92            1  10   1     X   VHZ
+TPR IPD0                   0                               168134          170  10   1     X   VHZ
+JNH IPD0                   0                               650 99           69  10   1     X   VHZ
+GFP IPU0                   0                               301117          114  10   1     X   VLZ
+XTL IPD0                   0                               698 98           85  10   1     X   VHZ
+OAK IPU0                   0                               204128          312  10   1     X   VHZ
+PVP IPD0                   0                               541102          158  10   1     X   VLZ
+CSP IPU0                   0                              1161 89           87  10   1     X   VHZ
+SCY IPU0                   0                               213127          135  10   1     X   VHZ
+FTC IPD0                   0                               747 96          340  10   1     X   VHZ
+SND IPD0                   0                              1043 89           16  10   1     X   VHZ
+HYS IPD0                   0                              1188 89           54  10   1     X   VHZ
+DBM IPD0                   0                               853 94           16  10   1     X   VHZ
+ARV IPD0                   0                              1003 91          349  10   1     X   VHZ
+LOK IPD0                   0                               691 98          321  10   1     X   VHZ
+LEO IPD0                   0                               520103           34  10   1     X   VHZ
+LLN IPD0                   0                               760 96           69  10   1     X   VHZ
+TWL IPU0                   0                                46165           28  10   1     X   VHZ
+CJV IPD0                   0                               541102           54  10   1     X   VHZ
+STT IPD0                   0                               625100           13  10   1     X   VHZ
+THC IPD0                   0                               743 96          357  10   1     X   VHZ
+FIL IPU0                   0                               284118          315  10   1     X   VHZ
+TJR IPD0                   0                               881 94          353  10   1     X   VHZ
+QAL IPD0                   0                               571101          351  10   1     X   VHZ
+CAL IPD0                   0                              1139 89           33  10   1     X   VHZ
+LHU IPD0                   0                               514103           22  10   1     X   VHZ
+CFL IPD0                   0                               556102           79  10   1     X   VHZ
+FOX IPU0                   0                               662 98           32  10   1     X   VHZ
+SYL IPD0                   0                               198129           51  10   1     X   VHZ
+NHL IPD0                   0                               168134            6  10   1     X   VHZ
+SMF IPD0                   0                               291118          147  10   1     X   VHZ
+MNT IPD0                   0                               288118           34  10   1     X   VHZ
+VVD IPD0                   0                               228125          350  10   1     X   VHZ
+BLC IPU0                   0                                50164          273  10   1     X   VHZ
+BRCYIPU0                   0                                75156           11  10   1     X   EHZ
+LA00IPD0                   0                               214127          135  10   1     X   EHZ
+LA01IPU0                   0                               205128          127  10   1     X   EHZ
+LAURIPU0                   0                                82154          104  10   1     X   ELZ
+MKDRIPU0                   0                                92152          107  10   1     X   EHZ
+MPKPIPD0                   0                               247123          282  10   1     X   EHZ
+PIRUIPD0                   0                               251122          319  10   1     X   EHZ
+SFPWIPD0                   0                               186131           74  10   1     X   HLZ
+NMHPIPU0                   0                                64160          100  10   1     X   EHZ
+SSAPIPU0                   0                                88153          262  10   1     X   EHZ
+                                                                 2148509
+94 215 410520534 1439118 3728 183920 36  0  0   0                  20              7   6                                           3152388 200
+IR2 IPD0                   0                               262121           51  10   1     X   VHZ
+SBB IPD0                   0                               886 94           56  10   1     X   VHZ
+CIS IPD0                   0                               948 92          168  10   1     X   VHZ
+SWM IPU0                   0                               531103            4  10   1     X   VHZ
+CIW IPD0                   0                               863 94          176  10   1     X   VLZ
+SAD IPD0                   0                               181132          193  10   1     X   VHZ
+GRH IPU0                   0                                95151           37  10   1     X   VHZ
+WJP IPU0                   0                              1309 87            6  10   1     X   VHZ
+ECF IPU0                   0                               496104          299  10   1     X   VHZ
+SLG IPD0                   0                               433108          250  10   1     X   VHZ
+TPR IPD0                   0                               166135          169  10   1     X   VHZ
+LJB IPD0                   0                               810 95           61  10   1     X   VHZ
+DTP IPU0                   0                              1347 87           32  10   1     X   VHZ
+XTL IPD0                   0                               701 98           85  10   1     X   VHZ
+OAK IPU0                   0                               204129          313  10   1     X   VHZ
+TPO IPD0                   0                               797 95           27  10   1     X   VHZ
+SCY IPU0                   0                               213127          134  10   1     X   VHZ
+DBM IPD0                   0                               856 94           16  10   1     X   VHZ
+WSP IPD0                   0                               398110            6  10   1     X   VHZ
+LEO IPD0                   0                               523103           34  10   1     X   VHZ
+TWL IPU0                   0                                49164           29  10   1     X   VHZ
+CJV IPD0                   0                               544102           54  10   1     X   VHZ
+THC IPD0                   0                               745 97          357  10   1     X   VHZ
+FIL IPU0                   0                               283119          316  10   1     X   VHZ
+TJR IPD0                   0                               883 94          353  10   1     X   VHZ
+CAL IPD0                   0                              1142 89           33  10   1     X   VHZ
+LHU IPD0                   0                               516104           22  10   1     X   VHZ
+CFL IPD0                   0                               559102           79  10   1     X   VHZ
+FOX IP-0                   0                               665 99           32  10   1     X   VHZ
+SYL IPD0                   0                               201129           51  10   1     X   VHZ
+MNT IPD0                   0                               291118           34  10   1     X   VHZ
+BAL IPU0                   0                               327115          283  10   1     X   VHZ
+BLC IPU0                   0                                48165          275  10   1     X   VHZ
+BRCYIPU0                   0                                77156           12  10   1     X   EHZ
+LA00IPU0                   0                               214127          134  10   1     X   EHZ
+PIRUIPD0                   0                               251122          320  10   1     X   EHZ
+                                                                 3152388
+94 2152113540934 1438118 3695 179123 44  0  0   0                  23              3  13                                           3152559 230
+IR2 IPD0                   0                               258121           50  10   1     X   VHZ
+SBB IPD0                   0                               882 93           56  10   1     X   VHZ
+MWC IPU0                   0                               513103           92  10   1     X   VHZ
+CIS IPD0                   0                               947 92          168  10   1     X   VHZ
+SWM IPU0                   0                               531103            3  10   1     X   VHZ
+PYR IPU0                   0                               383110          342  10   1     X   VHZ
+SSN IPU0                   0                              1377 86          217  10   1     X   VHZ
+SIP IPU0                   0                               156136          256  10   1     X   VHZ
+SAD IPD0                   0                               182131          194  10   1     X   VHZ
+ABL IPD0                   0                               878 93          320  10   1     X   VHZ
+PTD IPD0                   0                               315115          214  10   1     X   VHZ
+GRH IPU0                   0                                92151           34  10   1     X   VHZ
+SLG IPD0                   0                               437107          251  10   1     X   VHZ
+BMT IPD0                   0                               997 91            1  10   1     X   VHZ
+TPR IPD0                   0                               165134          171  10   1     X   VHZ
+LJB IPD0                   0                               806 95           61  10   1     X   VHZ
+JNH IPD0                   0                               648 99           69  10   1     X   VHZ
+GFP IPD0                   0                               298117          114  10   1     X   VLZ
+DTP IPD0                   0                              1344 87           32  10   1     X   VHZ
+XTL IPD0                   0                               696 97           85  10   1     X   VHZ
+OAK IPU0                   0                               207127          312  10   1     X   VHZ
+TPO IPD0                   0                               795 95           27  10   1     X   VHZ
+SCY IPU0                   0                               209127          135  10   1     X   VHZ
+HYS IPD0                   0                              1187 89           54  10   1     X   VHZ
+DBM IPD0                   0                               855 94           16  10   1     X   VHZ
+WSP IPD0                   0                               398109            5  10   1     X   VHZ
+LEO IPD0                   0                               520103           33  10   1     X   VHZ
+LLN IPD0                   0                               758 96           69  10   1     X   VHZ
+TWL IPU0                   0                                47164           24  10   1     X   VHZ
+CJV IPD0                   0                               540102           53  10   1     X   VHZ
+THC IPD0                   0                               745 96          357  10   1     X   VHZ
+FIL IPU0                   0                               287118          315  10   1     X   VHZ
+TJR IPD0                   0                               884 93          352  10   1     X   VHZ
+QAL IPD0                   0                               574101          351  10   1     X   VHZ
+CAL IPD0                   0                              1139 89           33  10   1     X   VHZ
+LHU IPD0                   0                               515103           21  10   1     X   VHZ
+CFL IPD0                   0                               554102           79  10   1     X   VHZ
+SYL IPD0                   0                               198129           50  10   1     X   VHZ
+NHL IPU0                   0                               169134            5  10   1     X   VHZ
+MNT IPD0                   0                               288117           33  10   1     X   VHZ
+VVD IPU0                   0                               231124          349  10   1     X   VHZ
+BLC IPU0                   0                                53163          275  10   1     X   VHZ
+VRD IPD0                   0                               310115           95  10   1     X   VHZ
+MKDRIPU0                   0                                89152          106  10   1     X   EHZ
+                                                                 3152559
+94 2201935211734 1427118 3671 178319 32  0  0   0                  19              6   7                                           3153955 190
+IR2 IPD0                   0                               257121           49  10   1     X   VHZ
+SWM IPU0                   0                               532102            3  10   1     X   VHZ
+PYR IPU0                   0                               386110          342  10   1     X   VHZ
+SIP IPU0                   0                               160135          257  10   1     X   VHZ
+SAD IPD0                   0                               181131          196  10   1     X   VHZ
+SLG IPD0                   0                               440106          251  10   1     X   VHZ
+BMT IPD0                   0                               999 91            1  10   1     X   VHZ
+TPR IPU0                   0                               163135          172  10   1     X   VHZ
+LJB IPU0                   0                               804 95           61  10   1     X   VHZ
+GFP IPU0                   0                               293117          114  10   1     X   VLZ
+OAK IPD0                   0                               211127          311  10   1     X   VHZ
+SCY IPD0                   0                               205128          135  10   1     X   VHZ
+HYS IPD0                   0                              1185 88           54  10   1     X   VHZ
+DBM IPD0                   0                               855 94           16  10   1     X   VHZ
+WSP IPD0                   0                               399109            4  10   1     X   VHZ
+LEO IPD0                   0                               520103           33  10   1     X   VHZ
+TWL IPU0                   0                                47164           18  10   1     X   VHZ
+STT IPD0                   0                               628 99           13  10   1     X   VHZ
+THC IPD0                   0                               747 96          356  10   1     X   VHZ
+QAL IPD0                   0                               576101          351  10   1     X   VHZ
+CAL IPD0                   0                              1139 89           32  10   1     X   VHZ
+LHU IPD0                   0                               515103           21  10   1     X   VHZ
+CFL IPD0                   0                               551102           79  10   1     X   VHZ
+FOX IPD0                   0                               662 98           32  10   1     X   VHZ
+SYL IPD0                   0                               196129           49  10   1     X   VHZ
+NHL IPD0                   0                               171133            4  10   1     X   VHZ
+MNT IPD0                   0                               288117           32  10   1     X   VHZ
+VVD IPD0                   0                               233124          348  10   1     X   VHZ
+BLC IPU0                   0                                57161          276  10   1     X   VHZ
+BRCYIPU0                   0                                78155            6  10   1     X   EHZ
+LA00IPU0                   0                               206127          135  10   1     X   EHZ
+MKDRIPU0                   0                                84153          106  10   1     X   EHZ
+                                                                 3153955
+94 3141002193234 1436118 3710 183522 47  0  0   0                  22              6   3                                           3158361 220
+IR2 IPD0                   0                               260121           51  10   1     X   VHZ
+SBB IPD0                   0                               884 94           56  10   1     X   VHZ
+MWC IPU0                   0                               515104           92  10   1     X   VHZ
+CIS IPD0                   0                               947 92          168  10   1     X   VHZ
+SWM IPU0                   0                               531103            3  10   1     X   VHZ
+PYR IPU0                   0                               382110          343  10   1     X   VHZ
+SIP IPU0                   0                               154137          255  10   1     X   VHZ
+SAD IPD0                   0                               182132          194  10   1     X   VHZ
+ABL IPU0                   0                               877 94          321  10   1     X   VHZ
+PTD IPD0                   0                               314116          214  10   1     X   VHZ
+GRH IPU0                   0                                94151           35  10   1     X   VHZ
+PVR IPD0                   0                               587101          157  10   1     X   VHZ
+ECF IPU0                   0                               498104          299  10   1     X   VHZ
+SLG IPD0                   0                               435107          251  10   1     X   VHZ
+LRR IPD0                   0                               629100           60  10   1     X   VHZ
+BMT IPD0                   0                               998 92            1  10   1     X   VHZ
+LJB IPD0                   0                               808 95           61  10   1     X   VHZ
+JNH IPD0                   0                               651 99           69  10   1     X   VHZ
+DTP IPD0                   0                              1346 87           32  10   1     X   VHZ
+XTL IPD0                   0                               698 98           85  10   1     X   VHZ
+OAK IPU0                   0                               206128          312  10   1     X   VHZ
+SCY IPU0                   0                               210128          135  10   1     X   VHZ
+SND IPD0                   0                              1045 90           16  10   1     X   VHZ
+HYS IPD0                   0                              1189 89           54  10   1     X   VHZ
+DBM IPD0                   0                               856 94           16  10   1     X   VHZ
+WSP IPD0                   0                               398109            5  10   1     X   VHZ
+ARV IPD0                   0                              1006 91          349  10   1     X   VHZ
+LOK IPD0                   0                               694 98          321  10   1     X   VHZ
+LEO IPD0                   0                               522103           34  10   1     X   VHZ
+LLN IPD0                   0                               760 96           69  10   1     X   VHZ
+TWL IPU0                   0                                48164           26  10   1     X   VHZ
+CJV IPD0                   0                               542103           53  10   1     X   VHZ
+STT IPD0                   0                               628100           13  10   1     X   VHZ
+THC IPD0                   0                               745 96          357  10   1     X   VHZ
+FIL IPU0                   0                               286118          316  10   1     X   VHZ
+TJR IPD0                   0                               884 94          353  10   1     X   VHZ
+QAL IPD0                   0                               574101          351  10   1     X   VHZ
+CAL IPD0                   0                              1141 89           33  10   1     X   VHZ
+LHU IPD0                   0                               516104           22  10   1     X   VHZ
+CFL IPD0                   0                               556102           79  10   1     X   VHZ
+FOX IPD0                   0                               664 99           32  10   1     X   VHZ
+SYL IPD0                   0                               199129           50  10   1     X   VHZ
+NHL IPU0                   0                               170134            6  10   1     X   VHZ
+MNT IPD0                   0                               290118           33  10   1     X   VHZ
+VVD IPD0                   0                               231125          350  10   1     X   VHZ
+BAL IPU0                   0                               330114          283  10   1     X   VHZ
+BLC IPU0                   0                                51164          275  10   1     X   VHZ
+                                                                 3158361
+94 318 827270834 1443118 3706 182822 39  0  0   0                  22              3   4                                           3159027 220
+IR2 IPD0                   0                               259121           51  10   1     X   VHZ
+SBB EPD1                   0                               883 94           56  10   1     X   VHZ
+CIS IPD0                   0                               948 92          168  10   1     X   VHZ
+SWM IPU0                   0                               530103            3  10   1     X   VHZ
+PYR IPU0                   0                               381110          343  10   1     X   VHZ
+SIP IPU0                   0                               155137          255  10   1     X   VHZ
+SAD IPD0                   0                               183132          194  10   1     X   VHZ
+PTD EPD1                   0                               315116          214  10   1     X   VHZ
+GRH IPU0                   0                                92152           35  10   1     X   VHZ
+SLG EPD1                   0                               436107          250  10   1     X   VHZ
+LRR IPD0                   0                               628100           60  10   1     X   VHZ
+BMT EPD1                   0                               996 92            1  10   1     X   VHZ
+LJB IPD0                   0                               807 95           61  10   1     X   VHZ
+JNH EPD1                   0                               650 99           69  10   1     X   VHZ
+XTL EPD1                   0                               697 98           85  10   1     X   VHZ
+OAK IPU0                   0                               205128          312  10   1     X   VHZ
+FTC IPD0                   0                               748 96          340  10   1     X   VHZ
+SND EPD1                   0                              1044 89           16  10   1     X   VHZ
+HYS EPD1                   0                              1188 89           54  10   1     X   VHZ
+DBM IPD0                   0                               854 94           16  10   1     X   VHZ
+WSP IPD0                   0                               397109            5  10   1     X   VHZ
+LOK IPD0                   0                               693 98          321  10   1     X   VHZ
+LEO IPD0                   0                               520103           34  10   1     X   VHZ
+LLN IPD0                   0                               759 96           69  10   1     X   VHZ
+TWL IPU0                   0                                47165           26  10   1     X   VHZ
+STT IPD0                   0                               626100           13  10   1     X   VHZ
+THC EPD1                   0                               744 96          357  10   1     X   VHZ
+FIL EPU1                   0                               285118          315  10   1     X   VHZ
+QAL IPD0                   0                               573101          351  10   1     X   VHZ
+CAL EPD1                   0                              1139 89           33  10   1     X   VHZ
+LHU IPD0                   0                               514104           22  10   1     X   VHZ
+CFL IPD0                   0                               555102           79  10   1     X   VHZ
+FOX EPD1                   0                               663 99           32  10   1     X   VHZ
+SYL EPD1                   0                               198129           51  10   1     X   VHZ
+NHL EPD1                   0                               169134            6  10   1     X   VHZ
+MNT IPD0                   0                               289118           34  10   1     X   VHZ
+VVD IPD0                   0                               230125          349  10   1     X   VHZ
+BAL IPU0                   0                               330114          283  10   1     X   VHZ
+BLC IPU0                   0                                51163          274  10   1     X   VHZ
+                                                                 3159027
+94 320  11129234 1447118 3695 180025 45  0  0   0                  25              5   7                                           3159267 250
+IR2 IPD0                   0                               257121           51  10   1     X   VHZ
+SBB EPD1                   0                               881 93           56  10   1     X   VHZ
+CIS IPD0                   0                               948 92          168  10   1     X   VHZ
+SWM IPU0                   0                               529103            3  10   1     X   VHZ
+PYR IPU0                   0                               381110          342  10   1     X   VHZ
+SIP IPU0                   0                               157136          255  10   1     X   VHZ
+SAD IPD0                   0                               184131          194  10   1     X   VHZ
+ABL EPU1                   0                               877 93          320  10   1     X   VHZ
+PTD IPD0                   0                               316115          214  10   1     X   VHZ
+GRH EPU1                   0                                91152           35  10   1     X   VHZ
+ECF EPU1                   0                               499104          299  10   1     X   VHZ
+SLG IPD0                   0                               438107          250  10   1     X   VHZ
+HOD EPU1                   0                              1423 86           62  10   1     X   VHZ
+LRR IPD0                   0                               626 99           60  10   1     X   VHZ
+LJB IPD0                   0                               805 95           61  10   1     X   VHZ
+JNH EPD1                   0                               648 99           69  10   1     X   VHZ
+XTL IPD0                   0                               695 97           85  10   1     X   VHZ
+OAK IPU0                   0                               206128          311  10   1     X   VHZ
+PVP EPD1                   0                               539102          159  10   1     X   VLZ
+FTC EPD1                   0                               748 96          340  10   1     X   VHZ
+HYS IPD0                   0                              1186 89           54  10   1     X   VHZ
+DBM IPD0                   0                               853 94           16  10   1     X   VHZ
+WSP IPD0                   0                               396109            5  10   1     X   VHZ
+ARV EPD1                   0                              1004 91          349  10   1     X   VHZ
+LOK IPD0                   0                               694 97          321  10   1     X   VHZ
+LEO IPD0                   0                               519103           33  10   1     X   VHZ
+LLN EPD1                   0                               758 96           69  10   1     X   VHZ
+TWL IPU0                   0                                45165           24  10   1     X   VHZ
+STT IPD0                   0                               625 99           13  10   1     X   VHZ
+THC EPD1                   0                               744 96          357  10   1     X   VHZ
+FIL IPU0                   0                               286118          315  10   1     X   VHZ
+TJR IPD0                   0                               882 93          352  10   1     X   VHZ
+QAL IPD0                   0                               572101          351  10   1     X   VHZ
+CAL EPD1                   0                              1138 89           33  10   1     X   VHZ
+LHU IPD0                   0                               513103           21  10   1     X   VHZ
+CFL IPD0                   0                               554102           79  10   1     X   VHZ
+FOX EPD1                   0                               661 98           32  10   1     X   VHZ
+SYL IPD0                   0                               196129           50  10   1     X   VHZ
+NHL IPD0                   0                               168134            5  10   1     X   VHZ
+SMF IPD0                   0                               289118          148  10   1     X   VHZ
+MNT IPD0                   0                               287118           33  10   1     X   VHZ
+VVD IPD0                   0                               229124          349  10   1     X   VHZ
+BAL IPU0                   0                               331114          283  10   1     X   VHZ
+BLC IPU0                   0                                53163          273  10   1     X   VHZ
+VRD IPD0                   0                               310116           95  10   1     X   VHZ
+                                                                 3159267
+94 3221307336934 1436118 3694 181723 34  0  0   0                  23              4   4                                           2155068 230
+IR2 IPD0                   0                               258121           50  10   1     X   VHZ
+MWC IPU0                   0                               513104           92  10   1     X   VHZ
+SWM IPU0                   0                               531103            3  10   1     X   VHZ
+SIP IPU0                   0                               157136          256  10   1     X   VHZ
+SAD IPD0                   0                               182132          195  10   1     X   VHZ
+PTD IPD0                   0                               315115          214  10   1     X   VHZ
+GRH IPU0                   0                                92151           34  10   1     X   VHZ
+ECF IPU0                   0                               501104          299  10   1     X   VHZ
+SLG IPD0                   0                               438107          251  10   1     X   VHZ
+LRR IPD0                   0                               627 99           59  10   1     X   VHZ
+BMT IPD0                   0                               998 91            1  10   1     X   VHZ
+TPR IPD0                   0                               165135          171  10   1     X   VHZ
+LJB IPD0                   0                               806 95           61  10   1     X   VHZ
+JNH IPD0                   0                               648 99           69  10   1     X   VHZ
+OAK IPU0                   0                               208128          312  10   1     X   VHZ
+DBM IPD0                   0                               855 94           16  10   1     X   VHZ
+WSP IPD0                   0                               398109            5  10   1     X   VHZ
+LEO IPD0                   0                               520103           33  10   1     X   VHZ
+LLN IPD0                   0                               758 96           69  10   1     X   VHZ
+TWL IPU0                   0                                47165           23  10   1     X   VHZ
+STT IPD0                   0                               627 99           13  10   1     X   VHZ
+TJR IPD0                   0                               884 93          352  10   1     X   VHZ
+QAL IPD0                   0                               574101          351  10   1     X   VHZ
+CAL IPD0                   0                              1139 89           33  10   1     X   VHZ
+LHU IPD0                   0                               515103           21  10   1     X   VHZ
+CFL IPD0                   0                               554102           79  10   1     X   VHZ
+FOX IPD0                   0                               663 98           32  10   1     X   VHZ
+SYL IPD0                   0                               198129           50  10   1     X   VHZ
+NHL IPU0                   0                               170134            5  10   1     X   VHZ
+PLS IPU0                   0                              1049 89          118  10   1     X   VHZ
+MNT IPD0                   0                               289118           33  10   1     X   VHZ
+BAL IPU0                   0                               332114          283  10   1     X   VHZ
+BLC IPU0                   0                                53163          275  10   1     X   VHZ
+VRD IPD0                   0                               310116           95  10   1     X   VHZ
+                                                                 2155068
+94 3241123516034 1441118 3710 180417 31  0  0   0                  17              5   5                                           3160206 170
+IR2 IPD0                   0                               260121           51  10   1     X   VHZ
+SWM IPU0                   0                               530103            3  10   1     X   VHZ
+PYR IPU0                   0                               382110          343  10   1     X   VHZ
+CIW IPU0                   0                               863 94          176  10   1     X   VLZ
+SIP IPU0                   0                               154137          255  10   1     X   VHZ
+SAD IPD0                   0                               182132          194  10   1     X   VHZ
+GRH IPU0                   0                                93151           36  10   1     X   VHZ
+PVR IPD0                   0                               588101          157  10   1     X   VHZ
+SLG IPD0                   0                               435107          250  10   1     X   VHZ
+LRR IPD0                   0                               629 99           60  10   1     X   VHZ
+TPR IPD0                   0                               166134          170  10   1     X   VHZ
+LJB IPD0                   0                               808 95           61  10   1     X   VHZ
+JNH IPD0                   0                               650 99           69  10   1     X   VHZ
+XTL IPD0                   0                               698 97           85  10   1     X   VHZ
+OAK IPU0                   0                               205128          312  10   1     X   VHZ
+HYS IPU0                   0                              1188 89           54  10   1     X   VHZ
+DBM IPD0                   0                               855 94           16  10   1     X   VHZ
+WSP IPD0                   0                               397109            5  10   1     X   VHZ
+LEO IPD0                   0                               521103           34  10   1     X   VHZ
+TWL IPU0                   0                                47164           26  10   1     X   VHZ
+FIL IPU0                   0                               285118          316  10   1     X   VHZ
+TJR IPD0                   0                               883 93          353  10   1     X   VHZ
+CAL IPD0                   0                              1140 89           33  10   1     X   VHZ
+LHU IPD0                   0                               515103           22  10   1     X   VHZ
+CFL IPD0                   0                               556102           79  10   1     X   VHZ
+FOX IPD0                   0                               663 98           32  10   1     X   VHZ
+SYL IPD0                   0                               199129           51  10   1     X   VHZ
+NHL IPU0                   0                               169134            6  10   1     X   VHZ
+MNT IPD0                   0                               289118           34  10   1     X   VHZ
+BAL IPU0                   0                               329114          283  10   1     X   VHZ
+BLC IPU0                   0                                50163          274  10   1     X   VHZ
+                                                                 3160206
+94 726 258206434 1434118 3669 177826 54  0  0   0                  26              5  14                                           3177685 260
+IR2 IPD0                   0                               256121           50  10   1     X   VHZ
+SBB EPD1                   0                               879 93           55  10   1     X   VHZ
+MWC EPD1                   0                               509103           92  10   1     X   VHZ
+VPD IPD0                   0                               911 93          121  10   1     X   VHZ
+SWM IPU0                   0                               531102            3  10   1     X   VHZ
+PYR IPU0                   0                               385110          342  10   1     X   VHZ
+SIP IPU0                   0                               160135          256  10   1     X   VHZ
+SAD IPD0                   0                               183131          196  10   1     X   VHZ
+ABL EPU1                   0                               882 93          320  10   1     X   VHZ
+PTD IPD0                   0                               317115          215  10   1     X   VHZ
+GRH IPU0                   0                                90151           32  10   1     X   VHZ
+WJP EPD1                   0                              1309 87            5  10   1     X   VHZ
+PEM EPU1                   0                               686 97           97  10   1     X   VHZ
+ECF IPU0                   0                               504103          299  10   1     X   VHZ
+SLG IPD0                   0                               441106          251  10   1     X   VHZ
+LRR IPD0                   0                               624 99           59  10   1     X   VHZ
+BMT IPD0                   0                               998 91            1  10   1     X   VHZ
+WNM EPD1                   0                              1897 81           20  10   1     X   VHZ
+TPR IPU0                   0                               164134          172  10   1     X   VHZ
+GFP EPU1                   0                               294117          114  10   1     X   VLZ
+DTP EPD1                   0                              1343 87           32  10   1     X   VHZ
+XTL IPD0                   0                               692 97           85  10   1     X   VHZ
+OAK IPU0                   0                               211127          311  10   1     X   VHZ
+PVP IPD0                   0                               536102          159  10   1     X   VLZ
+CSP EPU1                   0                              1154 89           87  10   1     X   VHZ
+THC IPD0                   0                               746 96          356  10   1     X   VHZ
+SCY IPU0                   0                               206127          136  10   1     X   VHZ
+FTC IPD0                   0                               752 96          339  10   1     X   VHZ
+SND EPD1                   0                              1044 89           16  10   1     X   VHZ
+HYS EPD1                   0                              1184 88           54  10   1     X   VHZ
+WSP IPD0                   0                               398109            4  10   1     X   VHZ
+ARV IPD0                   0                              1008 91          348  10   1     X   VHZ
+PLE IPD0                   0                               914 93          333  10   1     X   VHZ
+LOK IPD0                   0                               698 97          321  10   1     X   VHZ
+LEO IPD0                   0                               519103           33  10   1     X   VHZ
+LJB EPD1                   0                               803 95           61  10   1     X   VHE
+LLN EPD1                   0                               755 96           69  10   1     X   VHZ
+TWL IPU0                   0                                46165           19  10   1     X   VHZ
+CJV EPD1                   0                               537102           53  10   1     X   VHZ
+STT IPD0                   0                               627 99           13  10   1     X   VHZ
+FIL IPU0                   0                               290117          315  10   1     X   VHZ
+TJR IPD0                   0                               885 93          352  10   1     X   VHZ
+QAL IPD0                   0                               575101          350  10   1     X   VHZ
+CAL EPD1                   0                              1138 89           32  10   1     X   VHZ
+LHU IPD0                   0                               514103           21  10   1     X   VHZ
+CFL IPD0                   0                               550102           79  10   1     X   VHZ
+SYL IPD0                   0                               195129           49  10   1     X   VHZ
+NHL IPU0                   0                               170133            4  10   1     X   VHZ
+SMF IPD0                   0                               285118          148  10   1     X   VHZ
+MNT IPD0                   0                               287117           32  10   1     X   VHZ
+VVD EPD1                   0                               232124          348  10   1     X   VHZ
+BAL IPU0                   0                               336113          283  10   1     X   VHZ
+BLC IPU0                   0                                57161          275  10   1     X   VHZ
+VRD EPD1                   0                               306116           95  10   1     X   VHZ
+                                                                 3177685
+94 131 453392534 1429118 3664 174421 47  0  0   0                  21              9  13                                           3148018 210
+IR2 IPD0                   0                               256120           49             X   VHZ
+SBB IPD0                   0                               879 93           55             X   VHZ
+MWC IPU0                   0                               508103           92             X   VHZ
+SWM IPU0                   0                               532102            3             X   VHZ
+PYR IPU0                   0                               386109          342             X   VHZ
+SIP IPU0                   0                               161134          257             X   VHZ
+SAD IPD0                   0                               182130          196             X   VHZ
+PTD IPD0                   0                               316114          215             X   VHZ
+GRH IPU0                   0                                91151           31             X   VHZ
+PVR IPU0                   0                               583100          158             X   VHZ
+SLG IPD0                   0                               441106          251             X   VHZ
+LRR IPD0                   0                               624 99           59             X   VHZ
+BMT IPD0                   0                               999 91            1             X   VHZ
+TPR IPD0                   0                               163134          173             X   VHZ
+LJB IPD0                   0                               803 95           61             X   VHZ
+JNH IPD0                   0                               645 98           69             X   VHZ
+DTP IPD0                   0                              1343 87           32             X   VHZ
+XTL IPD0                   0                               691 97           85             X   VHZ
+OAK IPU0                   0                               212126          311             X   VHZ
+TPO IPD0                   0                               794 95           26             X   VHZ
+SCY IPU0                   0                               205127          136             X   VHZ
+SND IPU0                   0                              1045 89           16             X   VHZ
+HYS IPD0                   0                              1184 88           54             X   VHZ
+DBM IPD0                   0                               855 93           16             X   VHZ
+WSP IPD0                   0                               399108            4             X   VHZ
+ARV IPU0                   0                              1009 91          348             X   VHZ
+LEO IPD0                   0                               519102           33             X   VHZ
+LLN IPD0                   0                               754 96           69             X   VHZ
+TWL IPU0                   0                                47164           17             X   VHZ
+STT IPD0                   0                               627 99           12             X   VHZ
+FIL IPU0                   0                               292116          315             X   VHZ
+TJR IPD0                   0                               886 93          352             X   VHZ
+QAL IPD0                   0                               576100          350             X   VHZ
+CAL IPD0                   0                              1138 89           32             X   VHZ
+LHU IPD0                   0                               514103           21             X   VHZ
+FOX IPD0                   0                               662 98           32             X   VHZ
+SYL IPD0                   0                               195128           49             X   VHZ
+NHL IPU0                   0                               171133            3             X   VHZ
+VRD IPD0                   0                               305115           95             X   VHZ
+BCPPIPU0                   0                                90151          244             X   EHZ
+CSNRIPU0                   0                                73156           86             X   EHZ
+CWHPIPU0                   0                                42166           56             X   EHZ
+LA00IPU0                   0                               206127          136             X   EHZ
+MPKPIPD0                   0                               255120          282             X   EHZ
+PIRUIPU0                   0                               258120          319             X   EHZ
+SFPWIPD0                   0                               180131           72             X   HLZ
+SSAPIPU0                   0                                95150          265             X   EHZ
+                                                                 3148018
+94 2 7 523499134 1424118 3678 177018 32  0  0   1                  18              6  11                                           3150301 180
+IR2 IPD0                   0                               258120           49             X   VHZ
+PYR IPU0                   0                               386109          342             X   VHZ
+SIP IPU0                   0                               158135          257             X   VHZ
+SAD IPD0                   0                               181131          196             X   VHZ
+PTD IPD0                   0                               314115          215             X   VHZ
+GRH EPU1                   0                                93151           32             X   VHZ
+SLG IPD0                   0                               439106          251             X   VHZ
+LRR EPD1                   0                               626 99           59             X   VHZ
+TPR IPD0                   0                               162135          172             X   VHZ
+LJB EPD1                   0                               805 95           61             X   VHZ
+OAK IPU0                   0                               211126          312             X   VHZ
+HYS IPU0                   0                              1186 88           54             X   VHZ
+DBM EPD1                   0                               856 94           16             X   VHZ
+WSP IPD0                   0                               400108            4             X   VHZ
+LEO IPD0                   0                               521103           33             X   VHZ
+TWL IPU0                   0                                48164           20             X   VHZ
+STT EPD1                   0                               629 99           13             X   VHZ
+TJR EPD1                   0                               886 93          352             X   VHZ
+LHU EPD1                   0                               516103           21             X   VHZ
+CFL IPD0                   0                               552101           79             X   VHZ
+FOX IPU0                   0                               663 98           32             X   VHZ
+SYL IPU0                   0                               197129           49             X   VHZ
+MNT IPD0                   0                               289117           32             X   VHZ
+VVD IPD0                   0                               234123          349             X   VHZ
+BLC IPU0                   0                                56161          277             X   VHZ
+BCPPIPU0                   0                                88152          244             X   EHZ
+BRCYIPU0                   0                                78155            6             X   EHZ
+LA00IPU0                   0                               206127          135             X   EHZ
+PIRUIPD0                   0                               258120          319             X   EHZ
+SMIPIPU0                   0                                58161          300             X   EHZ
+SSAPIPU0                   0                                93151          266             X   EHZ
+PWGBIPU0                   0                               142139          318             X   HHZ
+                                                                 3150301
+94 2 8 207 87934 1429118 3638 177526 60  0  0   1                  26              7  16                                           3150490 260
+IR2 IPD0                   0                               253121           49             X   VHZ
+SBB EPD1                   0                               875 93           55             X   VHZ
+MWC EPU1                   0                               504103           92             X   VHZ
+PYR IPU0                   0                               387109          341             X   VHZ
+SLC EPU1                   0                              1058 89          286             X   VHZ
+SIP IPU0                   0                               165134          257             X   VHZ
+SAD IPD0                   0                               183131          197             X   VHZ
+PTD IPD0                   0                               319114          215             X   VHZ
+GRH EPU1                   0                                89152           29             X   VHZ
+ECF EPD1                   0                               509103          299             X   VHZ
+SLG IPD0                   0                               445106          251             X   VHZ
+LRR IPD0                   0                               620 99           59             X   VHZ
+BMT IPD0                   0                               999 91            0             X   VHZ
+TPR IPD0                   0                               163135          174             X   VHZ
+LJB IPD0                   0                               799 95           61             X   VHZ
+JNH IPD0                   0                               641 99           69             X   VHZ
+BLK EPU1                   0                              1587 84           53             X   VHZ
+GFP EPU1                   0                               289117          114             X   VLZ
+DTP EPD1                   0                              1341 87           31             X   VHZ
+OAK IPU0                   0                               215126          310             X   VHZ
+TPO EPD1                   0                               793 95           26             X   VHZ
+SCY IPD0                   0                               202128          137             X   VHZ
+FTC IPD0                   0                               754 96          339             X   VHZ
+SND EPD1                   0                              1044 89           16             X   VHZ
+HYS IPD0                   0                              1181 89           54             X   VHZ
+DBM IPD0                   0                               854 94           15             X   VHZ
+WSP IPD0                   0                               399109            4             X   VHZ
+ARV EPD1                   0                              1009 91          348             X   VHZ
+PLE EPD1                   0                               917 92          332             X   VHZ
+LOK EPD1                   0                               702 97          320             X   VHZ
+LEO IPD0                   0                               517103           32             X   VHZ
+LLN IPD0                   0                               751 96           69             X   VHZ
+TWL IPU0                   0                                46165           13             X   VHZ
+CJV IPD0                   0                               534102           53             X   VHZ
+STT IPD0                   0                               626 99           12             X   VHZ
+THC IPD0                   0                               747 96          356             X   VHZ
+FIL EPU1                   0                               294117          314             X   VHZ
+TJR IPD0                   0                               886 93          352             X   VHZ
+QAL IPD0                   0                               577101          350             X   VHZ
+CAL IPD0                   0                              1136 89           32             X   VHZ
+JAW EPD1                   0                              1305 87           23             X   VHZ
+LHU IPD0                   0                               513103           20             X   VHZ
+GVR EPU1                   0                               494104          115             X   VHZ
+CFL IPD0                   0                               546102           79             X   VHZ
+SYL IPD0                   0                               192129           48             X   VHZ
+NHL IPD0                   0                               171133            2             X   VHZ
+SMF IPD0                   0                               282118          149             X   VHZ
+MNT IPD0                   0                               285117           31             X   VHZ
+VVD IPD0                   0                               234123          347             X   VHZ
+BLC IPU0                   0                                62160          276             X   VHZ
+VRD IPU0                   0                               302116           95             X   VHZ
+BRCYIPU0                   0                                77155            2             X   EHZ
+CPCPIPD0                   0                                30170          183             X   EHZ
+CWHPIPU0                   0                                38167           53             X   EHZ
+LA00IPU0                   0                               203128          136             X   EHZ
+MPKPIPD0                   0                               259120          282             X   EHZ
+NWHPIPD0                   0                               180131           22             X   EHZ
+PIRUIPD0                   0                               261120          318             X   EHZ
+SMIPIPU0                   0                                63159          296             X   EHZ
+SCFSIPU0                   0                               241122           47             X   HHZ
+                                                                 3150490
