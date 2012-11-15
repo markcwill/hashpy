@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-#  focalmech.py
+#  fm.py
 #
 # by Mark Williams 2012.313
-# Focal Mechanism class for running HASH
+# First motion focal mechanism classes for running HASH
 
 # import all Fortran subroutines and common blocks from the mod
 # plus my custom utils and numpy arrays
@@ -391,7 +391,6 @@ class HashRun(object):
 		assert d.nrecs() is not 0, 'No solution for this ORID: {0}'.format(orid)
 		self.fplane = DbrecordList(d)
 		
-		
 	def plot_beachball(self, labels=False):
 		'''
 		test_stereo(self.p_azi_mc[:self.npol,0], self.p_the_mc[:self.npol,0], self.p_pol[:self.npol], sdr=[self.str_avg[0], self.dip_avg[0], self.rak_avg[0]])
@@ -448,24 +447,43 @@ class HashRun(object):
 		ax.plot(self.qlon, self.qlat, 'ro')
 		plt.show()
 
+
 class NodalPlane(list):
 	'''Version of obspy NodalPlane, but list accessible
 	
-	>>> p = NodalPlane(145, 45, 67)
-	>>> NodalPlane(strike=145, dip=45, rake=67)
+	Construct with sequence, list, or named keyword args
+	
+	Returns list:
 	[145, 45, 67]
 	
+	Overview
+	--------
+	[strike, dip, rake]
+	
+	attributes: strike	:	int or float of degrees
+				dip		:	int or float of degrees
+				rake	:	int or float of degrees
 	'''
 	_keys = ['strike','dip','rake']
 	
-	@property
-	def aux_plane(self):
-		'''Return Auxiliary plane'''
-		from obspy.imaging.beachball import AuxPlane
-		auxplane = AuxPlane(*self)
-		return NodalPlane(*auxplane)
-	
 	def __init__(self, *args, **kwargs):
+		'''
+		NodalPlane(strk, dp, rk)
+		NodalPlane([strk,dp,rk])
+		NodalPlane(strike=strk, dip=dp, rake=rk)
+		
+		strike	:	int or float of degrees
+		dip		:	int or float of degrees
+		rake	:	int or float of degrees
+		
+		Examples
+		--------
+		>>> l = [123, 45, 67]
+		>>> p = NodalPlane(l)
+		>>> p = NodalPlane(145, 45, 67)
+		>>> p = NodalPlane(strike=145, dip=45, rake=67)
+		>>> p.dip = 30
+		'''
 		super(NodalPlane,self).__init__([None,None,None])
 		
 		if args:
@@ -480,7 +498,7 @@ class NodalPlane(list):
 				if key in self._keys:
 					self.__setattr__(key, kwargs[key])
 	
-	def __getindex__(self,key):
+	def __getindex__(self, key):
 		'''Maps an attribute key to a list index'''
 		# just three, so do it explicity for now...
 		if   key == 'strike':
@@ -492,23 +510,61 @@ class NodalPlane(list):
 		else:
 			index = None
 		return index
-		
+	
 	def __getattr__(self, key):
+		'''Look for attribute in list'''
 		index = self.__getindex__(key)
 		if index is not None:
 			return self[index]
 		else:
 			raise AttributeError("Attribute must be 'strike', 'dip', or 'rake'")
-		
+	
 	def __setattr__(self, key, value):
+		'''Set attribute in list'''
 		index = self.__getindex__(key)
-		if index:
+		if index is not None:
 			self[index] = value
 		else:
 			raise AttributeError("Attribute must be 'strike', 'dip', or 'rake'")
-			
-			
-class FocalMech(object):
+
+
+class DoubleCouple(object):
+	'''Holds nodal planes and P and T axes of a double couple focal mech
+	
+	The attributes are set up to calulate everything on the fly from the
+	initial plane (strike, dip, rake), so you can change something (like
+	a rake in your primary plane), and calling for a 'P' axis, e.g. will
+	give you the new answer...
+	
+	Attributes
+	----------
+	plane1	:	NodalPlane of primary plane
+	plane2	:	NodalPlane of auxiliary plane
+	axis	:	AttribDict of axes ('P' and 'T')
+					containing list of [azi, dip]
+	'''
+	from obspy.core.util import AttribDict
+	from obspy.imaging.beachball import AuxPlane
+	plane1 = None
+	
+	@property
+	def plane2(self):
+		'''Return Auxiliary plane'''
+		auxplane = AuxPlane(*self.plane1)
+		return NodalPlane(*auxplane)
+	
+	@property
+	def axis(self):
+		'''return direction and dip for P and T axes'''
+		from utils import ps_pt_axis
+		dipp, dipt, azip, azit = ps_pt_axis(*self.plane1+self.plane2)
+		return AttribDict({'P': [azip, dipp], 'T': [azit, dipt] })
+	
+	def __init__(self, nodal_plane=None):
+		self.plane1 = nodal_plane
+
+
+class FirstMotionFM(object):
 	'''Stub'''
 	planes = None # AttribDict of 2 obspy NodalPlanes
 	picks  = None # array of station/azimuth/takeoff/polarities
@@ -524,7 +580,8 @@ class FocalMech(object):
 		
 		If you don't specify a HashRun object these fields will just be junk
 		'''
-		from obspy.imaging.beachball import AuxPlane
+		
+		assert isinstance(hro, HashRun), "Must pass a HashRun in here to load data!"
 		
 		n = hro.npol
 		picks = np.empty(n, dtype=_dt)
@@ -532,8 +589,9 @@ class FocalMech(object):
 		picks['azimuth'] = hro.p_azi_mc[:n,0]
 		picks['takeoff'] = hro.p_the_mc[:n,0]
 		picks['polarity'] = hro.p_pol[:n]
-		plane1 = NodalPlane(hro.str_avg[0], hro.dip_avg[0], hro.rak_avg[0])
-		plane2 = AuxPlane(*plane1)
+		dc = DoubleCouple(NodalPlane(hro.str_avg[0], hro.dip_avg[0], hro.rak_avg[0]))
+		plane1 = dc.plane1
+		plane2 = dc.plane2
 		
 		self.data = hro
 		self.picks = picks

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 #
 #  hashpype.py
-from focalmech import FocalMech
+
 from fm import HashRun 
 
 def main():
