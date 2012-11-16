@@ -41,8 +41,8 @@ import numpy as np
 from hash_utils import fortran_include, get_sta_coords, test_stereo
 
 
-npick0, nmc0, nmax0 = fortran_include('param.inc')
-dang0, ncoor        = fortran_include('rot.inc')
+npick0, nmc0, nmax0 = fortran_include('src/param.inc')
+dang0, ncoor        = fortran_include('src/rot.inc')
 
 # initialize arrays
 
