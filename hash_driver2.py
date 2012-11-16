@@ -126,8 +126,9 @@ c control parameters
       real cangle                                      ! definition of "close" == 45 degrees
 '''
 
+interactive = True
 # Parse the input file, instead of interactively...
-if 1:
+if not interactive:
     input_file = open(argv[1]).read()
     inp_vars = input_file.split()
     (stfile,plfile,fpfile,outfile1,outfile2,npolmin,max_agap,max_pgap,

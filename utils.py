@@ -2,15 +2,21 @@
 # -*- coding: utf-8 -*-
 #
 # utils.py
-
+#
+#
 
 import numpy as np
 
 # following two subs are from GMT utlimeca.c
+#
+# ported to python by Mark
+# from perl port by Gabe
+#
+
 def zero_360(str1):
-	'''Stub'''
-	#put an angle between 0 and 360 degrees
-	#Genevieve Patau
+	'''Put an angle between 0 and 360 degrees
+	Genevieve Patau
+	'''
 	if str1 >= 360:
 		str1 -= 360
 	elif str1 < 0:
@@ -19,17 +25,13 @@ def zero_360(str1):
 		pass
 	return str1
 
-# FORTRAN routines of Anne Deschamps :
-# compute azimuth and plungement of P-T axis
-# from nodal plane strikes, dips and rakes.
 def ps_pt_axis(str1,da1,sa1,str2,da2,sa2):
-	'''
-	my $dd1 = shift @_;	 # dip direction principle plane
-	my $da1 = shift @_;	 # dip angle principle plane
-	my $sa1 = shift @_;	 # rake principle plane
-	my $dd2 = shift @_;	 # dip direction aux plane
-	my $da2 = shift @_;	 # dip angle aux plane
-	my $sa2 = shift @_;	 # rake aux plane
+	'''Compute azimuth and plungement of P-T axis 
+	(from nodal plane strikes, dips and rakes.)
+	
+	Mark's python port from Gabe's perl port from:
+	FORTRAN routines of Anne Deschamps ::
+	
 	str1 = dd1 - 90;
 	str2 = dd2 - 90;
 	'''

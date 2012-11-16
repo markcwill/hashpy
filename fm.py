@@ -457,20 +457,22 @@ class HashRun(object):
 
 
 class NodalPlane(list):
-	'''Version of obspy NodalPlane, but list accessible
-	
-	Construct with sequence, list, or named keyword args
-	
-	Returns list:
-	[145, 45, 67]
+	'''List to hold strike, dip, rake of a nodal plane
 	
 	Overview
 	--------
+	Basically, a list consisting of:
 	[strike, dip, rake]
+	with each element accessible by name as well as index.
 	
-	attributes: strike	:	int or float of degrees
-				dip		:	int or float of degrees
-				rake	:	int or float of degrees
+	Construct with sequence, list, or named keyword args, see
+	constructor doc for deatails.
+	
+	Attributes
+	----------
+	strike	:	int or float of degrees
+	dip		:	int or float of degrees
+	rake	:	int or float of degrees
 	'''
 	_keys = ['strike','dip','rake']
 	
@@ -553,6 +555,8 @@ class DoubleCouple(object):
 	'''
 	from obspy.core.util import AttribDict
 	from obspy.imaging.beachball import AuxPlane
+	from utils import ps_pt_axis
+	
 	plane1 = None
 	
 	@property
@@ -564,7 +568,6 @@ class DoubleCouple(object):
 	@property
 	def axis(self):
 		'''return direction and dip for P and T axes'''
-		from utils import ps_pt_axis
 		dipp, dipt, azip, azit = ps_pt_axis(*self.plane1+self.plane2)
 		return AttribDict({'P': [azip, dipp], 'T': [azit, dipt] })
 	
