@@ -9,9 +9,9 @@ Right now the only supported input is BRTT Antelope Datascope databases. The ini
 This is just a draft implementation, lots of non-bakcwards compatibillty changes ahead...
 
 ###Dependencies
-
-* ObsPy (NumPy, SciPy, matplotlib, etc.,)
-* mplstereonet
+* NumPy & SciPy 
+* ObsPy (only if plotting and for additional functionality) 
+* mplstereonet (only for plotting)
 * antelope (if using BRTT Datascope databases)
 
 ###Original HASH references
