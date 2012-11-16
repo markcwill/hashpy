@@ -19,7 +19,15 @@ rad = 1. / degrad
 
 
 class HashRun(object):
-	'''First motion focal mechanisms'''
+	'''Object which holds all data from a HASH instance for one event
+	
+	The variables are named and structured as close to the original code
+	as possible. Methods act on the variables within this namespace and
+	most are accessible as attributes.
+	
+	One can make a "HASH" driver program by calling the methods of this
+	class on the data held within it.
+	'''
 	# These MUST be the same as the fortran includes!!
 	# (They are compiled into the Fortran subroutines)
 	npick0, nmc0, nmax0 = None, None, None
@@ -96,8 +104,8 @@ class HashRun(object):
 	
 	def __init__(self, **kwargs):
 		'''Make one, empty or pass to other fxns.'''
-		npick0, nmc0, nmax0 = fortran_include('param.inc')
-		dang0, ncoor        = fortran_include('rot.inc')
+		npick0, nmc0, nmax0 = fortran_include('src/param.inc')
+		dang0, ncoor        = fortran_include('src/rot.inc')
 		
 		# initialize arrays
 		self.dang2=max(dang0, self.dang)

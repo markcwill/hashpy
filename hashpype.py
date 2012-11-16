@@ -28,15 +28,15 @@ def main():
 	
 	test_table_list = ['vz.pickema1', 'vz.pickema2', 'vz.pickema3']
 	
-	foo = HashRun(maxout=100)
-	foo.get_phases_from_db('/data/{y}/{d}/reno'.format(y=year, d=jday), orid=test_orid)
-	foo.load_velocity_models(test_table_list)
-	foo.generate_trial_data()
-	foo.calculate_takeoff_angles()
-	foo.calculate_hash_focalmech()
-	foo.plot_beachball()
-	return foo
+	hro = HashRun(maxout=100)
+	hro.get_phases_from_db('/data/{y}/{d}/reno'.format(y=year, d=jday), orid=test_orid)
+	hro.load_velocity_models(test_table_list)
+	hro.generate_trial_data()
+	hro.calculate_takeoff_angles()
+	hro.calculate_hash_focalmech()
+	hro.plot_beachball()
+	return hro
 
 if __name__ == '__main__':
-	foo = main()
+	hro = main()
 

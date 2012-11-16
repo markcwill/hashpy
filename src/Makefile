@@ -1,36 +1,26 @@
-OBJS1=	fmech_subs.o \
-        pol_subs.o \
-        station_subs.o \
-        uncert_subs.o \
-	util_subs.o
-
-OBJS2=	fmech_subs.o \
-        pol_subs.o \
-        station_subs.o \
-        uncert_subs.o \
-	util_subs.o \
-        vel_subs.o
-
-OBJS3=	fmamp_subs.o \
-        pol_subs.o \
-        station_subs.o \
-        uncert_subs.o \
-	util_subs.o \
-        vel_subs.o
-
-OBJS4=	fmech_subs.o \
-        pol_subs.o \
-        station_subs_5char.o \
-        uncert_subs.o \
-	util_subs.o \
-        vel_subs.o
+# HASHpype Makefile
+#
+# - Mark Williams 2012.320
+# Based on HASH Makefile
 
 SRC=    fmech_subs.f uncert_subs.f util_subs.f \
         pol_subs.f vel_subs.f station_subs.f vel_subs2.f
 
-hashpy: Makefile $(SRC)
+# HASHpype library module:
+hashpy: hashpy.so
+
+hashpy.so: Makefile $(SRC)
 	f2py -c -m hashpy $(SRC)     
 
+.PHONY : install
+install : hashpy.so
+	@mv hashpy.so ..
+
+#-------------------------------------------------
+# Original Makefile targets
+#-------------------------------------------------
+
+# These can probably be safely deleted...
 hash_driver1: Makefile hash_driver1.f $(OBJS1)
 	f77  hash_driver1.f $(OBJS1) -O -o hash_driver1
 
@@ -70,5 +60,4 @@ util_subs.o : Makefile util_subs.f
 vel_subs.o : Makefile vel_subs.f
 	f77 vel_subs.f -O -c
 
-hashpy : Makefile
 

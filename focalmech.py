@@ -96,8 +96,8 @@ class FocalMech(object):
 	
 	def __init__(self, **kwargs):
 		'''Make one, empty or pass to other fxns.'''
-		npick0, nmc0, nmax0 = fortran_include('param.inc')
-		dang0, ncoor        = fortran_include('rot.inc')
+		npick0, nmc0, nmax0 = fortran_include('src/param.inc')
+		dang0, ncoor        = fortran_include('src/rot.inc')
 		
 		# initialize arrays
 		self.dang2=max(dang0, self.dang)
