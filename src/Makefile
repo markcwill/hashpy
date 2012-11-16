@@ -7,14 +7,14 @@ SRC=    fmech_subs.f uncert_subs.f util_subs.f \
         pol_subs.f vel_subs.f station_subs.f vel_subs2.f
 
 # HASHpype library module:
-hashpy: hashpy.so
+hashpy: libhashpy.so
 
-hashpy.so: Makefile $(SRC)
-	f2py -c -m hashpy $(SRC)     
+libhashpy.so: Makefile $(SRC)
+	f2py -c -m libhashpy $(SRC)     
 
 .PHONY : install
-install : hashpy.so
-	@mv hashpy.so ..
+install : libhashpy.so
+	@mv libhashpy.so ..
 
 #-------------------------------------------------
 # Original Makefile targets

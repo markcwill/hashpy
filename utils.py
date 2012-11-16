@@ -25,13 +25,27 @@ def zero_360(str1):
 		pass
 	return str1
 
-def ps_pt_axis(str1,da1,sa1,str2,da2,sa2):
+def nodal2pt(str1,da1,sa1,str2,da2,sa2):
 	'''Compute azimuth and plungement of P-T axis 
 	(from nodal plane strikes, dips and rakes.)
 	
 	Mark's python port from Gabe's perl port from:
 	FORTRAN routines of Anne Deschamps ::
 	
+	Inputs
+	------
+	*args == (str1,da1,sa1,str2,da2,sa2)
+	For each plane:
+	str : strike angle in degrees
+	da  : dip angle in degrees
+	sa  : rake (slip angle) in degrees
+	
+	Returns
+	-------
+	Dips and azimuths of P and T axes
+	(dip_p, dip_t, azi_p, azi_t)
+	
+	(Original fxn used azimuth of dip plane, not strike)
 	str1 = dd1 - 90;
 	str2 = dd2 - 90;
 	'''
