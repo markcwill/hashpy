@@ -20,13 +20,15 @@ def main():
 	380828 2012175
 	'''
 	
-	test_table_list =  ['vz.socal',
+	ttl =  ['vz.socal',
 						'vz.north',
 						'vz.lab1',
 						'vz.sgm1',
 						'vz.vb1']
 	
-	test_table_list = ['vz.pickema1', 'vz.pickema2', 'vz.pickema3']
+	vel_mod_dir = 'data'
+	ttl= ['vz.pickema1', 'vz.pickema2', 'vz.pickema3']
+	test_table_list = ['/'.join([vel_mod_dir,table]) for table in ttl]
 	
 	hro = HashRun(maxout=100)
 	hro.get_phases_from_db('/data/{y}/{d}/reno'.format(y=year, d=jday), orid=test_orid)
