@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-#  fm.py
+#  hashpype.py
 #
 # by Mark Williams 2012.313
 # First motion focal mechanism classes for running HASH

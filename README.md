@@ -8,6 +8,13 @@ Right now the only supported input is BRTT Antelope Datascope databases. The ini
 
 This is just a draft implementation, lots of non-bakcwards compatibillty changes ahead...
 
+#Dependencies
+* ObsPy (NumPy, SciPy, matplotlib, etc.,)
+* mplstereonet
+* antelope (if using BRTT Datascope databases)
+
+#Original HASH references
+
 * Hardebeck, Jeanne L. and Peter M. Shearer, A new method for determining first-
   motion focal mechanisms, Bulletin of the Seismological Society of America, 92,
   2264-2276, 2002.

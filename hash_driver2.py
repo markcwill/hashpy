@@ -1,6 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
+# hash_driver2.py
+# -by Mark Williams 2012
+# This is a port of the file 'hash_driver2.f' rewritten in python.
+#
+# This is just for compatibility and testing. See the 'driver.py'
+# script for creating a Hash run pipeline object.
+#
+# ----------------------------------------------------------------
 # Sample main driver program for using the focal mechanism subroutines.  
 # The polarity input format is the "phase" format of the SCEDC, similar to FPFIT.
 # Takeoff angle uncertainty is expresses as a suite of 1D velocity models.
@@ -35,8 +43,7 @@
 #     16         a1     P polarity : U, u, +, D, d, or -
 #
 from sys import argv
-from hashpy import *
-import math # should use numpy eventually
+from libhashpy import *
 import numpy as np
 from hash_utils import fortran_include, get_sta_coords, test_stereo
 
