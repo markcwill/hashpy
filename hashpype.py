@@ -404,11 +404,12 @@ class HashPype(object):
 		test_stereo(self.p_azi_mc[:self.npol,0], self.p_the_mc[:self.npol,0], self.p_pol[:self.npol], sdr=[self.str_avg[0], self.dip_avg[0], self.rak_avg[0]])
 		azimuths,takeoffs,polarities,sdr=[]
 		'''
-		import matplotlib.pyplot as plt
+		from matplotlib.figure import Figure
+		from matplotlib.pyplot import show
 		import mplstereonet
 		from obspy.imaging.beachball import AuxPlane
 		
-		fig = plt.figure()
+		fig = Figure()
 		ax = fig.add_subplot(111, projection='stereonet')
 		
 		# pull out variables from mechanism
@@ -441,7 +442,7 @@ class HashPype(object):
 			for i in range(self.npol):
 				h_rk = ax.rake(azimuths[i]-90,takeoffs[i]+5,90, marker='$   {0}$'.format(self.sname[i]), color='black',markersize=20)
 		# and go.
-		plt.show()
+		show()
 	
 	def quick_station_map(self):
 		'''Quick and dirty station map'''
