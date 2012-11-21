@@ -14,9 +14,9 @@ There will probably be small adjustments to the locations and structure of what 
 ###Dependencies
 * Fortran compiler (tested with gfortran)
 * NumPy & SciPy (main dependancy, for numerical arrays and f2py)
-* ObsPy (only if plotting and for additional functionality) 
-* mplstereonet (only for plotting)
-* antelope (if using BRTT Datascope databases)
+* [ObsPy](https://github.com/obspy/obspy.git) (only if plotting and for additional functionality) 
+* [mplstereonet](https://github.com/joferkington/mplstereonet.git) (only for plotting)
+* Antelope (if using BRTT Datascope databases)
 
 ###HASH references
 
