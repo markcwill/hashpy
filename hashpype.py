@@ -399,17 +399,22 @@ class HashPype(object):
 		assert d.nrecs() is not 0, 'No solution for this ORID: {0}'.format(orid)
 		self.fplane = DbrecordList(d)
 		
+	def print_solution_line(self, solution=0):
+		'''Print the best solution'''
+		fp = self.fplane[solution]
+		fpline = "ORID: {0} STRIKE: {1} DIP {2} RAKE {3}"
+		print fpline.format(fp['orid'],fp['str1'],fp['dip1'],fp['rake1'])
+	
 	def plot_beachball(self, labels=False):
 		'''
 		test_stereo(self.p_azi_mc[:self.npol,0], self.p_the_mc[:self.npol,0], self.p_pol[:self.npol], sdr=[self.str_avg[0], self.dip_avg[0], self.rak_avg[0]])
 		azimuths,takeoffs,polarities,sdr=[]
 		'''
-		from matplotlib.figure import Figure
-		from matplotlib.pyplot import show
+		from matplotlib import pyplot as plt
 		import mplstereonet
 		from obspy.imaging.beachball import AuxPlane
 		
-		fig = Figure()
+		fig = plt.figure()
 		ax = fig.add_subplot(111, projection='stereonet')
 		
 		# pull out variables from mechanism
@@ -437,12 +442,13 @@ class HashPype(object):
 		# plot station takeoffs
 		h_rk = ax.rake(azimuths[up]-90.,takeoffs[up],90, 'wo', markersize=8, markeredgewidth=2, markerfacecolor=None)
 		h_rk = ax.rake(azimuths[dn]-90.,takeoffs[dn],90, 'ko', markersize=8, markeredgewidth=2)
+		#h_t  = ax.set_title("ORID: {0}".format(self.icusp))
 		# hack to throw in station names for temp debugging...
 		if labels:
 			for i in range(self.npol):
 				h_rk = ax.rake(azimuths[i]-90,takeoffs[i]+5,90, marker='$   {0}$'.format(self.sname[i]), color='black',markersize=20)
 		# and go.
-		show()
+		plt.show()
 	
 	def quick_station_map(self):
 		'''Quick and dirty station map'''

@@ -36,6 +36,7 @@ def main():
 	hro.generate_trial_data()
 	hro.calculate_takeoff_angles()
 	hro.calculate_hash_focalmech()
+	#hro.print_solution_line()
 	hro.plot_beachball()
 	return hro
 

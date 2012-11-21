@@ -8,7 +8,11 @@ Right now the only supported input is BRTT Antelope Datascope databases. The ini
 
 This is just a draft implementation, lots of non-bakcwards compatibillty changes ahead...
 
+###Future
+There will probably be small adjustments to the locations and structure of what functions are in what files, but the HashPype class and methods will be the main way to interact with HASH. I am working on an antelope program, 'dbhash', which will basically use the hashpy module under the hood.
+
 ###Dependencies
+* Fortran compiler (tested with gfortran)
 * NumPy & SciPy (main dependancy, for numerical arrays and f2py)
 * ObsPy (only if plotting and for additional functionality) 
 * mplstereonet (only for plotting)
