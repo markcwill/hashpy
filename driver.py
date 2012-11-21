@@ -37,7 +37,7 @@ def main():
 	hro.calculate_takeoff_angles()
 	hro.calculate_hash_focalmech()
 	#hro.print_solution_line()
-	hro.plot_beachball()
+	hro.plot_beachball(labels=True)
 	return hro
 
 if __name__ == '__main__':
