@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-#  hashpype.py
+#  driver.py
 
+import os.path
 from hashpype import HashPype 
 
 def main():
@@ -20,15 +21,12 @@ def main():
 	380828 2012175
 	'''
 	
-	ttl =  ['vz.socal',
-						'vz.north',
-						'vz.lab1',
-						'vz.sgm1',
-						'vz.vb1']
-	
-	vel_mod_dir = 'data'
+	ttl =  ['vz.socal', 'vz.north', 'vz.lab1', 'vz.sgm1', 'vz.vb1']
 	ttl= ['vz.pickema1', 'vz.pickema2', 'vz.pickema3']
-	test_table_list = ['/'.join([vel_mod_dir,table]) for table in ttl]
+	
+	abs_path = os.path.dirname(__file__)
+	vel_mod_dir = 'data'
+	test_table_list = [os.path.join(abs_path, vel_mod_dir, table) for table in ttl]
 	
 	hro = HashPype(maxout=100)
 	hro.get_phases_from_db('/data/{y}/{d}/reno'.format(y=year, d=jday), orid=test_orid)

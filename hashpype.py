@@ -8,10 +8,11 @@
 
 # import all Fortran subroutines and common blocks from the mod
 # plus my custom utils and numpy arrays
+
+import numpy as np
+import os.path
 from libhashpy import *
 from hash_utils import fortran_include, get_sta_coords
-import numpy as np
-
 
 # for HASH compatiblity, change later.
 degrad = 180. / np.pi
@@ -104,8 +105,13 @@ class HashPype(object):
 	
 	def __init__(self, **kwargs):
 		'''Make one, empty or pass to other fxns.'''
-		npick0, nmc0, nmax0 = fortran_include('src/param.inc')
-		dang0, ncoor        = fortran_include('src/rot.inc')
+		
+		directory = os.path.dirname(__file__)
+		param_inc_file = os.path.join(directory,'src','param.inc')
+		rot_inc_file   = os.path.join(directory,'src','rot.inc')
+		
+		npick0, nmc0, nmax0 = fortran_include(param_inc_file)
+		dang0, ncoor        = fortran_include(rot_inc_file)
 		
 		# initialize arrays
 		self.dang2=max(dang0, self.dang)
@@ -164,32 +170,29 @@ class HashPype(object):
 		# add pf check for defaults
 		
 	def load_pf(self, pffile='dbhash.pf'):
-		'''update some run settings from a pf file'''
+		'''Update some run settings from a pf file
 		
-		raise NotImplementedError("This doesn't quite work yet")
+		This could be expanded to control the whole HASH run
+		if one really wanted.
+		
+		Right now these settings are inherited from the class, and
+		are not instance attributes.
+		'''
 		
 		from obspy_ext.antelope import add_antelope_path
 		add_antelope_path()
-		import antelope.stock as pf
+		from antelope.stock import pfget
 		
-		hash_inputs = { 'npolmin':'int',
-				'max_agap':'int',
-				'max_pgap':'int',
-				'dang':'int',
-				'nmc':'int',
-				'maxout':'int',
-				'badfrac':'float',
-				'delmax':'int',
-				'cangle':'int',
-				'prob_max':'float'}
-				
-		pf_map = { 'float': pf.pfget_double,
-					'int'  : pf.pfget_int }
-		for key in hash_inputs:
-			fxn = pf_map[hash_inputs[key]]
-			value = fxn(pffile, key)
-			if value:
-				self.__dict__[key] = value
+		pf_settings = pfget(pffile)
+		
+		# Little hack to do type conversions 
+		for key in pf_settings:
+			pfi = pf_settings[key]
+			if key in ['badfrac','prob_max']:
+				pfi = float(pfi)
+			else:
+				pfi = int(pfi)
+			self.__setattr__(key, pfi)
 	
 	def load_velocity_models(self, model_list=None):
 		'''load velocity model data'''
