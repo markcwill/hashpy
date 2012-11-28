@@ -29,6 +29,7 @@ def main():
 	test_table_list = [os.path.join(abs_path, vel_mod_dir, table) for table in ttl]
 	
 	hro = HashPype(maxout=100)
+	hro.load_pf(pffile='dbhash.pf')
 	hro.get_phases_from_db('/data/{y}/{d}/reno'.format(y=year, d=jday), orid=test_orid)
 	hro.load_velocity_models(test_table_list)
 	hro.generate_trial_data()

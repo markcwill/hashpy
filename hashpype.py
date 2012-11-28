@@ -82,8 +82,9 @@ class HashPype(object):
 	#----------------------------------------------------------------
 	
 	# Mark's spec'd object variables
-	vmodels = []     # list of string names of velocity model files
-	vtables = None   # actual travel time tables in common block
+	vmodel_dir = None # string of directory containing velocity models
+	vmodels = []      # list of string names of velocity model files
+	vtables = None    # actual travel time tables in common block
 	fplane = []
 	s2 = None
 	d2 = None
@@ -100,11 +101,30 @@ class HashPype(object):
 	nf2 = None   # number of fm's returned
 	nmult = None # number of fm solutions returned
 	
+	tstamp  = None
+	qlat    = None
+	qlon    = None
+	qdep    = None
+	qmag    = None
+	icusp   = None
+	seh     = None
+	sez     = None
+	
 	# polarity reversals, [-1,1] stub for now
 	spol = 1
 	
 	def __init__(self, **kwargs):
-		'''Make one, empty or pass to other fxns.'''
+		'''
+		Make an empty HASH run object.
+		
+		Initialize all the arrays needed for a HASH run. They are based
+		on the maximum size of the arrays passed to the FORTRAN
+		subroutines.
+		
+		Example
+		-------
+		>>> h = HashPype()
+		'''
 		
 		directory = os.path.dirname(__file__)
 		param_inc_file = os.path.join(directory,'src','param.inc')
@@ -168,7 +188,15 @@ class HashPype(object):
 			self.__dict__.update(kwargs)
 			
 		# add pf check for defaults
-		
+	
+	def __repr__(self):
+		'''String saying what for'''
+		if self.icusp:
+			id = self.icusp
+		else:
+			id = 'empty'
+		return '{0}({1})'.format(self.__class__.__name__, id)
+	
 	def load_pf(self, pffile='dbhash.pf'):
 		'''Update some run settings from a pf file
 		
@@ -190,18 +218,28 @@ class HashPype(object):
 			pfi = pf_settings[key]
 			if key in ['badfrac','prob_max']:
 				pfi = float(pfi)
-			else:
+			elif key in ['npolmin','max_agap','max_pgap','dang','nmc','maxout', 'delmax','cangle']:
 				pfi = int(pfi)
+			else:
+				pass
 			self.__setattr__(key, pfi)
+		
+		if 'vmodel_dir' in pf_settings and 'vmodels' in pf_settings:
+			self.vmodels = [os.path.join(self.vmodel_dir, table) for table in self.vmodels]
 	
 	def load_velocity_models(self, model_list=None):
 		'''load velocity model data'''
 		# Future -- allow adding on fly, check and append to existing
 		#
 		# THIS LOADS INTO hashpy.angtable.table (nx,nd,nindex) !!!
+		
+		# take care of 
 		if model_list:
-			self.vmodels = model_list
-		for n,v in enumerate(self.vmodels):
+			models = model_list
+		else:
+			models = self.vmodels
+		
+		for n,v in enumerate(models):
 			self.ntab = mk_table_add(n+1,v)
 			self.vtable = angtable.table
 	
@@ -319,7 +357,7 @@ class HashPype(object):
 		for k in range(self.npol):
 			print '{0}   {1} {2} {3} {4}'.format(k,self.sname[k],self.p_azi_mc[k,0],self.p_the_mc[k,0],self.p_pol[k])
 	
-	def check_minimum_polaritiy(self):
+	def check_minimum_polarity(self):
 		if self.npol >= self.npolmin:
 			return True
 		else:
@@ -372,24 +410,28 @@ class HashPype(object):
 	
 	def save_result_to_db(self, dbout=None, solution=0):
 		'''Write the preferred HASH solution to the fplane table.'''
+		from obspy.imaging.beachball import AuxPlane
 		from obspy_ext.antelope import AttribDbptr, open_db_or_string
-		
-		assert len(fplane) is not 0, 'No solutions to write!!'
-		fp = fplane[solution]
+		assert len(self.fplane) is not 0, 'No solutions to write!!'
+		fp = self.fplane[solution]
 		
 		d, oflag = open_db_or_string(dbout, perm='r+')
 		d = d.lookup(table='fplane')
 		d.record = d.addnull()
-		d.addv('orid', fp['orid'],
-			   'str1', fp['str1'],
-			   'dip1', fp['dip1'],
-			   'rake1',fp['rake1'],
-			   'str2', fp['str2'],
-			   'dip2', fp['dip2'],
-			   'rake2',fp['rake2'],
+		d.putv('orid', fp['orid'],
+			   'str1', round(fp['str1'],1) ,
+			   'dip1', round(fp['dip1'],1) ,
+			   'rake1',round(fp['rake1'],1),
 			   'algorithm', fp['algorithm'],
 			   'mechid', d.nextid('mechid')
 			   )
+		if True:
+			fp['str2'],fp['dip2'],fp['rake2'] = AuxPlane(fp['str1'],fp['dip1'],fp['rake1'])
+			d.putv('str2', round(fp['str2'],1) ,
+			   'dip2', round(fp['dip2'],1) ,
+			   'rake2',round(fp['rake2'],1),
+			   )
+		d.close()
 		
 	def read_result_from_db(self, dbin=None, orid=None):
 		'''Read in a mechanism from the fplane table'''
@@ -405,8 +447,10 @@ class HashPype(object):
 	def print_solution_line(self, solution=0):
 		'''Print the best solution'''
 		fp = self.fplane[solution]
-		fpline = "ORID: {0} STRIKE: {1} DIP {2} RAKE {3}"
-		print fpline.format(fp['orid'],fp['str1'],fp['dip1'],fp['rake1'])
+		fpline = "ORID:{0} STRIKE:{1} DIP:{2} RAKE:{3}"
+		solution = fp['str1'],fp['dip1'],fp['rake1']
+		sol = [int(x) for x in solution]
+		print fpline.format(fp['orid'],*sol)
 	
 	def plot_beachball(self, labels=False):
 		'''
