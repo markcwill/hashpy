@@ -248,10 +248,10 @@ class HashPype(object):
 		
 		db, oflag = open_db_or_string(dbname)
 		if orid is None:
-			dbv = db.process(['dbopen event', 'dbsubset evid == '+str(evid)])
+			dbv = dbprocess(dbv,['dbopen event', 'dbsubset evid == '+str(evid)])
 			dbv.record = 0
 			orid = dbv.getv('prefor')[0]
-		db = db.process([ 'dbopen origin', 'dbsubset orid == '+str(orid),
+		db = dbprocess(db,[ 'dbopen origin', 'dbsubset orid == '+str(orid),
 						'dbjoin origerr', 'dbjoin assoc',  'dbjoin arrival',
 						'dbjoin affiliation', 'dbjoin site',
 						'dbsubset iphase =~ /.*[Pp].*/',
