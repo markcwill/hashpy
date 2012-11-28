@@ -207,8 +207,6 @@ class HashPype(object):
 		are not instance attributes.
 		'''
 		
-		from obspy_ext.antelope import add_antelope_path
-		add_antelope_path()
 		from antelope.stock import pfget
 		
 		pf_settings = pfget(pffile)
@@ -246,7 +244,7 @@ class HashPype(object):
 	def get_phases_from_db(self, dbname, evid=None, orid=None, pf=None):
 		'''Input HASH data from Antelope database'''
 		
-		from obspy_ext.antelope import AttribDbptr, open_db_or_string
+		from aug.contrib import AttribDbptr, open_db_or_string
 		
 		db, oflag = open_db_or_string(dbname)
 		if orid is None:
@@ -411,7 +409,8 @@ class HashPype(object):
 	def save_result_to_db(self, dbout=None, solution=0):
 		'''Write the preferred HASH solution to the fplane table.'''
 		from obspy.imaging.beachball import AuxPlane
-		from obspy_ext.antelope import AttribDbptr, open_db_or_string
+		from aug.contrib import AttribDbptr, open_db_or_string
+		
 		assert len(self.fplane) is not 0, 'No solutions to write!!'
 		fp = self.fplane[solution]
 		
@@ -435,7 +434,7 @@ class HashPype(object):
 		
 	def read_result_from_db(self, dbin=None, orid=None):
 		'''Read in a mechanism from the fplane table'''
-		from obspy_ext.antelope import open_db_or_string, DbrecordList
+		from aug.contrib import open_db_or_string, DbrecordList
 		if orid is None:
 			orid = self.icusp
 		d = open_db_or_string(dbin)
