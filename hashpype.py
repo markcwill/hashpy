@@ -244,6 +244,7 @@ class HashPype(object):
 	def get_phases_from_db(self, dbname, evid=None, orid=None, pf=None):
 		'''Input HASH data from Antelope database'''
 		
+		from antelope.datascope import dbprocess
 		from aug.contrib import AttribDbptr, open_db_or_string
 		
 		db, oflag = open_db_or_string(dbname)
