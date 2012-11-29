@@ -27,7 +27,15 @@ class HashPype(object):
 	most are accessible as attributes.
 	
 	One can make a "HASH" driver program by calling the methods of this
-	class on the data held within it.
+	class on the data held within it, but the input data must be entered
+	somehow. There are no input methods, and one very simple output
+	method. Why?
+	
+	The idea is to use this as a metaclass which inherits all these
+	methods and attributes to another class which defines various
+	input/output for whatever system is used.
+	
+	*See the DbHashPype class in the 'dbhash' program for details.
 	'''
 	# These MUST be the same as the fortran includes!!
 	# (They are compiled into the Fortran subroutines)
@@ -197,33 +205,33 @@ class HashPype(object):
 			id = 'empty'
 		return '{0}({1})'.format(self.__class__.__name__, id)
 	
-	def load_pf(self, pffile='dbhash.pf'):
-		'''Update some run settings from a pf file
+	#def load_pf(self, pffile='dbhash.pf'):
+		#'''Update some run settings from a pf file
 		
-		This could be expanded to control the whole HASH run
-		if one really wanted.
+		#This could be expanded to control the whole HASH run
+		#if one really wanted.
 		
-		Right now these settings are inherited from the class, and
-		are not instance attributes.
-		'''
+		#Right now these settings are inherited from the class, and
+		#are not instance attributes.
+		#'''
 		
-		from antelope.stock import pfget
+		#from antelope.stock import pfget
 		
-		pf_settings = pfget(pffile)
+		#pf_settings = pfget(pffile)
 		
-		# Little hack to do type conversions 
-		for key in pf_settings:
-			pfi = pf_settings[key]
-			if key in ['badfrac','prob_max']:
-				pfi = float(pfi)
-			elif key in ['npolmin','max_agap','max_pgap','dang','nmc','maxout', 'delmax','cangle']:
-				pfi = int(pfi)
-			else:
-				pass
-			self.__setattr__(key, pfi)
+		## Little hack to do type conversions 
+		#for key in pf_settings:
+			#pfi = pf_settings[key]
+			#if key in ['badfrac','prob_max']:
+				#pfi = float(pfi)
+			#elif key in ['npolmin','max_agap','max_pgap','dang','nmc','maxout', 'delmax','cangle']:
+				#pfi = int(pfi)
+			#else:
+				#pass
+			#self.__setattr__(key, pfi)
 		
-		if 'vmodel_dir' in pf_settings and 'vmodels' in pf_settings:
-			self.vmodels = [os.path.join(self.vmodel_dir, table) for table in self.vmodels]
+		#if 'vmodel_dir' in pf_settings and 'vmodels' in pf_settings:
+			#self.vmodels = [os.path.join(self.vmodel_dir, table) for table in self.vmodels]
 	
 	def load_velocity_models(self, model_list=None):
 		'''load velocity model data'''
@@ -240,93 +248,6 @@ class HashPype(object):
 		for n,v in enumerate(models):
 			self.ntab = mk_table_add(n+1,v)
 			self.vtable = angtable.table
-	
-	def get_phases_from_db(self, dbname, evid=None, orid=None, pf=None):
-		'''Input HASH data from Antelope database'''
-		
-		from antelope.datascope import dbprocess
-		from aug.contrib import AttribDbptr, open_db_or_string
-		
-		db, oflag = open_db_or_string(dbname)
-		if orid is None:
-			dbv = dbprocess(dbv,['dbopen event', 'dbsubset evid == '+str(evid)])
-			dbv.record = 0
-			orid = dbv.getv('prefor')[0]
-		db = dbprocess(db,[ 'dbopen origin', 'dbsubset orid == '+str(orid),
-						'dbjoin origerr', 'dbjoin assoc',  'dbjoin arrival',
-						'dbjoin affiliation', 'dbjoin site',
-						'dbsubset iphase =~ /.*[Pp].*/',
-						'dbsubset (ondate <= time)',
-						'dbsubset (time <= offdate) || (offdate == -1)']
-						)
-		
-		phases = AttribDbptr(db)
-		self.nrecs = len(phases)
-		assert len(phases) > 0, "No picks for this ORID: {0}".format(orid)
-		ph = phases[0]
-		self.tstamp = ph['origin.time']
-		self.qlat   = ph['origin.lat']
-		self.qlon   = ph['origin.lon']
-		self.qdep   = ph['origin.depth']
-		self.qmag   = ph['origin.ml']
-		self.icusp  = ph['origin.orid']
-		self.seh    = ph['origerr.smajax']
-		self.sez    = ph['origerr.sdepth']
-		
-		aspect = np.cos(self.qlat / degrad) # convert using python later.
-		
-		# The index 'k' is deliberately non-Pythonic to deal with the fortran
-		# subroutines which need to be called and the structure of the original HASH code.
-		# May be able to update with a rewrite... YMMV
-		k = 0
-		for ph in phases:
-			# load up params
-			# in future, could use the acol() method?
-			self.sname[k]     = ph.sta
-			self.snet[k]      = ph.net
-			self.scomp[k]     = ph.chan
-			self.pickonset[k] = 'I'
-			self.pickpol[k]   = ph.fm
-			
-			flat,flon,felv = ph['site.lat'],ph['site.lon'],ph['site.elev']
-			self.esaz[k] = ph['esaz']
-			#print '{0} {1} {2} {3} {4} {5} {6} {7}'.format(k, sname[k], snet[k], scomp[k], pickonset[k], pickpol[k], flat, flon)
-			
-			# dist @ azi, get from db OR obspy or another python mod (antelope) could do this on WGS84
-			dx = (flon - self.qlon) * 111.2 * aspect
-			dy = (flat - self.qlat) * 111.2
-			dist = np.sqrt(dx**2 + dy**2)
-			qazi = 90. - np.arctan2(dy,dx) * degrad
-			
-			if (qazi < 0.):
-				qazi = qazi + 360.
-			if (dist > self.delmax):
-				continue
-			if (self.pickpol[k] in 'CcUu'):
-				self.p_pol[k] = 1
-			elif (self.pickpol[k] in 'RrDd'):
-				self.p_pol[k] = -1
-			else:
-				continue
-			
-			# save them for other functions -MCW
-			self.dist[k] = dist
-			self.qazi[k] = qazi
-			self.flat[k] = flat
-			self.flon[k] = flon
-			self.felv[k] = felv
-			
-			if (self.pickonset[k] in 'Ii'):
-				self.p_qual[k] = 0
-			else:
-				self.p_qual[k] = 1
-			
-			# polarity check in original code... doesn't work here
-			#self.p_pol[k] = self.p_pol[k] * self.spol
-			k += 1
-		#npol = k - 1
-		self.npol = k # k is zero indexed in THIS loop
-		db.close()
 		
 	def generate_trial_data(self):
 		'''Make data for running trials MUST have loaded data and vel mods alreday
@@ -397,53 +318,21 @@ class HashPype(object):
 				self.qual[imult]='C'
 			else:
 				self.qual[imult]='D'
-				
+	
+		
+	def add_solution_to_dict(self):
+		'''stub'''
 		# NEED to get other plane here!!! (check Fortran utils...)
 		# make this a Dbrecord eventually?
+		# pasted from end of HashPype.calculate_hash_focalmech()
 		fline = {'orid': self.icusp, 'str1': self.str_avg[0],
 			'dip1': self.dip_avg[0], 'rake1': self.rak_avg[0],
 			'str2': self.s2, 'dip2': self.d2, 'rake2': self.r2,
 			'algorithm':'HASH', 'mechid': None
 			}
 		self.fplane.append(fline)
+		#---End paste job
 	
-	def save_result_to_db(self, dbout=None, solution=0):
-		'''Write the preferred HASH solution to the fplane table.'''
-		from obspy.imaging.beachball import AuxPlane
-		from aug.contrib import AttribDbptr, open_db_or_string
-		
-		assert len(self.fplane) is not 0, 'No solutions to write!!'
-		fp = self.fplane[solution]
-		
-		d, oflag = open_db_or_string(dbout, perm='r+')
-		d = d.lookup(table='fplane')
-		d.record = d.addnull()
-		d.putv('orid', fp['orid'],
-			   'str1', round(fp['str1'],1) ,
-			   'dip1', round(fp['dip1'],1) ,
-			   'rake1',round(fp['rake1'],1),
-			   'algorithm', fp['algorithm'],
-			   'mechid', d.nextid('mechid')
-			   )
-		if True:
-			fp['str2'],fp['dip2'],fp['rake2'] = AuxPlane(fp['str1'],fp['dip1'],fp['rake1'])
-			d.putv('str2', round(fp['str2'],1) ,
-			   'dip2', round(fp['dip2'],1) ,
-			   'rake2',round(fp['rake2'],1),
-			   )
-		d.close()
-		
-	def read_result_from_db(self, dbin=None, orid=None):
-		'''Read in a mechanism from the fplane table'''
-		from aug.contrib import open_db_or_string, DbrecordList
-		if orid is None:
-			orid = self.icusp
-		d = open_db_or_string(dbin)
-		d = d.lookup(table='fplane')
-		d = d.subset('orid == {0}'.format(self.icusp))
-		assert d.nrecs() is not 0, 'No solution for this ORID: {0}'.format(orid)
-		self.fplane = DbrecordList(d)
-		
 	def print_solution_line(self, solution=0):
 		'''Print the best solution'''
 		fp = self.fplane[solution]
