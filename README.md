@@ -7,7 +7,7 @@ The current version of this code uses the standard python distutils, NOT the num
 
 For basic install:
 
-```
+```shell
 # First, install dependencies. Then cd to this top directory and:
 make install
 ```
