@@ -117,6 +117,7 @@ class HashPype(object):
 	icusp   = None
 	seh     = None
 	sez     = None
+	arid   = None
 	
 	# polarity reversals, [-1,1] stub for now
 	spol = 1
@@ -181,6 +182,8 @@ class HashPype(object):
 		self.flon    = np.empty(npick0, float)
 		self.felv    = np.empty(npick0, float)
 		self.esaz    = np.empty(npick0, float)
+		self.arid  	 = np.empty(npick0, int)
+
 		
 		# Save include vars for other fucntions to access
 		self.npick0 = npick0
@@ -204,34 +207,6 @@ class HashPype(object):
 		else:
 			id = 'empty'
 		return '{0}({1})'.format(self.__class__.__name__, id)
-	
-	#def load_pf(self, pffile='dbhash.pf'):
-		#'''Update some run settings from a pf file
-		
-		#This could be expanded to control the whole HASH run
-		#if one really wanted.
-		
-		#Right now these settings are inherited from the class, and
-		#are not instance attributes.
-		#'''
-		
-		#from antelope.stock import pfget
-		
-		#pf_settings = pfget(pffile)
-		
-		## Little hack to do type conversions 
-		#for key in pf_settings:
-			#pfi = pf_settings[key]
-			#if key in ['badfrac','prob_max']:
-				#pfi = float(pfi)
-			#elif key in ['npolmin','max_agap','max_pgap','dang','nmc','maxout', 'delmax','cangle']:
-				#pfi = int(pfi)
-			#else:
-				#pass
-			#self.__setattr__(key, pfi)
-		
-		#if 'vmodel_dir' in pf_settings and 'vmodels' in pf_settings:
-			#self.vmodels = [os.path.join(self.vmodel_dir, table) for table in self.vmodels]
 	
 	def load_velocity_models(self, model_list=None):
 		'''load velocity model data'''
@@ -318,7 +293,6 @@ class HashPype(object):
 				self.qual[imult]='C'
 			else:
 				self.qual[imult]='D'
-	
 		
 	def add_solution_to_dict(self):
 		'''stub'''

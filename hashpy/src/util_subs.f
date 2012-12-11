@@ -52,7 +52,7 @@ c   uses (x,y,z) coordinate system with x=north, y=east, z=down
          slip(3)=-sin(lam)*sin(del)
       else
          if ((1.-abs(fnorm(3))).le.1e-7) then
-           print *,'***FPCOOR warning, horz fault, strike undefined'
+c          print *,'***FPCOOR warning, horz fault, strike undefined'
            del=0.
            phi=atan2(-slip(1),slip(2))
            clam=cos(phi)*slip(1)+sin(phi)*slip(2)
