@@ -4,3 +4,4 @@
 # first motion focal mechanisms
 
 from hashpype import HashPype
+from libhashpy import *

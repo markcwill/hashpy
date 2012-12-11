@@ -2,13 +2,13 @@
 
 from distutils.core import setup
 
-setup(name='AUG contrib',
+setup(name='HASHpy',
       version='1.0',
-      description='Antelope Users Contributed Modules',
+      description='Routines for running HASH algorithms',
       author='Mark Williams',
-      url='https//github.com/NVSeismoLab',
-      packages=['aug','aug.contrib',
-                'aug.contrib.orm'],
+      url='https//github.com/markcwill',
+      packages=['hashpy'],
+      package_data={'hashpy':['libhashpy.so','Makefile','data/*', 'src/*.f']},
 )
 
 

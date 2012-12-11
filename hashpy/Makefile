@@ -12,8 +12,9 @@ SRC= $(addprefix src/, $(SRCF))
 hashpy: libhashpy.so
 
 libhashpy.so: Makefile $(SRC)
-	f2py -c -m libhashpy $(SRC)     
-
+	f2py -c -m libhashpy $(SRC)
+    
 .PHONY : install
 install : libhashpy.so
+	python setup.py install
 
