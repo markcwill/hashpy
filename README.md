@@ -2,6 +2,13 @@
 
 This is a fork of HASH v1.2, the first motion focal mechanism program by Hardebeck and Shearer. The subroutines (in Fortran 77, which I did not write) now contain f2py compiler directives. The Makefile has a new target, 'hashpy', which will make a library, 'libhashpy.so'. This is a python module which will import all the subs and common blocks into the python namespace.
 
+# Installation
+The current version of this code uses the standard python distutils, NOT the numpy version, which can compile Fortran code. So, for now, install using the Makefile, which first builds the Fortran library, then runs the classic 'python setup.py install'. The source code and makefiles to remake the libhashpy module are installed to the hashpy folder, so with a little hacking, one could just remake them in place, if one wanted to change the source code.
+
+For basic install:
+```
+make install
+```
 ```python
 # This will give you access to all the Fortran compiled subs from python
 from libhashpy import *
