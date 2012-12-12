@@ -4,7 +4,7 @@
 #  dbhash.py
 #  
 
-from dbhashpype import DbHashPype
+from hashpy.db.dbhashpype import DbHashPype
 from argparse import ArgumentParser
 
 def main(args):
