@@ -7,7 +7,7 @@ setup(name='HASHpy',
       description='Routines for running HASH algorithms',
       author='Mark Williams',
       url='https//github.com/markcwill',
-      packages=['hashpy'],
+      packages=['hashpy', 'hashpy.db'],
       package_data={'hashpy':['libhashpy.so','src/*.inc','Makefile','data/*', 'src/*.f']},
 )
 
