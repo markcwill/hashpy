@@ -13,7 +13,7 @@ kwargs = {'name' : 'HASHpy',
 }
 
 if 'ANTELOPE' in os.environ:
-    ant_bin = os.join(os.environ['ANTELOPE'], 'bin')
+    ant_bin = os.path.join(os.environ['ANTELOPE'], 'bin')
     kwargs['data_files'] = [(ant_bin, ['db/dbhash'])]
 
 setup(**kwargs)
