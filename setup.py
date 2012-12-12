@@ -8,7 +8,7 @@ setup(name='HASHpy',
       author='Mark Williams',
       url='https//github.com/markcwill',
       packages=['hashpy'],
-      package_data={'hashpy':['libhashpy.so','Makefile','data/*', 'src/*.f']},
+      package_data={'hashpy':['libhashpy.so','src/*.inc','Makefile','data/*', 'src/*.f']},
 )
 
 
