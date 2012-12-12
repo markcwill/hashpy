@@ -1,4 +1,4 @@
-##HASHpy
+## HASHpy
 
 This is a fork of HASH v1.2, the first motion focal mechanism program by Hardebeck and Shearer. The subroutines (in Fortran 77, which I did not write) are compiled into a python module, 'libhashpy.so', which will import all the subs and common blocks into the python namespace. There is a base class, HashPype, that contains attributes which hold data for a HASH calculation, and methods which can be called to do the HASH calculation. This class facilitates easily writing a 'hash driver' script in python. See below for details.
 
@@ -18,7 +18,7 @@ from hashpy.libhashpy import *
 # To use the HashPype class example:
 from hashpy import HashPype
 ```
-Right now, there are no input/output methods. There is one VERY simple output which will print out the event ID with the best strike/dip/rake, but that is it. The idea is to use this as a metaclass, and build classes which inherit from HashPype and define their own I/O. See the dbhash project, which uses the hashpy module to build a DbHashPype class that uses Antelope databases for I/O.
+Right now, there are no input/output methods. There is one VERY simple output which will print out the event ID with the best strike/dip/rake, but that is it. The idea is to use this as a metaclass, and build classes which inherit from HashPype and define their own I/O. See the hashpy.db package, which uses the hashpype module to build a DbHashPype class that uses Antelope databases for I/O.
 
 ```python
 # Usage example:
@@ -45,13 +45,13 @@ hro.print_solution_line()
 
 This is just a draft implementation, lots of non-backwards compatibillty changes ahead...
 
-###Dependencies
+### Dependencies
 * Fortran compiler (tested with gfortran)
 * NumPy (main dependancy, for numerical arrays and f2py)
 * [ObsPy](https://github.com/obspy/obspy.git) (only if plotting and for additional functionality) 
 * [mplstereonet](https://github.com/joferkington/mplstereonet.git) (only for plotting)
 
-###HASH references
+### HASH references
 
 * Hardebeck, Jeanne L. and Peter M. Shearer, A new method for determining first-
   motion focal mechanisms, Bulletin of the Seismological Society of America, 92,
@@ -60,7 +60,7 @@ This is just a draft implementation, lots of non-backwards compatibillty changes
   Constrain the Focal Mechanisms of Small Earthquakes, Bulletin of the
   Seismological Society of America, 93, 2434-2444, 2003.
 
-###Future
+### Future
 If I ever get ambitious, I would redo the structure of some of the Fortran subroutines (already started this with vel-subs2) and rewrite them in Fortran 90/95/2003. Probably couldn't ditch the common blocks without a full rewrite, but at least try and get rid of the GOTOs. Biggest improvement would be allocatable arrays, so you could avoid the includes and max-size arrays.
 
 There will probably be small adjustments to the locations and structure of what functions are in what files, but the HashPype class and methods will be the main way to interact with HASH.
