@@ -40,7 +40,7 @@ def dbhash(args):
 	
 	# Send to any optional outputs (plot or db 'fplane' table)
 	if args.graph:
-		hro.plot_beachball(labels=True)
+		hro.plot_stereonet(labels=True)
 	if args.dbout:
 		hro.save_result_to_db(dbout=args.dbout)
 	

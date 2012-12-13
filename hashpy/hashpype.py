@@ -315,7 +315,7 @@ class HashPype(object):
 		sol = [int(x) for x in solution]
 		print fpline.format(fp['orid'],*sol)
 	
-	def plot_beachball(self, labels=False):
+	def plot_stereonet(self, labels=False):
 		'''
 		test_stereo(self.p_azi_mc[:self.npol,0], self.p_the_mc[:self.npol,0], self.p_pol[:self.npol], sdr=[self.str_avg[0], self.dip_avg[0], self.rak_avg[0]])
 		azimuths,takeoffs,polarities,sdr=[]
