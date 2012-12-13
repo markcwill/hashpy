@@ -326,7 +326,7 @@ class HashPype(object):
 		
 		fig = plt.figure()
 		ax = fig.add_subplot(111, projection='stereonet')
-		
+		ax.set_azimuth_ticklabels([])
 		# pull out variables from mechanism
 		azimuths = self.p_azi_mc[:self.npol,0]
 		# HASH takeoffs are 0-180 from vertical UP!!

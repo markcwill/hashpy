@@ -31,6 +31,9 @@ class DbHashPype(HashPype):
 	class on the data held within it.
 	'''
 	
+	dbin = None
+	dbout = None
+	
 	def load_pf(self, pffile='dbhash.pf'):
 		'''Update runtime settings from a pf file
 		
@@ -73,6 +76,7 @@ class DbHashPype(HashPype):
 		orid	:	int of ORID
 		evid	:	int of EVID
 		'''
+		self.dbin = dbname
 		
 		db, oflag = open_db_or_string(dbname)
 		if orid is None:
@@ -285,7 +289,7 @@ def plotter(hro):
 	h_rk_dn = ax.rake(azimuths[dn]-90.,takeoffs[dn],90, 'wo', picker=5, markersize=8, markeredgewidth=2)
 	#h_t  = ax.set_title("ORID: {0}".format(hro.icusp))
 	# hack to throw in station names for temp debugging...
-	if labels:
+	if False:
 		for i in range(hro.npol):
 			h_rk = ax.rake(azimuths[i]-90,takeoffs[i]+5,90, marker='$   {0}$'.format(hro.sname[i]), color='black',markersize=20)
 	# and go.
