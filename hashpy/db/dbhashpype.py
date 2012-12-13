@@ -76,7 +76,7 @@ class DbHashPype(HashPype):
 		
 		db, oflag = open_db_or_string(dbname)
 		if orid is None:
-			dbv = dbprocess(dbv,['dbopen event', 'dbsubset evid == '+str(evid)])
+			dbv = dbprocess(db,['dbopen event', 'dbsubset evid == '+str(evid)])
 			dbv.record = 0
 			orid = dbv.getv('prefor')[0]
 		db = dbprocess(db,[ 'dbopen origin', 'dbsubset orid == '+str(orid),
@@ -97,8 +97,8 @@ class DbHashPype(HashPype):
 		self.qdep   = ph['origin.depth']
 		self.qmag   = ph['origin.ml']
 		self.icusp  = ph['origin.orid']
-		self.seh    = ph['origerr.smajax']
-		self.sez    = ph['origerr.sdepth']
+		self.seh	= ph['origerr.smajax']
+		self.sez	= ph['origerr.sdepth']
 		
 		aspect = np.cos(self.qlat / degrad) # convert using python later.
 		
@@ -109,12 +109,12 @@ class DbHashPype(HashPype):
 		for ph in phases:
 			# load up params
 			# in future, could use the acol() method?
-			self.sname[k]     = ph['sta']
-			self.snet[k]      = ph['net']
-			self.scomp[k]     = ph['chan']
+			self.sname[k]	 = ph['sta']
+			self.snet[k]	  = ph['net']
+			self.scomp[k]	 = ph['chan']
 			self.pickonset[k] = 'I'
 			self.pickpol[k]   = ph['fm']
-			self.arid[k]      = ph['arid']
+			self.arid[k]	  = ph['arid']
 			
 			flat, flon, felv = ph['site.lat'],ph['site.lon'],ph['site.elev']
 			self.esaz[k] = ph['esaz']
@@ -169,7 +169,7 @@ class DbHashPype(HashPype):
 		
 		Input
 		-----
-		dbout    : str or antelope.datascope.Dbptr to database
+		dbout	: str or antelope.datascope.Dbptr to database
 		solution : <STUB> int of desired solution.
 		
 		'''
@@ -216,6 +216,7 @@ class DbHashPype(HashPype):
 						)
 		db.close()
 	
+	
 	# This one can probably be booted, really should be abstracted out
 	def read_result_from_db(self, dbin=None, orid=None):
 		'''Read in a mechanism from the fplane table'''
@@ -227,3 +228,66 @@ class DbHashPype(HashPype):
 		assert d.nrecs() is not 0, 'No solution for this ORID: {0}'.format(orid)
 		self.fplane = DbrecordList(d)
 		
+
+
+def plotter(hro):
+	from matplotlib import pyplot as plt
+	import mplstereonet
+	from obspy.imaging.beachball import AuxPlane
+	
+	def onpick(event):
+	
+		if event.artist!=line: return True
+	
+		N = len(event.ind)
+		if not N: return True
+	
+	
+		figi = plt.figure()
+		for subplotnum, dataind in enumerate(event.ind):
+			ax = figi.add_subplot(N,1,subplotnum+1)
+			ax.plot(hro.p_pol[dataind])
+			ax.text(0.05, 0.9, 'Station {0}'.format(hro.sname[dataind]),
+					transform=ax.transAxes, va='top')
+			ax.set_ylim(-0.5, 1.5)
+		figi.show()
+		return True
+	
+	fig = plt.figure()
+	ax = fig.add_subplot(111, projection='stereonet')
+	ax.set_title('Click on station to plot time series')
+	tlab  = ax.set_azimuth_ticklabels([])
+	
+	# pull out variables from mechanism
+	azimuths = hro.p_azi_mc[:hro.npol,0]
+	# HASH takeoffs are 0-180 from vertical UP!!
+	# Stereonet angles 0-90 inward (dip)
+	# Classic FM's are toa from center???
+	takeoffs = abs(hro.p_the_mc[:hro.npol,0] - 90)
+	polarities = hro.p_pol[:hro.npol]
+	strike1,dip1,rake1 = hro.str_avg[0], hro.dip_avg[0], hro.rak_avg[0]
+	strike2,dip2,rake2 = AuxPlane(strike1, dip1, rake1)
+	up = polarities > 0
+	dn = polarities < 0
+	if False:
+		# plot trial planes (nout2) OR avg planes (nmult)
+		for n in range(hro.nout2):
+			s1, d1, r1 = hro.strike2[n], hro.dip2[n], hro.rake2[n]
+			s2, d2, r2 = AuxPlane(s1, d1, r1)
+			h_rk = ax.plane(s1,d1, color='#999999')
+			h_rk = ax.plane(s2,d2,'#888888')
+	# plot best fit average plane
+	h_rk = ax.plane(strike1, dip1, color='black', linewidth=3)
+	h_rk = ax.rake( strike1, dip1, -rake1, 'k^', markersize=8)
+	h_rk = ax.plane(strike2, dip2, color='black', linewidth=3)
+	# plot station takeoffs
+	h_rk_up = ax.rake(azimuths[up]-90.,takeoffs[up],90, 'ko', picker=5, markersize=8, markeredgewidth=2, markerfacecolor=None)
+	h_rk_dn = ax.rake(azimuths[dn]-90.,takeoffs[dn],90, 'wo', picker=5, markersize=8, markeredgewidth=2)
+	#h_t  = ax.set_title("ORID: {0}".format(hro.icusp))
+	# hack to throw in station names for temp debugging...
+	if labels:
+		for i in range(hro.npol):
+			h_rk = ax.rake(azimuths[i]-90,takeoffs[i]+5,90, marker='$   {0}$'.format(hro.sname[i]), color='black',markersize=20)
+	# and go.
+	fig.canvas.mpl_connect('pick_event', onpick)
+	plt.show()
