@@ -350,8 +350,8 @@ class HashPype(object):
 		h_rk = ax.rake( strike1, dip1, -rake1, 'k^', markersize=8)
 		h_rk = ax.plane(strike2, dip2, color='black', linewidth=3)
 		# plot station takeoffs
-		h_rk = ax.rake(azimuths[up]-90.,takeoffs[up],90, 'wo', markersize=8, markeredgewidth=2, markerfacecolor=None)
-		h_rk = ax.rake(azimuths[dn]-90.,takeoffs[dn],90, 'ko', markersize=8, markeredgewidth=2)
+		h_rk = ax.rake(azimuths[up]-90.,takeoffs[up],90, 'ko', markersize=8, markeredgewidth=2, markerfacecolor=None)
+		h_rk = ax.rake(azimuths[dn]-90.,takeoffs[dn],90, 'wo', markersize=8, markeredgewidth=2)
 		#h_t  = ax.set_title("ORID: {0}".format(self.icusp))
 		# hack to throw in station names for temp debugging...
 		if labels:
