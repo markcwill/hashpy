@@ -17,56 +17,108 @@
 
 from numpy import arange
 from matplotlib import pyplot as plt
+from matplotlib.widgets import Button
 import mplstereonet
 from obspy.core import read, UTCDateTime as utc
 from obspy.imaging.beachball import AuxPlane
 from aug.contrib import open_db_or_string
 from antelope.datascope import *
+from obspy_ext.antelope import readANTELOPE
 
-def get_waveform_from_arid(database, arid, window=4):
-	db,o = open_db_or_string(self.dbin)
-	db = dbprocess(db, ['dbopen arrival', 'dbsubset arid=={0}'.format(arid)])
-	db.record = 0
-	time, sta, chan = dbgetv(db,'time','sta','chan')
-	db = dbprocess(db,['dbopen wfdisc',
-	'dbsubset time >= {0} && endtime <= {0}'.format(time),
-	'dbsubset sta=={0} && chan=={1}'.format(sta,chan)])
+def get_waveform_from_arid(database, arid, window=4.):
+	db,o = open_db_or_string(database)
+	dbv = dbprocess(db, ['dbopen arrival', 'dbsubset arid=={0}'.format(arid)])
+	dbv.record = 0
+	time, sta, chan = dbgetv(dbv,'time','sta','chan')
+	t0 = utc(time)-(window/2.)
+	t1 = t0 + window
+	st = readANTELOPE(database, station=sta, channel=chan, 
+		starttime=t0, endtime=t1)
 	db.close()
+	return st
+	
 	
 class Plotter(object):
 	
 	fig = None
+	ax = None
 	hro = None
 	h_up = None
 	h_down = None
 	iup = None
 	idn = None
+	rax = None
+	l = None
+	pol = None
 	
+	picks_list = ('X', 'U', 'D')
+	wf_color = { 'U' : 'red', 'D' : 'blue' }
+	
+			
 	def onpick(self, event):
 		N = len(event.ind)
 		if not N: return True
 		
 		if event.artist is self.h_up:
 			inds = self.iup
+			pick = 'U'
 		elif event.artist is self.h_down:
 			inds = self.idn
+			pick = 'D'
 		else:
 			return True
 		
-		ax = self.fig.add_subplot(212)
+		self.pol = pick
+		fig = plt.figure()
+		ax = fig.add_subplot(111) #212
+		#plt.subplots_adjust(left=0.3)
 		ax.clear()
 		for subplotnum, dataind in enumerate(event.ind):
 			k = inds[dataind]
-			ax.set_title('{0}'.format(self.hro.sname[k]))
-			ax.plot(0.5, abs(self.hro.p_pol[k]),'bo')
-		self.fig.show()
+			ax.set_title("{0} -- {1}".format(self.hro.sname[k],self.hro.arid[k]))
+			ax.set_xlabel("{0}".format(pick))
+			st = get_waveform_from_arid(self.hro.dbin, self.hro.arid[k], window=0.5)
+			#ax.set_position([0.3, 0, 1, 1])
+			l, = ax.plot(st[0].data, color=self.wf_color[pick], lw=2)
+			self.ax = ax
+			self.l = l
+		
+		#rax = fig.add_axes([0.05, 0.7, 0.15, 0.15], axisbg='white')
+		#radio = Button(rax, 'Flip')
+		#radio.on_clicked(self.fmpick)
+		#self.rax = rax
+		fig.canvas.mpl_connect('axes_enter_event', self.enter_axes)
+		fig.canvas.mpl_connect('axes_leave_event', self.leave_axes)
+		fig.canvas.mpl_connect('button_press_event', self.switch_polarity)
+		plt.show()
 		return True
+	
+	def enter_axes(self, event):
+		#print 'enter_axes', event.inaxes
+		event.inaxes.patch.set_facecolor('yellow')
+		event.canvas.draw()
+	
+	def leave_axes(self, event):
+		#print 'leave_axes', event.inaxes
+		event.inaxes.patch.set_facecolor('white')
+		event.canvas.draw()
+		
+	def switch_polarity(self, event):
+		pick = self.pol
+		if pick == 'U':
+			npick = 'D'
+		else:
+			npick = 'U'
+		self.pol = npick
+		self.l.set_color(self.wf_color[npick])
+		self.ax.set_xlabel("{0}".format(npick))
+		event.canvas.draw()
 	
 	def __init__(self,hro):
 		self.hro = hro
 		fig = plt.figure()
-		ax = fig.add_subplot(211, projection='stereonet')
-		ax.set_title('Click on station to plot time series')
+		ax = fig.add_subplot(111, projection='stereonet')
+		ax.set_title('{0} - click to plot station time series'.format(hro.icusp))
 		tlab  = ax.set_azimuth_ticklabels([])
 		
 		# pull out variables from mechanism
@@ -93,7 +145,7 @@ class Plotter(object):
 		h_rk = ax.plane(strike2, dip2, color='black', linewidth=3)
 		# plot station takeoffs
 		h_rk_up, = ax.rake(azimuths[up]-90.,takeoffs[up],90, 'ko', picker=5, markersize=8, markeredgewidth=2, markerfacecolor=None)
-		h_rk_dn, = ax.rake(azimuths[dn]-90.,takeoffs[dn],90, 'wo', picker=5, markersize=8, markeredgewidth=2)
+		h_rk_dn, = ax.rake(azimuths[dn]-90.,takeoffs[dn],90, 'wo', picker=5, markersize=8, markeredgewidth=2, markerfacecolor=None)
 		self.h_up = h_rk_up
 		self.h_down = h_rk_dn
 		self.iup = arange(hro.npol)[up]
