@@ -182,7 +182,7 @@ class HashPype(object):
 		self.flon    = np.empty(npick0, float)
 		self.felv    = np.empty(npick0, float)
 		self.esaz    = np.empty(npick0, float)
-		self.arid  	 = np.empty(npick0, int)
+		self.arid  	 = np.empty(npick0, int) * 0
 
 		
 		# Save include vars for other fucntions to access

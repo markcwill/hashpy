@@ -5,7 +5,7 @@
 #  
 
 from hashpy.db.dbhashpype import DbHashPype
-from hashpy.db.plotter2 import Plotter
+from hashpy.db.plotter import Plotter
 from hashpy.focalmech import FocalMech
 from argparse import ArgumentParser
 

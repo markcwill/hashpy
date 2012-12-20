@@ -5,15 +5,9 @@
 #
 # by Mark Williams 2012.313
 #
-# Class to run HASHpy using Antelope database I/O
+# Interactive plotter using generic FocalMech class 
+# and Antelope database I/O
 #
-#import os.path
-#import numpy as np
-#from hashpy import HashPype
-#from antelope.stock import pfget
-#from antelope.datascope import dblookup, dbprocess
-#from aug.contrib import AttribDbptr, open_db_or_string, DbrecordList
-#from obspy.imaging.beachball import AuxPlane
 
 from numpy import arange
 from matplotlib import pyplot as plt
@@ -135,10 +129,10 @@ class Plotter(object):
 		#--- Classic FM's are toa from center???
 		takeoffs = abs(self.mech.picks['takeoff'] - 90)
 		polarities = self.mech.picks['polarity']
-		azimuths = self.mech.['azimuth']
+		azimuths = self.mech.picks['azimuth']
 		
 		# Planes
-		strike1,dip1,rake1 = self.mech.place1
+		strike1,dip1,rake1 = self.mech.plane1
 		strike2,dip2,rake2 = self.mech.plane2
 		
 		# Indices
@@ -162,7 +156,7 @@ class Plotter(object):
 		# hack to throw in station names for temp debugging...
 		if True:
 			for i in range(n):
-				h_rk = ax.rake(azimuths[i]-90,takeoffs[i]+5,90, marker='$   {0}$'.format(hro.sname[i]), color='black',markersize=20)
+				h_rk = ax.rake(azimuths[i]-90,takeoffs[i]+5,90, marker='$   {0}$'.format(self.mech.picks['station'][i]), color='black',markersize=20)
 		#------------------------------------------------#
 	
 	def __init__(self, fmech):

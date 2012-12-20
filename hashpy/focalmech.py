@@ -240,43 +240,42 @@ class DoubleCouple(object):
 	def axis(self):
 		'''return direction and dip for P and T axes'''
 		dipP, dipT, aziP, aziT = nodal2pt(*self.plane1+self.plane2)
-		return AttribDict({'P': AttribDict({'azi', aziP, 'dip', dipP}),
+		return AttribDict({'P': AttribDict({'azi': aziP, 'dip': dipP}),
 						   'T': AttribDict({'azi': aziT, 'dip': dipT}) })
 	
 	def __init__(self, nodal_plane=None):
 		self.plane1 = nodal_plane
 
-#
-# Works in progress...
-#
 
 class FocalMech(DoubleCouple):
-	'''Stub'''
+	'''Generic Class to hold a focal mechansim solution
+	
+	Is a DoubleCouple, with additional info needed to make a plot
+	(station names, azimuth and takoff angles, etc)
+	'''
 	orid   = None # interger id for an event
-	source = None # place for input database name
+	source = None # place for input database/file name
 	picks  = None # array of station/azimuth/takeoff/polarities
 	_dt = np.dtype([('station', 'a6'), ('azimuth', float), ('takeoff',float), ('polarity', int), ('arid', int)])
 		
 		
-	def load_hash(self, hro=HashRun() ):
+	def load_hash(self, hro=None):
 		'''Map HASH variables to data for methods to use
-		
-		If you don't specify a HashRun object these fields will just be junk
 		'''
-		
-		assert isinstance(hro, HashRun), "Must pass a HashRun in here to load data!"
+		from hashpy import HashPype
+		assert isinstance(hro, HashPype), "Must pass a HashRun in here to load data!"
 		
 		n = hro.npol
-		picks = np.empty(n, dtype=_dt)
+		picks = np.empty(n, dtype=self._dt)
 		picks['station'] = hro.sname[:n]
 		picks['azimuth'] = hro.p_azi_mc[:n,0]
 		picks['takeoff'] = hro.p_the_mc[:n,0]
 		picks['polarity'] = hro.p_pol[:n]
-		if hro.arid:
+		if hro.arid.any():
 			picks['arid'] = hro.arid[:n]
 		
 			
-		plane1 = NodalPlane(hro.str_avg[0], hro.dip_avg[0], hro.rak_avg[0]))
+		plane1 = NodalPlane(hro.str_avg[0], hro.dip_avg[0], hro.rak_avg[0])
 		
 		self.orid = hro.icusp
 		self.picks = picks
