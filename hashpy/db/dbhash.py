@@ -5,6 +5,8 @@
 #  
 
 from hashpy.db.dbhashpype import DbHashPype
+from hashpy.db.plotter2 import Plotter
+from hashpy.focalmech import FocalMech
 from argparse import ArgumentParser
 
 def dbhash(args):
@@ -35,12 +37,17 @@ def dbhash(args):
 		raise ValueError("Didn't pass check: Min # picks={0} Max gap={1}".format(check1,check2))
 	hro.add_solution_to_dict()
 	
-	# quick orid/strike/dip/rake line
-	hro.print_solution_line()
-	
 	# Send to any optional outputs (plot or db 'fplane' table)
-	if args.graph:
+	if args.review:
+		fmech = FocalMech()
+		fmech.load_hash(hro)
+		p = Plotter(fmech)
+	elif args.graph:
 		hro.plot_stereonet(labels=True)
+	else:
+		# quick orid/strike/dip/rake line
+		hro.print_solution_line()
+	
 	if args.dbout:
 		hro.save_result_to_db(dbout=args.dbout)
 	
@@ -53,6 +60,7 @@ if __name__ == '__main__':
 	parser.add_argument("dbin",   help="Input database")
 	parser.add_argument("dbout",  help="Output database", nargs='?')
 	parser.add_argument("-g", "--graph", help="Plot result", action='store_true')
+	parser.add_argument("-r", "--review", help="Interactive reviewer mode", action='store_true')
 	parser.add_argument("--pf",   help="Parameter file")
 	group = parser.add_mutually_exclusive_group(required=True)
 	group.add_argument("--evid", help="Event ID", type=int)

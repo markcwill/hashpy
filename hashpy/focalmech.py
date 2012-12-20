@@ -240,7 +240,8 @@ class DoubleCouple(object):
 	def axis(self):
 		'''return direction and dip for P and T axes'''
 		dipP, dipT, aziP, aziT = nodal2pt(*self.plane1+self.plane2)
-		return AttribDict({'P': [aziP, dipP], 'T': [aziT, dipT] })
+		return AttribDict({'P': AttribDict({'azi', aziP, 'dip', dipP}),
+						   'T': AttribDict({'azi': aziT, 'dip': dipT}) })
 	
 	def __init__(self, nodal_plane=None):
 		self.plane1 = nodal_plane
@@ -249,16 +250,13 @@ class DoubleCouple(object):
 # Works in progress...
 #
 
-class FirstMotionFM(object):
+class FocalMech(DoubleCouple):
 	'''Stub'''
-	planes = None # AttribDict of 2 obspy NodalPlanes
+	orid   = None # interger id for an event
+	source = None # place for input database name
 	picks  = None # array of station/azimuth/takeoff/polarities
-	data   = None # a HashRun object, e.g.
-	_dt = np.dtype([('station', 'a6'), ('azimuth', float), ('takeoff',float), ('polarity','a2')])
-	
-	def __init__(self):
-		'''Build'''
-		planes = AttribDict({'primary': [], 'aux': []})
+	_dt = np.dtype([('station', 'a6'), ('azimuth', float), ('takeoff',float), ('polarity', int), ('arid', int)])
+		
 		
 	def load_hash(self, hro=HashRun() ):
 		'''Map HASH variables to data for methods to use
@@ -274,52 +272,14 @@ class FirstMotionFM(object):
 		picks['azimuth'] = hro.p_azi_mc[:n,0]
 		picks['takeoff'] = hro.p_the_mc[:n,0]
 		picks['polarity'] = hro.p_pol[:n]
-		dc = DoubleCouple(NodalPlane(hro.str_avg[0], hro.dip_avg[0], hro.rak_avg[0]))
-		plane1 = dc.plane1
-		plane2 = dc.plane2
+		if hro.arid:
+			picks['arid'] = hro.arid[:n]
 		
-		self.data = hro
+			
+		plane1 = NodalPlane(hro.str_avg[0], hro.dip_avg[0], hro.rak_avg[0]))
+		
+		self.orid = hro.icusp
 		self.picks = picks
-		self.planes = {'main':plane1, 'aux':plane2}
-		
-	def load_fplane(self, orid=[]):
-		'''stub'''
-	
-	def plot(self, labels = False):
-		'''stub'''
-		import matplotlib.pyplot as plt
-		import mplstereonet
-		
-		fig = plt.figure()
-		ax = fig.add_subplot(111, projection='stereonet')
-		# pull out variables from mechanism
-		azimuths = self.picks['azimuth']
-		# HASH takeoffs are 0-180 from vertical UP!!
-		# Stereonet angles 0-90 inward (dip)
-		# Classic FM's are toa from center???
-		takeoffs = abs(self.picks['takeoff'] - 90)
-		polarities = self.picks['polarity']
-		strike1,dip1,rake1 = self.planes['main']
-		strike2,dip2,rake2 = self.planes['aux']
-		up = polarities > 0
-		dn = polarities < 0
-		if False:
-			# plot HASH trial planes (nout2) OR avg planes (nmult)
-			for n in range(self.data.nout2):
-				s1, d1, r1 = self.data.strike2[n], self.data.dip2[n], self.data.rake2[n]
-				s2, d2, r2 = AuxPlane(s1, d1, r1)
-				h_rk = ax.plane(s1,d1, color='#999999')
-				h_rk = ax.plane(s2,d2,'#888888')
-		# plot best fit average plane
-		h_rk = ax.plane(strike1, dip1, color='black', linewidth=3)
-		h_rk = ax.rake( strike1, dip1, -rake1, 'k^', markersize=8)
-		h_rk = ax.plane(strike2, dip2, color='black', linewidth=3)
-		# plot station takeoffs
-		h_rk = ax.rake(azimuths[up]-90.,takeoffs[up],90, 'wo', markersize=8, markeredgewidth=2, markerfacecolor=None)
-		h_rk = ax.rake(azimuths[dn]-90.,takeoffs[dn],90, 'ko', markersize=8, markeredgewidth=2)
-		# hack to throw in station names for temp debugging...
-		if labels:
-			for i in range(len(self.picks)):
-				h_rk = ax.rake(azimuths[i]-90,takeoffs[i]+5,90, marker='$   {0}$'.format(self.picks[i]['station']), color='black',markersize=20)
-		# and go.
-		plt.show()
+		self.plane1 = plane1
+		if hro.dbin:
+			self.source = hro.dbin

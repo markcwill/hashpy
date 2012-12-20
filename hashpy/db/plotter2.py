@@ -20,7 +20,6 @@ from matplotlib import pyplot as plt
 from matplotlib.gridspec import GridSpec
 import mplstereonet
 from obspy.core import read, UTCDateTime as utc
-from obspy.imaging.beachball import AuxPlane
 from aug.contrib import open_db_or_string
 from antelope.datascope import *
 from obspy_ext.antelope import readANTELOPE
@@ -50,7 +49,7 @@ class Plotter(object):
 	fig = None
 	ax = None
 	ax2 = None
-	hro = None
+	mech = None
 	h_up = None
 	h_down = None
 	iup = None
@@ -89,9 +88,10 @@ class Plotter(object):
 		ax.clear()
 		dataind = event.ind[0]
 		k = inds[dataind]
-		ax.set_title("{0} -- {1}".format(self.hro.sname[k],self.hro.arid[k]))
+		fm = self.mech.picks[k]
+		ax.set_title("{0} -- {1}".format(fm['station'],fm['arid']))
 		ax.set_xlabel("{0}".format(pick))
-		st = get_waveform_from_arid(self.hro.dbin, self.hro.arid[k], window=0.5)
+		st = get_waveform_from_arid(self.mech.source, fm['arid'], window=0.5)
 		l, = ax.plot(st[0].data, color=self.wf_color[pick], lw=2)
 		self.l = l
 		plt.show()
@@ -128,32 +128,25 @@ class Plotter(object):
 			event.canvas.draw()
 	
 	def plot_on_stereonet(self):
-		hro = self.hro
 		ax = self.ax
 		# pull out variables from mechanism
-		azimuths = hro.p_azi_mc[:hro.npol,0]
 		#--- HASH takeoffs are 0-180 from vertical UP!!
 		#--- Stereonet angles 0-90 inward (dip)
 		#--- Classic FM's are toa from center???
-		takeoffs = abs(hro.p_the_mc[:hro.npol,0] - 90)
-		polarities = hro.p_pol[:hro.npol]
+		takeoffs = abs(self.mech.picks['takeoff'] - 90)
+		polarities = self.mech.picks['polarity']
+		azimuths = self.mech.['azimuth']
 		
 		# Planes
-		strike1,dip1,rake1 = hro.str_avg[0], hro.dip_avg[0], hro.rak_avg[0]
-		strike2,dip2,rake2 = AuxPlane(strike1, dip1, rake1)
+		strike1,dip1,rake1 = self.mech.place1
+		strike2,dip2,rake2 = self.mech.plane2
 		
 		# Indices
 		up = polarities > 0
 		dn = polarities < 0
+		n = len(polarities)
 		
 		# Plotting --------------------------------------#
-		# plot trial planes (nout2) OR avg planes (nmult)
-		if False:
-			for n in range(hro.nout2):
-				s1, d1, r1 = hro.strike2[n], hro.dip2[n], hro.rake2[n]
-				s2, d2, r2 = AuxPlane(s1, d1, r1)
-				h_rk = ax.plane(s1,d1, color='#999999')
-				h_rk = ax.plane(s2,d2,'#888888')
 		# plot best fit average plane, aux plane
 		h_rk = ax.plane(strike1, dip1, color='black', linewidth=3)
 		h_rk = ax.rake( strike1, dip1, -rake1, 'k^', markersize=8)
@@ -164,24 +157,23 @@ class Plotter(object):
 		# save to instance so other functions can change the plot
 		self.h_up = h_rk_up
 		self.h_down = h_rk_dn
-		self.iup = arange(hro.npol)[up]
-		self.idn = arange(hro.npol)[dn]
+		self.iup = arange(n)[up]
+		self.idn = arange(n)[dn]
 		# hack to throw in station names for temp debugging...
 		if True:
-			for i in range(hro.npol):
+			for i in range(n):
 				h_rk = ax.rake(azimuths[i]-90,takeoffs[i]+5,90, marker='$   {0}$'.format(hro.sname[i]), color='black',markersize=20)
 		#------------------------------------------------#
 	
-	def __init__(self,hro):
+	def __init__(self, fmech):
 		'''Create a plot for focal mechanisms'''
-		self.hro = hro
 		
 		# Draw figure and set up
 		fig = plt.figure()
 		gs = GridSpec(4,1)
 		ax = fig.add_subplot(gs[:-1,:], projection='stereonet')
 		ax.clear() 
-		ax.set_title('{0} - click to plot station time series'.format(hro.icusp))
+		ax.set_title('{0} - click to plot station time series'.format(fmech.orid))
 		tlab  = ax.set_azimuth_ticklabels([])
 		
 		# Save to plotting object
@@ -189,6 +181,7 @@ class Plotter(object):
 		self.ax = ax
 		self.gs = gs
 		self.ax2 = fig.add_subplot(self.gs[-1,0])
+		self.mech = fmech
 		# Plot FM stuff
 		self.plot_on_stereonet()
 		
