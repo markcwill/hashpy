@@ -253,12 +253,12 @@ class FocalMech(DoubleCouple):
 	Is a DoubleCouple, with additional info needed to make a plot
 	(station names, azimuth and takoff angles, etc)
 	'''
-	orid   = None # interger id for an event
+	orid   = None # integer id for an event origin hypocenter
 	source = None # place for input database/file name
 	picks  = None # array of station/azimuth/takeoff/polarities
 	_dt = np.dtype([('station', 'a6'), ('azimuth', float), ('takeoff',float), ('polarity', int), ('arid', int)])
-		
-		
+	
+	
 	def load_hash(self, hro=None):
 		'''Map HASH variables to data for methods to use
 		'''
@@ -274,7 +274,6 @@ class FocalMech(DoubleCouple):
 		if hro.arid.any():
 			picks['arid'] = hro.arid[:n]
 		
-			
 		plane1 = NodalPlane(hro.str_avg[0], hro.dip_avg[0], hro.rak_avg[0])
 		
 		self.orid = hro.icusp
