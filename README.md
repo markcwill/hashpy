@@ -65,4 +65,4 @@ If I ever get ambitious, I would redo the structure of some of the Fortran subro
 
 There will probably be small adjustments to the locations and structure of what functions are in what files, but the HashPype class and methods will be the main way to interact with HASH.
 
-
+Currently working on generic FocalMech and Plotter classes to abstract out the specific algorithm. These will likely be moved to their own module.
