@@ -256,6 +256,7 @@ class FocalMech(DoubleCouple):
 	orid   = None # integer id for an event origin hypocenter
 	source = None # place for input database/file name
 	picks  = None # array of station/azimuth/takeoff/polarities
+	algorithm = None
 	_dt = np.dtype([('station', 'a6'), ('azimuth', float), ('takeoff',float), ('polarity', int), ('arid', int)])
 	
 	
@@ -281,3 +282,4 @@ class FocalMech(DoubleCouple):
 		self.plane1 = plane1
 		if hro.dbin:
 			self.source = hro.dbin
+		self.algorithm = 'HASH'
