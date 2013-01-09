@@ -22,26 +22,30 @@ def focalmech2db(focalmech):
 	'''Write the preferred HASH solution to Datascope database.
 	
 	'''
-	
 	fp = focalmech
+	axes = fp.axis
+	T = axes['T']
+	P = axes['P']
 	database = focalmech.source
 	db, oflag = open_db_or_string(database, perm='r+')
 	mechid = db.nextid('mechid')
 	
 	dbfpln = dblookup(db,table='fplane')
-	
 	dbfpln.record = dbfpln.addnull()
 	dbfpln.putv('orid', fp.orid,
-		   'str1', round(fp.plane1.strike,1) ,
-		   'dip1', round(fp.plane1.dip,1) ,
-		   'rake1',round(fp.plane1.rake,1),
-		   'str2', round(fp.plane2.strike,1) ,
-		   'dip2', round(fp.plane2.dip,1) ,
-		   'rake2',round(fp.plane2.rake,1),
-		   'algorithm', fp.algorithm,
-		   'mechid', mechid
-		   )
-	
+		'str1', round(fp.plane1.strike,1) ,
+		'dip1', round(fp.plane1.dip,1) ,
+		'rake1',round(fp.plane1.rake,1),
+		'str2', round(fp.plane2.strike,1) ,
+		'dip2', round(fp.plane2.dip,1) ,
+		'rake2',round(fp.plane2.rake,1),
+		'taxazm',round(T.azi,1),
+		'taxplg',round(T.dip,1),
+		'paxazm',round(P.azi,1),
+		'paxplg',round(P.dip,1),
+		'algorithm', fp.algorithm,
+		'mechid', mechid
+		)
 	dbpmec = dblookup(db,table='predmech')
 	dbparr = dblookup(db,table='predarr')
 	for k in range(len(fp.picks)):
