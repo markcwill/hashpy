@@ -5,7 +5,7 @@
 #  
 
 from hashpy.db.dbhashpype import DbHashPype
-from hashpy.db.plotter import Plotter
+from hashpy.db.plotter2 import PlotterI
 from hashpy.focalmech import FocalMech
 from argparse import ArgumentParser
 
@@ -18,6 +18,8 @@ def dbhash(args):
 	# Load data from a pf file
 	if args.pf:
 		hro.load_pf(pffile=args.pf)
+	else:
+		hro.load_pf()
 	
 	# Go into database
 	hro.get_phases_from_db(args.dbin, evid=args.evid, orid=args.orid)
@@ -41,7 +43,7 @@ def dbhash(args):
 	if args.review:
 		fmech = FocalMech()
 		fmech.load_hash(hro)
-		p = Plotter(fmech)
+		p = PlotterI(fmech)
 	elif args.graph:
 		hro.plot_stereonet(labels=True)
 	else:
