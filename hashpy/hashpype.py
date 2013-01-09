@@ -12,13 +12,31 @@
 import numpy as np
 import os.path
 from libhashpy import *
-from hash_utils import fortran_include, get_sta_coords
 
 # for HASH compatiblity, change later.
 degrad = 180. / np.pi
 rad = 1. / degrad
 
+def parameter(**kwargs):
+	'''returns variables inside a fortran 'parameter' call'''
+	# FUTURE: could just make them all globals and import from namespace
+	return [kwargs[key] for key in kwargs]
 
+def fortran_include(fname):
+	'''functions similar to a fortran include'''
+	vars = []
+	f_inc = open(fname)
+	for line in f_inc:
+		if 'c' in line[0]:
+			pass
+		elif 'parameter' in line:
+			vars.extend(eval(line))
+		else:
+			pass
+	f_inc.close()
+	return vars
+	
+	
 class HashPype(object):
 	'''Object which holds all data from a HASH instance for one event
 	

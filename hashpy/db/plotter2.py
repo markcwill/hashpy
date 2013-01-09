@@ -183,7 +183,7 @@ class PlotterI(object):
 					transform = self.ax[-1].transAxes)
 					
 		self.ax.append(fig.add_subplot(self.gs[-3,-1]))  # button
-		self.ax[-1].text(0.5, 0.5,'Change\nfm pick'.format(self.pol),
+		self.ax[-1].text(0.5, 0.5,'Change\ndirection'.format(self.pol),
 					horizontalalignment='center',
 					verticalalignment='center',
 					transform = self.ax[-1].transAxes)

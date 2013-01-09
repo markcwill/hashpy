@@ -113,9 +113,9 @@ class DbHashPype(HashPype):
 		for ph in phases:
 			# load up params
 			# in future, could use the acol() method?
-			self.sname[k]	 = ph['sta']
+			self.sname[k]	  = ph['sta']
 			self.snet[k]	  = ph['net']
-			self.scomp[k]	 = ph['chan']
+			self.scomp[k]	  = ph['chan']
 			self.pickonset[k] = 'I'
 			self.pickpol[k]   = ph['fm']
 			self.arid[k]	  = ph['arid']
