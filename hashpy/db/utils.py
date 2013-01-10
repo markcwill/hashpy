@@ -142,8 +142,11 @@ def dbloc_source_db(db):
 	'''
 	dbname = db.query(dbDATABASE_NAME)
 	if dbname.endswith('trial'):
+		# path of trial db from dbloc2
 		dbcwd = os.path.dirname(dbname)
+		# relative name of 1st db in 'trial' database decriptor file
 		dbpath0 = db.query(dbDBPATH).split(':')[0].translate(None,'{}')
+		# full absolute path database name to source
 		realdb = os.path.abspath(os.path.join(dbcwd, dbpath0))
 		db.close()
 		db = dbopen(realdb, perm='r+')
