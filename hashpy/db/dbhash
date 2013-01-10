@@ -1,67 +1,27 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-#  dbhash.py
-#  
-# limited command line version for use with dbloc2
-
-
-#from hashpy.db.utils import add_antelope_path
-#from hashpy.db.dbhashpype import DbHashPype
-#from hashpy.db.plotter2 import PlotterI
-#from hashpy.focalmech import FocalMech
-#from argparse import ArgumentParser
-#add_antelope_path()
-#from antelope.datascope import dbopen
-
-#def dbhash(args):
-	#'''Perform a HASH run using Database input'''
-	
-	## Make a blank HASH run object
-	#hro = DbHashPype()
-	
-	## Load data from a pf file
-	#hro.load_pf()
-	
-	## Go into database
-	#dbin = args.dbin.rstrip('.origin')
-	#db = dbopen(dbin).lookup(table='origin')
-	#db.record = args.orid
-	#orid = db.getv('orid')[0]
-		
-	#hro.get_phases_from_db(dbin, orid=orid)
-	
-	## Generate preliminary data for run
-	#hro.load_velocity_models()
-	#hro.generate_trial_data()
-	#hro.calculate_takeoff_angles()
-	
-	#check1 = hro.check_minimum_polarity()
-	#check2 = hro.check_maximum_gap()
-	
-	## If it passes checks, run HASH
-	#if check1:
-		#hro.calculate_hash_focalmech()
-	#else:
-		#raise ValueError("Didn't pass check: # picks = {0} | Minimum = {1}".format(hro.npol,hro.npolmin))
-	#hro.add_solution_to_dict()
-	
-	#fmech = FocalMech()
-	#fmech.load_hash(hro)
-	#p = PlotterI(fmech)
-	
-	## For interactive scripting and debugging:
-	#return hro
+#  dbhash
 
 # RUN AS A SCRIPT
-from hashpy.db.dbhash import *
+from hashpy.db.dbhash import dbhash_cli, dbhash_loc2
+from argparse import ArgumentParser
+
 if __name__ == '__main__':
 	parser = ArgumentParser()
-	parser.add_argument("--loc", help="dbloc2 mode", action='store_true')
+	parser.add_argument("dbin",   help="Input database")
+	parser.add_argument("dbout",  help="Output database", nargs='?')
+	parser.add_argument("-g", "--graph", help="Plot result", action='store_true')
+	parser.add_argument("-r", "--review", help="Interactive reviewer mode", action='store_true')
+	parser.add_argument("-l", "--loc", help="dbloc2 mode", action='store_true')
+	parser.add_argument("--pf",   help="Parameter file")
+	group = parser.add_mutually_exclusive_group() #required=True)
+	group.add_argument("--evid", help="Event ID", type=int)
+	group.add_argument("--orid", help="Origin ID", type=int)
 	args = parser.parse_args()
 	if args.loc:
 		hash_prog = dbhash_loc2
 	else:
 		hash_prog = dbhash_cli
-	hro = hash_prog()
+	hro = hash_prog(args)
 	# done

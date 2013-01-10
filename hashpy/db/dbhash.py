@@ -2,30 +2,19 @@
 # -*- coding: utf-8 -*-
 #
 #  dbhash.py
-#  
+#
+# fucntions which run HASH using Antelope and hashpy
 
 from hashpy.db.utils import add_antelope_path
 from hashpy.db.dbhashpype import DbHashPype
 from hashpy.db.plotter2 import PlotterI
 from hashpy.focalmech import FocalMech
-from argparse import ArgumentParser
 add_antelope_path()
 from antelope.datascope import dbopen
 
 
-def dbhash_cli():
-	'''Perform a HASH run using Database input'''
-	# Set up command line args from user
-	parser = ArgumentParser()
-	parser.add_argument("dbin",   help="Input database")
-	parser.add_argument("dbout",  help="Output database", nargs='?')
-	parser.add_argument("-g", "--graph", help="Plot result", action='store_true')
-	parser.add_argument("-r", "--review", help="Interactive reviewer mode", action='store_true')
-	parser.add_argument("--pf",   help="Parameter file")
-	group = parser.add_mutually_exclusive_group(required=True)
-	group.add_argument("--evid", help="Event ID", type=int)
-	group.add_argument("--orid", help="Origin ID", type=int)
-	args = parser.parse_args()
+def dbhash_cli(args):
+	'''Perform a HASH run using Database input and command line args'''
 	
 	# Make a blank HASH run object
 	hro = DbHashPype()
@@ -72,12 +61,8 @@ def dbhash_cli():
 	return hro
 
 
-def dbhash_loc2():
-	'''Perform a HASH run using Database input'''
-	parser = ArgumentParser()
-	parser.add_argument("dbin",   help="Input database")
-	parser.add_argument("orid", help="Origin ID", type=int)
-	args = parser.parse_args()
+def dbhash_loc2(args):
+	'''Perform a HASH run using Database input from dbloc2 menu'''
 	
 	# Make a blank HASH run object
 	hro = DbHashPype()
@@ -85,10 +70,12 @@ def dbhash_loc2():
 	# Load data from a pf file
 	hro.load_pf()
 	
+	### Parse special command line args from dbloc2 'origin' menu:
 	# Go into database
 	dbin = args.dbin.rstrip('.origin')
 	db = dbopen(dbin).lookup(table='origin')
-	db.record = args.orid
+	# hack, if in loc2 mode, dbout is actually rec # of 'tmp/trial'
+	db.record = int(args.dbout)
 	orid = db.getv('orid')[0]
 		
 	hro.get_phases_from_db(dbin, orid=orid)
