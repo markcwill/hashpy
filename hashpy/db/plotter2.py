@@ -19,16 +19,16 @@ class PlotterI(object):
 	'''Class to create interactive stereonet plot of a HASH first motion'''
 	fig = None		# handle to figure
 	ax = None		# list of axes
-	text = None
 	mech = None		# a FocalMech instance
-	fmline = None
+	fmline = None	# the current line from mech
 	h_up = None		# handle to compressional plot points
 	h_down = None	# handle to dilitational plot points
 	iup = None		# indices of which picks are up
 	idn = None		# indicies of which picks are down
 	gs = None		# GridSpec instance of plot figure
-	l = None		# handle to waveform line plot
-	pol = None		# indication of first motion polarity pick
+	l = None		# handle to current waveform line plot
+	pol = None		# indication of current first motion polarity pick
+	text = None		# handle for text labels
 	
 	picks_list = ('X', 'U', 'D')
 	fm_list = ('..','c.', 'd.')
@@ -41,7 +41,7 @@ class PlotterI(object):
 		waveform from the database and plot it. This will be the data
 		associated with the first motion P pick.
 		
-		See the 'get_waveform_from_arid' fuction for more info 
+		See the 'get_waveform_from_arid' in hashpy.db.utils 
 		'''
 		N = len(event.ind)
 		if not N: return True
@@ -92,6 +92,7 @@ class PlotterI(object):
 		color correspondingly.
 		'''
 		if event.inaxes is self.ax[-1]:
+			# Cycle through 'up, down, exclude' first motion picks
 			if self.pol is not None:
 				ind = self.picks_list.index(self.pol)
 				if ind < 2:
@@ -105,17 +106,23 @@ class PlotterI(object):
 					change_arrival_fm(self.mech.source, self.fmline['arid'], self.fm_list[ind])
 				event.canvas.draw()
 		elif event.inaxes is self.ax[-2]:
+			# Save planes/P,T axes/takeoffs/picks to db tables
 			event.inaxes.patch.set_facecolor('red')
 			event.canvas.draw()
 			focalmech2db(self.mech)
 			event.inaxes.patch.set_facecolor('white')
 			event.canvas.draw()
 		elif event.inaxes is self.ax[-3]:
+			# Close window / go back to previous program
 			plt.close(self.fig)
 		else:
 			pass
 	
 	def plot_on_stereonet(self):
+		'''Plot first motions from a FocalMech instance
+		
+		FocalMech is stored in self.mech
+		'''
 		ax = self.ax[0]
 		# pull out variables from mechanism
 		#--- HASH takeoffs are 0-180 from vertical UP!!
@@ -147,7 +154,7 @@ class PlotterI(object):
 		self.h_down = h_rk_dn
 		self.iup = arange(n)[up]
 		self.idn = arange(n)[dn]
-		# hack to throw in station names for temp debugging...
+		# hack to throw in station names...
 		if True:
 			for i in range(n):
 				h_rk = ax.rake(azimuths[i]-90,takeoffs[i]+5,90, marker='$   {0}$'.format(self.mech.picks['station'][i]), color='black',markersize=20)
@@ -160,15 +167,19 @@ class PlotterI(object):
 		fig = plt.figure(facecolor='#D9D9EE')
 		fig.canvas.set_window_title('Focal Mechanism - dbhash')
 		gs = GridSpec(8,5) # 8x5 grid of axis space
+		
+		# Stereonet axis
 		ax = fig.add_subplot(gs[:-2,:-1], projection='stereonet') # net
 		ax.clear() 
 		ax.set_title('Origin: {0}'.format(fmech.orid))
 		tlab  = ax.set_azimuth_ticklabels([])
 		
-		# Save to plotting object
+		# add to plotting object
 		self.fig = fig
 		self.ax = [ax]
 		self.gs = gs
+		
+		# Set up other axes (buttons and wf display area)
 		self.ax.append(fig.add_subplot(self.gs[-2:,:])) # waveform
 		self.ax[-1].text(0.5, 0.5,'Waveform data - click station',
 					horizontalalignment='center',
@@ -200,7 +211,8 @@ class PlotterI(object):
 			_ax.set_xticks([])
 			_ax.set_yticks([])
 		self.mech = fmech
-		# Plot FM stuff
+		
+		# Plot first motions
 		self.plot_on_stereonet()
 		
 		# Set mouse events to method functions.
