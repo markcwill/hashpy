@@ -28,7 +28,7 @@ from aug.contrib import *
 from antelope.datascope import *
 
 def db2object(dbv):
-	"""
+	'''
 	Port of Antelope MATLAB toolbox 'db2struct' function.
 		
 	Returns a list-like object, this is the function version of calling
@@ -38,7 +38,7 @@ def db2object(dbv):
 	:param dbv: Open pointer to an Antelope database view or table
 	:rtype: :class:`~obspy.antelope.Dbview`
 	:return: Dbview of Dbrecord objeccts
-	"""
+	'''
 	if isinstance(dbv, Dbptr):
 		db = Dbptr(dbv)
 	else:
@@ -133,6 +133,22 @@ def readANTELOPE(database, station=None, channel=None, starttime=None, endtime=N
 	#	db.close()
 	return st
 
+def dbloc_source_db(db):
+	'''Checks if you are in a dbloc2 'trial' db and returns the source
+	one if you are, otherwise returns the same Dbptr
+	
+	INPUT: Dbptr
+	OUTPUT: Dbptr to database that dbloc2 is using.
+	'''
+	dbname = db.query(dbDATABASE_NAME)
+	if dbname.endswith('trial'):
+		dbcwd = os.path.dirname(dbname)
+		dbpath0 = db.query(dbDBPATH).split(':')[0].translate(None,'{}')
+		realdb = os.path.abspath(os.path.join(dbcwd, dbpath0))
+		db.close()
+		db = dbopen(realdb, perm='r+')
+	return db
+
 def focalmech2db(focalmech):
 	'''Write the preferred HASH solution to Datascope database.
 	
@@ -142,8 +158,12 @@ def focalmech2db(focalmech):
 	axes = fp.axis
 	T = axes['T']
 	P = axes['P']
+	
 	database = focalmech.source
 	db, oflag = open_db_or_string(database, perm='r+')
+	# Use the original db if in a dbloc2 'tmp/trial' db
+	db = dbloc_source_db(db)
+	
 	mechid = db.nextid('mechid')
 	
 	dbfpln = dblookup(db,table='fplane')
