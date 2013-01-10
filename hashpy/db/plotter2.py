@@ -111,7 +111,7 @@ class PlotterI(object):
 			event.inaxes.patch.set_facecolor('white')
 			event.canvas.draw()
 		elif event.inaxes is self.ax[-3]:
-			print "Running HASH again..."
+			plt.close(self.fig)
 		else:
 			pass
 	
@@ -170,14 +170,14 @@ class PlotterI(object):
 		self.gs = gs
 		self.ax.append(fig.add_subplot(self.gs[-2:,:])) # waveform
 					
-		self.ax.append(fig.add_subplot(self.gs[0,-1]))  # button
-		self.ax[-1].text(0.5, 0.5,'Rerun HASH',
+		self.ax.append(fig.add_subplot(self.gs[2,-1]))  # button
+		self.ax[-1].text(0.5, 0.5,'Return',
 					horizontalalignment='center',
 					verticalalignment='center',
 					transform = self.ax[-1].transAxes)
 					
-		self.ax.append(fig.add_subplot(self.gs[1,-1]))  # button
-		self.ax[-1].text(0.5, 0.5,'Save focal mech\nto db',
+		self.ax.append(fig.add_subplot(self.gs[0:2,-1]))  # button
+		self.ax[-1].text(0.5, 0.5,'SAVE\nfocal mech\nto db',
 					horizontalalignment='center',
 					verticalalignment='center',
 					transform = self.ax[-1].transAxes)

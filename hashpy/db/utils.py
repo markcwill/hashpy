@@ -8,11 +8,24 @@
 # Utilities for using Antelope db with focal mechanisms and obspy
 #
 
+
+import sys, os
 from numpy import array
-from aug.contrib import *
-from antelope.datascope import *
 from obspy.core import read, Stream, UTCDateTime
 utc = UTCDateTime
+
+def add_antelope_path():
+	_version_string = os.environ['ANTELOPE'].split('/')[-1]
+	_pydirs = ['data','python']
+	if float(_version_string[:3]) < 5.2:
+		_pydirs = ['local'] + _pydirs
+	_pypath = os.path.join(os.environ['ANTELOPE'], *_pydirs)
+	if _pypath not in sys.path:
+		sys.path.append(_pypath)
+add_antelope_path()
+
+from aug.contrib import *
+from antelope.datascope import *
 
 def db2object(dbv):
 	"""

@@ -10,6 +10,8 @@
 import os.path
 import numpy as np
 from hashpy import HashPype
+from hashpy.db.utils import add_antelope_path
+add_antelope_path()
 from antelope.stock import pfget
 from antelope.datascope import dblookup, dbprocess
 from aug.contrib import AttribDbptr, open_db_or_string, DbrecordList
