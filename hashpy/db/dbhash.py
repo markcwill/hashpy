@@ -1,16 +1,31 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
 #  dbhash.py
 #  
 
+from hashpy.db.utils import add_antelope_path
 from hashpy.db.dbhashpype import DbHashPype
 from hashpy.db.plotter2 import PlotterI
 from hashpy.focalmech import FocalMech
 from argparse import ArgumentParser
+add_antelope_path()
+from antelope.datascope import dbopen
 
-def dbhash(args):
+
+def dbhash_cli():
 	'''Perform a HASH run using Database input'''
+	# Set up command line args from user
+	parser = ArgumentParser()
+	parser.add_argument("dbin",   help="Input database")
+	parser.add_argument("dbout",  help="Output database", nargs='?')
+	parser.add_argument("-g", "--graph", help="Plot result", action='store_true')
+	parser.add_argument("-r", "--review", help="Interactive reviewer mode", action='store_true')
+	parser.add_argument("--pf",   help="Parameter file")
+	group = parser.add_mutually_exclusive_group(required=True)
+	group.add_argument("--evid", help="Event ID", type=int)
+	group.add_argument("--orid", help="Origin ID", type=int)
+	args = parser.parse_args()
 	
 	# Make a blank HASH run object
 	hro = DbHashPype()
@@ -56,17 +71,50 @@ def dbhash(args):
 	# For interactive scripting and debugging:
 	return hro
 
-# RUN AS A SCRIPT
-if __name__ == '__main__':
+
+def dbhash_loc2():
+	'''Perform a HASH run using Database input'''
 	parser = ArgumentParser()
 	parser.add_argument("dbin",   help="Input database")
-	parser.add_argument("dbout",  help="Output database", nargs='?')
-	parser.add_argument("-g", "--graph", help="Plot result", action='store_true')
-	parser.add_argument("-r", "--review", help="Interactive reviewer mode", action='store_true')
-	parser.add_argument("--pf",   help="Parameter file")
-	group = parser.add_mutually_exclusive_group(required=True)
-	group.add_argument("--evid", help="Event ID", type=int)
-	group.add_argument("--orid", help="Origin ID", type=int)
+	parser.add_argument("orid", help="Origin ID", type=int)
 	args = parser.parse_args()
-	hro = dbhash(args)
+	
+	# Make a blank HASH run object
+	hro = DbHashPype()
+	
+	# Load data from a pf file
+	hro.load_pf()
+	
+	# Go into database
+	dbin = args.dbin.rstrip('.origin')
+	db = dbopen(dbin).lookup(table='origin')
+	db.record = args.orid
+	orid = db.getv('orid')[0]
+		
+	hro.get_phases_from_db(dbin, orid=orid)
+	
+	# Generate preliminary data for run
+	hro.load_velocity_models()
+	hro.generate_trial_data()
+	hro.calculate_takeoff_angles()
+	
+	check1 = hro.check_minimum_polarity()
+	check2 = hro.check_maximum_gap()
+	
+	# If it passes checks, run HASH
+	if check1:
+		hro.calculate_hash_focalmech()
+	else:
+		raise ValueError("Didn't pass check: # picks = {0} | Minimum = {1}".format(hro.npol,hro.npolmin))
+	hro.add_solution_to_dict()
+	
+	fmech = FocalMech()
+	fmech.load_hash(hro)
+	p = PlotterI(fmech)
+	
+	# For interactive scripting and debugging:
+	return hro
+
+if __name__ == '__main__':
+	print "dbhash.py is a module for the dbhash program.\n Import 'dbhash_cli' or 'dbhash_loc2'"
 

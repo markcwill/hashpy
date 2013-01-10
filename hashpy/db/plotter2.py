@@ -156,12 +156,13 @@ class PlotterI(object):
 	def __init__(self, fmech):
 		'''Create a plot for focal mechanisms'''
 		
-		# Draw figure and set up
-		fig = plt.figure()
+		# Draw figure and set up 
+		fig = plt.figure(facecolor='#D9D9EE')
+		fig.canvas.set_window_title('Focal Mechanism - dbhash')
 		gs = GridSpec(8,5) # 8x5 grid of axis space
 		ax = fig.add_subplot(gs[:-2,:-1], projection='stereonet') # net
 		ax.clear() 
-		ax.set_title('{0} - click to plot station time series'.format(fmech.orid))
+		ax.set_title('Origin: {0}'.format(fmech.orid))
 		tlab  = ax.set_azimuth_ticklabels([])
 		
 		# Save to plotting object
@@ -169,6 +170,10 @@ class PlotterI(object):
 		self.ax = [ax]
 		self.gs = gs
 		self.ax.append(fig.add_subplot(self.gs[-2:,:])) # waveform
+		self.ax[-1].text(0.5, 0.5,'Waveform data - click station',
+					horizontalalignment='center',
+					verticalalignment='center',
+					transform = self.ax[-1].transAxes)
 					
 		self.ax.append(fig.add_subplot(self.gs[2,-1]))  # button
 		self.ax[-1].text(0.5, 0.5,'Return',
