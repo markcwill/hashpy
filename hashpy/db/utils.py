@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
 # utils.py
@@ -26,6 +25,7 @@ add_antelope_path()
 
 from aug.contrib import *
 from antelope.datascope import *
+from antelope.stock import *
 
 def db2object(dbv):
 	'''
@@ -141,7 +141,11 @@ def dbloc_source_db(db):
 	OUTPUT: Dbptr to database that dbloc2 is using.
 	'''
 	dbname = db.query(dbDATABASE_NAME)
-	if dbname.endswith('trial'):
+	pfdef = pfget('dbloc2','Define')
+	tempdb = pfdef['Temporary_db']
+	workdir = pfdef['Work_dir']
+	dblocdb = os.path.join(workdir,tempdb)
+	if dbname.endswith(tempdb):
 		# path of trial db from dbloc2
 		dbcwd = os.path.dirname(dbname)
 		# relative name of 1st db in 'trial' database decriptor file

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
 #  dbhash.py
@@ -103,5 +102,21 @@ def dbhash_loc2(args):
 	return hro
 
 if __name__ == '__main__':
-	print "dbhash.py is a module for the dbhash program.\n Import 'dbhash_cli' or 'dbhash_loc2'"
-
+	from argparse import ArgumentParser
+	parser = ArgumentParser()
+	parser.add_argument("dbin",   help="Input database")
+	parser.add_argument("dbout",  help="Output database", nargs='?')
+	parser.add_argument("-g", "--graph", help="Plot result", action='store_true')
+	parser.add_argument("-r", "--review", help="Interactive reviewer mode", action='store_true')
+	parser.add_argument("-l", "--loc", help="dbloc2 mode", action='store_true')
+	parser.add_argument("--pf",   help="Parameter file")
+	group = parser.add_mutually_exclusive_group() #required=True)
+	group.add_argument("--evid", help="Event ID", type=int)
+	group.add_argument("--orid", help="Origin ID", type=int)
+	args = parser.parse_args()
+	if args.loc:
+		hash_prog = dbhash_loc2
+	else:
+		hash_prog = dbhash_cli
+	hro = hash_prog(args)
+	# done
