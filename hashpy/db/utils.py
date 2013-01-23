@@ -124,6 +124,8 @@ def readANTELOPE(database, station=None, channel=None, starttime=None, endtime=N
 		_st = read(fname, starttime=t0, endtime=t1)		 # add format?
 		_st = _st.select(station=dbr.sta, channel=dbr.chan) #not location aware
 		_st[0].db = dbr
+		if _st[0].db.calib < 0:
+			_st[0].data *= -1
 		st += _st
 	# Close what we opened, BUT garbage collection may take care of this:
 	# if you have an open pointer but pass db name as a string, global
