@@ -65,10 +65,11 @@ class PlotterI(object):
 		ax.set_xticklabels([])
 		ax.set_yticklabels([])
 		st = get_waveform_from_arid(self.mech.source, fm['arid'], window=0.5)
-		xpick = len(st[0].data)/2
-		yb,yt = ax.get_ylim()
-		v, = ax.plot([xpick,xpick],[yb,yt],'--k', lw=2)
 		l, = ax.plot(st[0].data, color=self.wf_color[pick], lw=2)
+		xpick = len(st[0].data)/2
+		yt = abs(st[0].data).max()
+		yb = -yt
+		v, = ax.plot([xpick,xpick],[yb,yt],'--k', lw=2)
 		self.l = l
 		self.fmline = fm
 		plt.show()
