@@ -10,7 +10,9 @@
 
 import numpy as np
 import os.path
-from libhashpy import *
+#from libhashpy import *
+from libhashpy import (mk_table_add, angtable, ran_norm, get_tts, get_gap,
+	focalmc, mech_prob, get_misf,)
 
 # for HASH compatiblity, change later.
 degrad = 180. / np.pi
@@ -332,60 +334,63 @@ class HashPype(object):
 		sol = [int(x) for x in solution]
 		print fpline.format(fp['orid'],*sol)
 	
-	def plot_stereonet(self, labels=False):
-		'''
-		test_stereo(self.p_azi_mc[:self.npol,0], self.p_the_mc[:self.npol,0], self.p_pol[:self.npol], sdr=[self.str_avg[0], self.dip_avg[0], self.rak_avg[0]])
-		azimuths,takeoffs,polarities,sdr=[]
-		'''
-		from matplotlib import pyplot as plt
-		import mplstereonet
-		from obspy.imaging.beachball import AuxPlane
+	#def plot_stereonet(self, labels=False):
+		#'''
+		#THIS HAS BEEN OBSELETED FOR NOW BY THE Plotter CLASS
+		#May be useful to have, but adds too many deps for this one thing...
 		
-		fig = plt.figure()
-		ax = fig.add_subplot(111, projection='stereonet')
-		ax.set_azimuth_ticklabels([])
-		# pull out variables from mechanism
-		azimuths = self.p_azi_mc[:self.npol,0]
-		# HASH takeoffs are 0-180 from vertical UP!!
-		# Stereonet angles 0-90 inward (dip)
-		# Classic FM's are toa from center???
-		takeoffs = abs(self.p_the_mc[:self.npol,0] - 90)
-		polarities = self.p_pol[:self.npol]
-		strike1,dip1,rake1 = self.str_avg[0], self.dip_avg[0], self.rak_avg[0]
-		strike2,dip2,rake2 = AuxPlane(strike1, dip1, rake1)
-		up = polarities > 0
-		dn = polarities < 0
-		if False:
-			# plot trial planes (nout2) OR avg planes (nmult)
-			for n in range(self.nout2):
-				s1, d1, r1 = self.strike2[n], self.dip2[n], self.rake2[n]
-				s2, d2, r2 = AuxPlane(s1, d1, r1)
-				h_rk = ax.plane(s1,d1, color='#999999')
-				h_rk = ax.plane(s2,d2,'#888888')
-		# plot best fit average plane
-		h_rk = ax.plane(strike1, dip1, color='black', linewidth=3)
-		h_rk = ax.rake( strike1, dip1, -rake1, 'k^', markersize=8)
-		h_rk = ax.plane(strike2, dip2, color='black', linewidth=3)
-		# plot station takeoffs
-		h_rk = ax.rake(azimuths[up]-90.,takeoffs[up],90, 'ko', markersize=8, markeredgewidth=2, markerfacecolor=None)
-		h_rk = ax.rake(azimuths[dn]-90.,takeoffs[dn],90, 'wo', markersize=8, markeredgewidth=2)
-		#h_t  = ax.set_title("ORID: {0}".format(self.icusp))
-		# hack to throw in station names for temp debugging...
-		if labels:
-			for i in range(self.npol):
-				h_rk = ax.rake(azimuths[i]-90,takeoffs[i]+5,90, marker='$   {0}$'.format(self.sname[i]), color='black',markersize=20)
-		# and go.
-		plt.show()
+		#test_stereo(self.p_azi_mc[:self.npol,0], self.p_the_mc[:self.npol,0], self.p_pol[:self.npol], sdr=[self.str_avg[0], self.dip_avg[0], self.rak_avg[0]])
+		#azimuths,takeoffs,polarities,sdr=[]
+		#'''
+		#from matplotlib import pyplot as plt
+		#import mplstereonet
+		#from obspy.imaging.beachball import AuxPlane
+		
+		#fig = plt.figure()
+		#ax = fig.add_subplot(111, projection='stereonet')
+		#ax.set_azimuth_ticklabels([])
+		## pull out variables from mechanism
+		#azimuths = self.p_azi_mc[:self.npol,0]
+		## HASH takeoffs are 0-180 from vertical UP!!
+		## Stereonet angles 0-90 inward (dip)
+		## Classic FM's are toa from center???
+		#takeoffs = abs(self.p_the_mc[:self.npol,0] - 90)
+		#polarities = self.p_pol[:self.npol]
+		#strike1,dip1,rake1 = self.str_avg[0], self.dip_avg[0], self.rak_avg[0]
+		#strike2,dip2,rake2 = AuxPlane(strike1, dip1, rake1)
+		#up = polarities > 0
+		#dn = polarities < 0
+		#if False:
+			## plot trial planes (nout2) OR avg planes (nmult)
+			#for n in range(self.nout2):
+				#s1, d1, r1 = self.strike2[n], self.dip2[n], self.rake2[n]
+				#s2, d2, r2 = AuxPlane(s1, d1, r1)
+				#h_rk = ax.plane(s1,d1, color='#999999')
+				#h_rk = ax.plane(s2,d2,'#888888')
+		## plot best fit average plane
+		#h_rk = ax.plane(strike1, dip1, color='black', linewidth=3)
+		#h_rk = ax.rake( strike1, dip1, -rake1, 'k^', markersize=8)
+		#h_rk = ax.plane(strike2, dip2, color='black', linewidth=3)
+		## plot station takeoffs
+		#h_rk = ax.rake(azimuths[up]-90.,takeoffs[up],90, 'ko', markersize=8, markeredgewidth=2, markerfacecolor=None)
+		#h_rk = ax.rake(azimuths[dn]-90.,takeoffs[dn],90, 'wo', markersize=8, markeredgewidth=2)
+		##h_t  = ax.set_title("ORID: {0}".format(self.icusp))
+		## hack to throw in station names for temp debugging...
+		#if labels:
+			#for i in range(self.npol):
+				#h_rk = ax.rake(azimuths[i]-90,takeoffs[i]+5,90, marker='$   {0}$'.format(self.sname[i]), color='black',markersize=20)
+		## and go.
+		#plt.show()
 	
-	def quick_station_map(self):
-		'''Quick and dirty station map'''
-		import matplotlib.pyplot as plt
+	#def quick_station_map(self):
+		#'''Quick and dirty station map'''
+		#import matplotlib.pyplot as plt
 		
-		fig = plt.figure()
-		ax = fig.add_subplot(111)
-		ax.plot(self.flon[:foo.npol],self.flat[:self.npol],'o')
-		for i in range(self.npol):
-			ax.text(self.flon[i], self.flat[i], self.sname[i])
-		ax.plot(self.qlon, self.qlat, 'ro')
-		plt.show()
+		#fig = plt.figure()
+		#ax = fig.add_subplot(111)
+		#ax.plot(self.flon[:foo.npol],self.flat[:self.npol],'o')
+		#for i in range(self.npol):
+			#ax.text(self.flon[i], self.flat[i], self.sname[i])
+		#ax.plot(self.qlon, self.qlat, 'ro')
+		#plt.show()
 

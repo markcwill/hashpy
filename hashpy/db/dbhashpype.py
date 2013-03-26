@@ -86,7 +86,7 @@ class DbHashPype(HashPype):
 			orid = dbv.getv('prefor')[0]
 		db = dbprocess(db,[ 'dbopen origin', 'dbsubset orid == '+str(orid),
 						'dbjoin origerr', 'dbjoin assoc',  'dbjoin arrival',
-						'dbjoin affiliation', 'dbjoin site',
+						'dbjoin -o affiliation', 'dbjoin -o site',
 						'dbsubset iphase =~ /.*[Pp].*/',
 						'dbsubset (ondate <= time)',
 						'dbsubset (time <= offdate) || (offdate == -1)']

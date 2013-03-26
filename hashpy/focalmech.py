@@ -227,12 +227,17 @@ class DoubleCouple(object):
 					containing list of [azi, dip]
 	'''
 	
-	plane1 = None
+	_plane = None
+	
+	@property
+	def plane1(self):
+		'''Return Preferred plane'''
+		return NodalPlane(*self._plane)
 	
 	@property
 	def plane2(self):
 		'''Return Auxiliary plane'''
-		auxplane = AuxPlane(*self.plane1)
+		auxplane = AuxPlane(*self._plane)
 		return NodalPlane(*auxplane)
 	
 	@property
@@ -243,7 +248,7 @@ class DoubleCouple(object):
 						   'T': AttribDict({'azi': aziT, 'dip': dipT}) })
 	
 	def __init__(self, nodal_plane=None):
-		self.plane1 = nodal_plane
+		self._plane = nodal_plane
 
 
 class FocalMech(DoubleCouple):
@@ -278,7 +283,7 @@ class FocalMech(DoubleCouple):
 		
 		self.orid = hro.icusp
 		self.picks = picks
-		self.plane1 = plane1
+		self._plane = plane1
 		if hro.dbin:
 			self.source = hro.dbin
 		self.algorithm = 'HASH'
