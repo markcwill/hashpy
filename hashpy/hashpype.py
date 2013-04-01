@@ -9,37 +9,49 @@
 # plus my custom utils and numpy arrays
 
 import numpy as np
-import os.path
-#from libhashpy import *
+import os
+from pwd import getpwuid
 from libhashpy import (mk_table_add, angtable, ran_norm, get_tts, get_gap,
 	focalmc, mech_prob, get_misf,)
 
-# for HASH compatiblity, change later.
-degrad = 180. / np.pi
-rad = 1. / degrad
-
 def parameter(**kwargs):
-	'''returns variables inside a fortran 'parameter' call'''
-	# FUTURE: could just make them all globals and import from namespace
-	return [kwargs[key] for key in kwargs]
+	"""
+	Returns variables inside a fortran 'parameter' call
+	"""
+	return kwargs
 
 def fortran_include(fname):
-	'''functions similar to a fortran include'''
-	vars = []
-	f_inc = open(fname)
-	for line in f_inc:
+	"""
+	Fortran include
+	
+	Quickie for access to 'include' files, needed for access to
+	parameters useful for interacting with f2py wrapped functions
+	
+	Input
+	-----
+	fname : str of fortran include filename
+	
+	Returns : dict of parameters described in any 'parameter' call
+	"""
+	inc_params = {}
+	f = open(fname)
+	for line in f:
 		if 'c' in line[0]:
-			pass
+			continue
 		elif 'parameter' in line:
-			vars.extend(eval(line))
+			# evaluate the line 'parameter(foo=999)' as python expr
+			inc_params.update(eval(line))
 		else:
 			pass
-	f_inc.close()
-	return vars
+	f.close()
+	return inc_params
 	
 	
 class HashPype(object):
-	'''Object which holds all data from a HASH instance for one event
+	"""
+	Object which holds all data from a HASH instance for one event
+	
+	Methods are based on the 'hash_driver2.f' program from H & S
 	
 	The variables are named and structured as close to the original code
 	as possible. Methods act on the variables within this namespace and
@@ -54,11 +66,14 @@ class HashPype(object):
 	methods and attributes to another class which defines various
 	input/output for whatever system is used.
 	
-	*See the DbHashPype class in the 'dbhash' program for details.
-	'''
+	*See the EventHashPype or DbHashPype class in the program for details.
+	
+	"""
 	# These MUST be the same as the fortran includes!!
 	# (They are compiled into the Fortran subroutines)
+	#--- param.inc ---#
 	npick0, nmc0, nmax0 = None, None, None
+	#--- rot.inc ---#
 	dang0, ncoor        = None, None
 	
 	# initialize arrays
@@ -112,10 +127,9 @@ class HashPype(object):
 	vmodel_dir = None # string of directory containing velocity models
 	vmodels = []      # list of string names of velocity model files
 	vtables = None    # actual travel time tables in common block
-	fplane = []
-	s2 = None
-	d2 = None
-	r2 = None
+	arid    = None    # unique number for each pick...
+	author  = None    # logged in user
+	
 	
 	# Variables HASH keeps internally, for ref and passing to fxns
 	ntab = 0     # number of tables loaded
@@ -127,6 +141,8 @@ class HashPype(object):
 	felv = None  # pick station elv
 	nf2 = None   # number of fm's returned
 	nmult = None # number of fm solutions returned
+	magap = None # calulated max azi gap
+	mpgap = None # calculated max plunge gap (I think)
 	
 	tstamp  = None
 	qlat    = None
@@ -136,33 +152,51 @@ class HashPype(object):
 	icusp   = None
 	seh     = None
 	sez     = None
-	arid   = None
+	
 	
 	# polarity reversals, [-1,1] stub for now
 	spol = 1
 	
 	def __init__(self, **kwargs):
-		'''
+		"""
 		Make an empty HASH run object.
 		
 		Initialize all the arrays needed for a HASH run. They are based
 		on the maximum size of the arrays passed to the FORTRAN
-		subroutines.
+		subroutines. 
+		
+		ANYTHING initialized here can be changed by passing
+		a keyword arg at the Constructor call. Useful for using an
+		input parameter file for HASH.
 		
 		Example
 		-------
 		>>> h = HashPype()
-		'''
+		"""
 		
+		# INCLUDES ------------------------------------------------
+		# contain array sizes, get em
 		directory = os.path.dirname(__file__)
 		param_inc_file = os.path.join(directory,'src','param.inc')
 		rot_inc_file   = os.path.join(directory,'src','rot.inc')
 		
-		npick0, nmc0, nmax0 = fortran_include(param_inc_file)
-		dang0, ncoor        = fortran_include(rot_inc_file)
+		param_inc = fortran_include(param_inc_file) # npick0, nmc0, nmax0 
+		rot_inc = fortran_include(rot_inc_file) # dang0, ncoor
 		
-		# initialize arrays
-		self.dang2=max(dang0, self.dang)
+		# Save include vars for other fucntions to access
+		self.__dict__.update(param_inc)
+		self.__dict__.update(rot_inc)
+		
+		# For convenience, throw in fxn namespace
+		npick0 = self.npick0
+		nmc0   = self.nmc0
+		nmax0  = self.nmax0
+		dang0  = self.dang0
+		ncoor  = self.ncoor
+		
+		# ARRAYS ---------------------------------------------------
+		# initialize arrays for HASH
+		self.dang2=max(self.dang0, self.dang)
 		
 		# Input arrays
 		self.sname     = np.empty(npick0, 'a6', 'F')
@@ -194,7 +228,7 @@ class HashPype(object):
 		self.prob    = np.empty(5, float, 'F')
 		self.qual    = np.empty(5, 'a', 'F')
 		
-		# Other (added for Python classiness)
+		# Internals (added for Python classiness)
 		self.dist    = np.empty(npick0, float)
 		self.qazi    = np.empty(npick0, float)
 		self.flat    = np.empty(npick0, float)
@@ -202,33 +236,28 @@ class HashPype(object):
 		self.felv    = np.empty(npick0, float)
 		self.esaz    = np.empty(npick0, float)
 		self.arid  	 = np.empty(npick0, int) * 0
-
 		
-		# Save include vars for other fucntions to access
-		self.npick0 = npick0
-		self.nmc0   = nmc0
-		self.nmax0  = nmax0
-		self.dang0  = dang0
-		self.ncoor  = ncoor
-		
-		
-		self.fplane = [] # This cancels out inherited one
+		self.author = getpwuid(os.getuid()).pw_name
 		
 		if kwargs:
 			self.__dict__.update(kwargs)
-			
-		# add pf check for defaults
 	
 	def __repr__(self):
-		'''String saying what for'''
-		if self.icusp:
-			id = self.icusp
-		else:
-			id = 'empty'
-		return '{0}({1})'.format(self.__class__.__name__, id)
+		"""
+		String saying what you are
+		"""
+		return '{0}(icusp={1})'.format(self.__class__.__name__, self.icusp)
 	
 	def load_velocity_models(self, model_list=None):
-		'''load velocity model data'''
+		"""
+		"Load velocity model data
+		
+		Inputs
+		------
+		model_list : list of str of velocity model filenames
+		
+		** if None, will use the list in 'self.vmodels'
+		"""
 		# Future -- allow adding on fly, check and append to existing
 		#
 		# THIS LOADS INTO hashpy.angtable.table (nx,nd,nindex) !!!
@@ -244,10 +273,12 @@ class HashPype(object):
 			self.vtable = angtable.table
 		
 	def generate_trial_data(self):
-		'''Make data for running trials MUST have loaded data and vel mods alreday
+		"""
+		Make data for running trials
+		(MUST have loaded data and vel mods already)
 		
-		Algorithm NOT written by me (From HASH driver script)
-		'''
+		Algorithm by H & S (From HASH driver script)
+		"""
 		# choose a new source location and velocity model for each trial
 		self.qdep2[0] = self.qdep
 		self.index[0] = 1
@@ -257,7 +288,9 @@ class HashPype(object):
 			self.index[nm] = (nm % self.ntab) + 1  # index used to choose velocity model
 			
 	def calculate_takeoff_angles(self):
-		'''Use HASH fortran subroutine to calulate takeoff angles for each trial'''
+		"""
+		Use HASH fortran subroutine to calulate takeoff angles for each trial
+		"""
 		# loop over k picks b/c I broke it out -- NOTE: what does iflag do?
 		#
 		# find azimuth and takeoff angle for each trial
@@ -265,26 +298,33 @@ class HashPype(object):
 			for nm in range(self.nmc):
 				self.p_azi_mc[k,nm] = self.qazi[k]
 				self.p_the_mc[k,nm], iflag = get_tts(self.index[nm],self.dist[k],self.qdep2[nm])
+		self.magap, self.mpgap = get_gap(self.p_azi_mc[:self.npol,0],self.p_the_mc[:self.npol,0],self.npol)
 	
 	def view_polarity_data(self):
-		'''Print out a list of polarity data for interactive runs'''
+		"""
+		Print out a list of polarity data for interactive runs
+		"""
 		for k in range(self.npol):
 			print '{0}   {1} {2} {3} {4}'.format(k,self.sname[k],self.p_azi_mc[k,0],self.p_the_mc[k,0],self.p_pol[k])
 	
 	def check_minimum_polarity(self):
+		"""Polarity check"""
 		if self.npol >= self.npolmin:
 			return True
 		else:
 			return False
 	
 	def check_maximum_gap(self):
-		magap,mpgap = get_gap(self.p_azi_mc[:self.npol,0],self.p_the_mc[:self.npol,0],self.npol)
-		if ((magap > self.max_agap) or (mpgap > self.max_pgap)):
+		"""Gap check"""
+		if ((self.magap > self.max_agap) or (self.mpgap > self.max_pgap)):
 			return False
 		else:
 			return True
 	
 	def calculate_hash_focalmech(self):
+		"""
+		Run the actual focal mech calculation, and find the probable mech
+		"""
 		# determine maximum acceptable number misfit polarities
 		nmismax = max(int(self.npol * self.badfrac),2)        # nint
 		nextra  = max(int(self.npol * self.badfrac * 0.5),2)  # nint
@@ -296,7 +336,11 @@ class HashPype(object):
 		
 		# find the probable mechanism from the set of acceptable solutions
 		self.nmult, self.str_avg, self.dip_avg, self.rak_avg, self.prob, self.var_est = mech_prob(self.f1norm[:,:self.nout2], self.f2norm[:,:self.nout2], self.cangle, self.prob_max, self.nout2) # nout2
-		
+	
+	def calculate_quality(self):
+		"""
+		Do the quality calulations
+		"""
 		for imult in range(self.nmult):
 			self.var_avg[imult] = (self.var_est[0,imult] + self.var_est[1,imult]) / 2.
 			#print 'cid = {0} {1}  mech = {2} {3} {4}'.format(self.icusp, imult, self.str_avg[imult], self.dip_avg[imult], self.rak_avg[imult])
@@ -312,85 +356,12 @@ class HashPype(object):
 				self.qual[imult]='C'
 			else:
 				self.qual[imult]='D'
-		
-	def add_solution_to_dict(self):
-		'''stub'''
-		# NEED to get other plane here!!! (check Fortran utils...)
-		# make this a Dbrecord eventually?
-		# pasted from end of HashPype.calculate_hash_focalmech()
-		fline = {'orid': self.icusp, 'str1': self.str_avg[0],
-			'dip1': self.dip_avg[0], 'rake1': self.rak_avg[0],
-			'str2': self.s2, 'dip2': self.d2, 'rake2': self.r2,
-			'algorithm':'HASH', 'mechid': None
-			}
-		self.fplane.append(fline)
-		#---End paste job
-	
-	def print_solution_line(self, solution=0):
-		'''Print the best solution'''
-		fp = self.fplane[solution]
-		fpline = "ORID:{0} STRIKE:{1} DIP:{2} RAKE:{3}"
-		solution = fp['str1'],fp['dip1'],fp['rake1']
-		sol = [int(x) for x in solution]
-		print fpline.format(fp['orid'],*sol)
-	
-	#def plot_stereonet(self, labels=False):
-		#'''
-		#THIS HAS BEEN OBSELETED FOR NOW BY THE Plotter CLASS
-		#May be useful to have, but adds too many deps for this one thing...
-		
-		#test_stereo(self.p_azi_mc[:self.npol,0], self.p_the_mc[:self.npol,0], self.p_pol[:self.npol], sdr=[self.str_avg[0], self.dip_avg[0], self.rak_avg[0]])
-		#azimuths,takeoffs,polarities,sdr=[]
-		#'''
-		#from matplotlib import pyplot as plt
-		#import mplstereonet
-		#from obspy.imaging.beachball import AuxPlane
-		
-		#fig = plt.figure()
-		#ax = fig.add_subplot(111, projection='stereonet')
-		#ax.set_azimuth_ticklabels([])
-		## pull out variables from mechanism
-		#azimuths = self.p_azi_mc[:self.npol,0]
-		## HASH takeoffs are 0-180 from vertical UP!!
-		## Stereonet angles 0-90 inward (dip)
-		## Classic FM's are toa from center???
-		#takeoffs = abs(self.p_the_mc[:self.npol,0] - 90)
-		#polarities = self.p_pol[:self.npol]
-		#strike1,dip1,rake1 = self.str_avg[0], self.dip_avg[0], self.rak_avg[0]
-		#strike2,dip2,rake2 = AuxPlane(strike1, dip1, rake1)
-		#up = polarities > 0
-		#dn = polarities < 0
-		#if False:
-			## plot trial planes (nout2) OR avg planes (nmult)
-			#for n in range(self.nout2):
-				#s1, d1, r1 = self.strike2[n], self.dip2[n], self.rake2[n]
-				#s2, d2, r2 = AuxPlane(s1, d1, r1)
-				#h_rk = ax.plane(s1,d1, color='#999999')
-				#h_rk = ax.plane(s2,d2,'#888888')
-		## plot best fit average plane
-		#h_rk = ax.plane(strike1, dip1, color='black', linewidth=3)
-		#h_rk = ax.rake( strike1, dip1, -rake1, 'k^', markersize=8)
-		#h_rk = ax.plane(strike2, dip2, color='black', linewidth=3)
-		## plot station takeoffs
-		#h_rk = ax.rake(azimuths[up]-90.,takeoffs[up],90, 'ko', markersize=8, markeredgewidth=2, markerfacecolor=None)
-		#h_rk = ax.rake(azimuths[dn]-90.,takeoffs[dn],90, 'wo', markersize=8, markeredgewidth=2)
-		##h_t  = ax.set_title("ORID: {0}".format(self.icusp))
-		## hack to throw in station names for temp debugging...
-		#if labels:
-			#for i in range(self.npol):
-				#h_rk = ax.rake(azimuths[i]-90,takeoffs[i]+5,90, marker='$   {0}$'.format(self.sname[i]), color='black',markersize=20)
-		## and go.
-		#plt.show()
-	
-	#def quick_station_map(self):
-		#'''Quick and dirty station map'''
-		#import matplotlib.pyplot as plt
-		
-		#fig = plt.figure()
-		#ax = fig.add_subplot(111)
-		#ax.plot(self.flon[:foo.npol],self.flat[:self.npol],'o')
-		#for i in range(self.npol):
-			#ax.text(self.flon[i], self.flat[i], self.sname[i])
-		#ax.plot(self.qlon, self.qlat, 'ro')
-		#plt.show()
+
+class HashError(Exception):
+	"""Throw this if something happens while running"""
+	pass
+
+
+
+
 

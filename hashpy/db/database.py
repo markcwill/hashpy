@@ -141,7 +141,7 @@ class DbConnection(object):
         """
         Port of Gabe/Mark dbprocess for getting info to pass to an FM calulator
         
-        (Could build this from the other two functions? OR take out the origin-origerr)
+        Right now, gets origin, arrival info, and joins wfdisc for filenames to the waveform
         """
         d = Dbptr(self.ptr)
         d = dbprocess(d,['dbopen origin', 'dbsubset orid=={0}'.format(orid),

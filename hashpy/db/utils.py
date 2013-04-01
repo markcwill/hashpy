@@ -273,6 +273,36 @@ from aug.contrib import *
 from antelope.datascope import *
 from antelope.stock import *
 
+def load_pf(pffile='dbhash.pf'):
+	'''Load HASH runtime settings from a pf file to a dictionary
+	
+	One can also specify names of velocity model files in the pf.
+	
+	Right now these settings are inherited from the HashPype class,
+	 and are not instance attributes.
+	 
+	 Input
+	 -----
+	 pffile : string of full path to pf file
+	 
+	'''
+	pf_settings = pfget(pffile)
+	
+	# Little hack to do type conversions 
+	for key in pf_settings:
+		pfi = pf_settings[key]
+		if key in ['badfrac','prob_max']:
+			pfi = float(pfi)
+		elif key in ['npolmin','max_agap','max_pgap','dang','nmc','maxout', 'delmax','cangle']:
+			pfi = int(pfi)
+		else:
+			pass
+		pf_settings[key] = pfi
+	
+	if 'vmodel_dir' in pf_settings and 'vmodels' in pf_settings:
+		pf_settings['vmodels'] = [os.path.join(pf_settings['vmodel_dir'], table) for table in pf_settings['vmodels']]
+	return pf_settings
+
 def db2object(dbv):
 	'''
 	Port of Antelope MATLAB toolbox 'db2struct' function.
@@ -360,7 +390,7 @@ def readANTELOPE(database, station=None, channel=None, starttime=None, endtime=N
 	st = Stream()
 	for db.record in range(db.nrecs() ):
 		fname = db.filename() 
-		dbr = Dbrecord(db)
+		dbr = DbrecordPtr(db)
 		t0 = UTCDateTime(dbr.time)
 		t1 = UTCDateTime(dbr.endtime)
 		if dbr.time < ts:
@@ -369,8 +399,8 @@ def readANTELOPE(database, station=None, channel=None, starttime=None, endtime=N
 			t1 = endtime
 		_st = read(fname, starttime=t0, endtime=t1)		 # add format?
 		_st = _st.select(station=dbr.sta, channel=dbr.chan) #not location aware
-		_st[0].db = dbr
-		if _st[0].db.calib < 0:
+		#_st[0].db = dbr
+		if dbr.calib < 0:
 			_st[0].data *= -1
 		st += _st
 	# Close what we opened, BUT garbage collection may take care of this:
