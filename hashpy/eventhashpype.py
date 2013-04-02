@@ -207,6 +207,7 @@ class EventHashPype(HashPype):
         focal_mech.azimuthal_gap = self.magap
         focal_mech.misfit = self.mfrac[s]
         focal_mech.station_distribution_ratio = self.stdr[s]
+        focal_mech.comments.append(Comment(self.qual[s], resource_id=ResourceIdentifier('comment/quality')))
         #----------------------------------------
         event.focal_mechanisms.append(focal_mech)
         event.preferred_focal_mechanism_id = focal_mech.resource_id.resource_id
@@ -218,7 +219,8 @@ class EventHashPype(HashPype):
         """
         x = self._best_quality_index
         s,d,r = self.str_avg[x], self.dip_avg[x], self.rak_avg[x]
-        return 'Solution:{0} |  STRIKE:{1}  DIP:{2}  RAKE:{3}  | Quality:{4}'.format(self.icusp, s, d, r, self.qual[x])
+        return 'Solution:{orid} |  STRIKE: {st:0.1f}  DIP: {dp:0.1f}  RAKE: {rk:0.1f}  | Quality:{q}'.format(orid=self.icusp,
+            st=float(s), dp=float(d), rk=float(r), q=self.qual[x])
     
     def run(self, min_check=True, gap_check=True):
         """

@@ -168,7 +168,7 @@ class FocalMechPlotter(object):
         if axis:
             ax = axis
         else:
-            ax = self.ax[0]
+            ax = self._axis['stereonet']
         
         ax.clear() 
         ax.set_title('Origin: {0}'.format(self._orig.creation_info.version))
@@ -209,6 +209,14 @@ class FocalMechPlotter(object):
             index.append(ind)
             if True:
                 h_text = ax.rake(azi, toa+5, 90, marker='$   {0}$'.format(p.waveform_id.station_code), color='black',markersize=20)
+            for comm in self._focm.comments:
+                if 'quality' in comm.resource_id.resource_id:
+                    qual = comm.text
+                else:
+                    qual = None
+            plane_str = "STRIKE:{0: > 7.1f}\nDIP:{1: > 7.1f}\nRAKE:{2: > 7.1f}"
+            h_text = self.fig.text(0.25, 0.88, plane_str.format(strike1, dip1, rake1), ha='right', va='top', family='monospace')
+            h_text = self.fig.text(0.25, 0.33, 'Quality: {0}'.format(qual), ha='right', va='top', family='monospace')  
         
         if not axis:
             self.h = h
@@ -225,9 +233,8 @@ class FocalMechPlotter(object):
             transform = ax.transAxes)
         return ax
     
-    def __init__(self, event=None, datastream=None, database=None, save=None):
+    def __init__(self, event=None, datastream=None, save=None):
         '''Create a plot for focal mechanisms'''
-        self.database = database # take out later
         self.event = event
         self.data = datastream
         self.ax = []
@@ -237,6 +244,8 @@ class FocalMechPlotter(object):
         # Draw figure and set up 
         self.fig = plt.figure(facecolor='#D9D9EE')
         self.fig.canvas.set_window_title('Focal Mechanism - dbhash')
+        
+        ### INTERACTIVE - MAIN MODE ###
         self.gs = GridSpec(8,5) # 8x5 grid of axis space
         
         # Stereonet axis
