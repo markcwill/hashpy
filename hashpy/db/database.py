@@ -387,6 +387,7 @@ def db2event(database, evid=None, orid=None, phase_data=False):
         maglist = Converter().record2maglist(db)
         if placedb:
             ev_desc = Converter().coords2evDescription(placedb, db.lat, db.lon)
+            event.event_descriptions = [ev_desc]
         if phase_data:
             adbp1 = dbc.get_origin_arrivals(db.orid)
             picks, arrivals = Converter().ptr2arrivals(adbp1)
@@ -394,7 +395,6 @@ def db2event(database, evid=None, orid=None, phase_data=False):
             event.picks = picks
         event.origins = [origin]
         event.preferred_origin_id = origin.resource_id.resource_id
-        event.event_descriptions = [ev_desc]
         # If magnitude is null or negative, maglist will be empty.
         if maglist:
             event.magnitudes = maglist
