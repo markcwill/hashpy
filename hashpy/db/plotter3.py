@@ -11,8 +11,6 @@ from numpy import arange
 from matplotlib import pyplot as plt
 from matplotlib.gridspec import GridSpec
 import mplstereonet
-# temporary, should pass data in as Stream, call db in script...
-#from hashpy.db.utils import get_waveform_from_arid
 
 class FocalMechPlotter(object):
     '''Class to create interactive stereonet plot of a HASH first motion'''
@@ -24,25 +22,24 @@ class FocalMechPlotter(object):
     h_text = None   # handle for text labels
     event = None    # Event object
     ind = None      # indicies of which picks in Origin.arrivals are plotted
-    database = None # placeholder for database to grab waveforms
     _arrv = None    # current arrival
     _curh = None    # current handle
     _axis = None    # dict of axes for quick ref
     save = None     # function handle to a 'save' function
+    source = None   # temp string of where to save
     
     picks_list = ('undecidable', 'positive', 'negative')
-    fm_list = ('..','c.', 'd.')
     wf_color = { 'positive' : 'red', 'negative' : 'blue', 'undecidable' : 'black' }
     
-    @property
+    @property       # preferred origin
     def _orig(self):
         '''Stub'''
         return self.event.preferred_origin()
-    @property
+    @property       # preferred focal mechanism
     def _focm(self):
         '''Stub'''
         return self.event.preferred_focal_mechanism()
-    @property
+    @property       # current pick
     def _pick(self):
         '''Pick pointed to by current arrival'''
         return self._arrv.pick_id.getReferredObject()
@@ -147,7 +144,7 @@ class FocalMechPlotter(object):
             event.canvas.draw()
             # should be a referred save function to support external namespaces
             if self.save:
-                self.save(self)
+                self.save(self.event, self.source)
             else:
                 self.fig.savefig('focal_mech_'+ self._orig.creation_info.version +'.png')
             # done saving, rc=True is success
@@ -233,13 +230,14 @@ class FocalMechPlotter(object):
             transform = ax.transAxes)
         return ax
     
-    def __init__(self, event=None, datastream=None, save=None):
+    def __init__(self, event=None, datastream=None, save=None, source=None):
         '''Create a plot for focal mechanisms'''
         self.event = event
         self.data = datastream
         self.ax = []
         self._axis = {}
         self.save = save
+        self.source = source
         
         # Draw figure and set up 
         self.fig = plt.figure(facecolor='#D9D9EE')

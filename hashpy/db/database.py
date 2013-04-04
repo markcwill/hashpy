@@ -10,7 +10,6 @@
 #               'obspy'    ObsPy (version with event, quakeml support)
 #               'aug'      Antelope Users Group contributed python module
 #
-import settings # NSL specific module
 from antelope.datascope import Dbptr, dbopen, dbprocess
 from aug.contrib.orm import AttribDbptr, open_db_or_string
 from numpy import array
@@ -28,6 +27,15 @@ from obspy.core.event import (Catalog, Event, Origin, CreationInfo, Magnitude,
 #############################################################################
 # Tools for creating obspy event objects
 #############################################################################
+try:
+    import settings
+except ImportError:
+    class Settings(object): pass
+    settings = Settings()
+    settings.AGENCY_CODE = 'XX'
+    settings.PLACE_DB = None
+    settings.URL = 'website.com'
+    settings.TAG = 'institution'
 
 agency   = settings.AGENCY_CODE 
 placedb  = settings.PLACE_DB
@@ -377,7 +385,8 @@ def db2event(database, evid=None, orid=None, phase_data=False):
         # build Origin and list of Magnitude objects
         origin  = Converter().record2origin(db)
         maglist = Converter().record2maglist(db)
-        ev_desc = Converter().coords2evDescription(placedb, db.lat, db.lon)
+        if placedb:
+            ev_desc = Converter().coords2evDescription(placedb, db.lat, db.lon)
         if phase_data:
             adbp1 = dbc.get_origin_arrivals(db.orid)
             picks, arrivals = Converter().ptr2arrivals(adbp1)

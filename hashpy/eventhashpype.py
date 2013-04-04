@@ -195,8 +195,10 @@ class EventHashPype(HashPype):
         dc = DoubleCouple([self.str_avg[s], self.dip_avg[s], self.rak_avg[s]])
         ax = dc.axis
         focal_mech = FocalMechanism()
+        focal_mech.creation_info = CreationInfo(creation_time=UTCDateTime(), author=self.author)
         focal_mech.triggering_origin_id = origin.resource_id
         focal_mech.resource_id = ResourceIdentifier('smi:hash/FocalMechanism/{0}'.format(self.icusp))
+        focal_mech.method_id = ResourceIdentifier('HASH')
         focal_mech.nodal_planes = NodalPlanes()
         focal_mech.nodal_planes.nodal_plane_1 = NodalPlane(*dc.plane1)
         focal_mech.nodal_planes.nodal_plane_2 = NodalPlane(*dc.plane2)
