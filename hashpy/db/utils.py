@@ -26,7 +26,7 @@ def add_antelope_path():
 add_antelope_path()
 
 from aug.contrib.orm import open_db_or_string, AttribDbptr, DbrecordPtr
-from antelope.datascope import (dbopen, dblookup, dbsubset, dblookup,
+from antelope.datascope import (Dbptr, dbopen, dblookup, dbsubset, dblookup,
 	dbprocess, dbDATABASE_NAME, dbDBPATH)
 from antelope.stock import pfget
 
