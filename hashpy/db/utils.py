@@ -137,12 +137,13 @@ def readANTELOPE(database, station=None, channel=None, starttime=None, endtime=N
 			t0 = starttime
 		if dbr.endtime > te:
 			t1 = endtime
-		_st = read(fname, starttime=t0, endtime=t1)		 # add format?
-		_st = _st.select(station=dbr.sta, channel=dbr.chan) #not location aware
-		#_st[0].db = dbr
-		if dbr.calib < 0:
-			_st[0].data *= -1
-		st += _st
+		if os.path.exists(fname):
+			_st = read(fname, starttime=t0, endtime=t1)		 # add format?
+			_st = _st.select(station=dbr.sta, channel=dbr.chan) #not location aware
+			#_st[0].db = dbr
+			if dbr.calib < 0:
+				_st[0].data *= -1
+			st += _st
 	# Close what we opened, BUT garbage collection may take care of this:
 	# if you have an open pointer but pass db name as a string, global
 	# use of your pointer won't work if this is uncommented:

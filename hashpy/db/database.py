@@ -14,7 +14,6 @@ from antelope.datascope import Dbptr, dbopen, dbprocess
 from aug.contrib.orm import AttribDbptr, open_db_or_string
 from numpy import array
 from obspy.core.utcdatetime import UTCDateTime
-from obspy.core.quakeml import Pickler
 from obspy.core.util import tostring, gps2DistAzimuth
 from obspy.core.event import (Catalog, Event, Origin, CreationInfo, Magnitude,
     EventDescription, OriginUncertainty, OriginQuality, CompositeTime,
@@ -117,9 +116,8 @@ class DbConnection(object):
         """
         Gets the origin-origerr joined line for a given event
         
-        Finds the preferred orid, joins origin and origerr, and
-        subsets the view for that orid. Returns object pointer
-        to all the fields in that view for that record.
+        Joins origin and origerr, and subsets the view for that orid or
+        evid. Sorts so in case of evid, most recently created is last.
         
         Input:  int of evid, orid
         Output: aug.contrib.orm.dbpointers.AttribDbptr of origins
@@ -176,7 +174,7 @@ class Converter(object):
     '''
     
     def _dbmapper(self, keymap, source={}, dest={}):
-        """Maps from AttribDbptr object to an AttribDict (or any dict)
+        """Maps from dict to dict using 'get'
     
         Has support for Antelope NULLs (inserts a None)
         Catches if field doesn't exist (inserts a None)
