@@ -12,7 +12,7 @@ hashpy: libhashpy.so
 libhashpy.so: Makefile $(SRC)
 	f2py -c -m libhashpy $(SRC)     
 
-.PHONY : install
-install : libhashpy.so
-	@mv libhashpy.so ..
+#.PHONY : install
+#install : libhashpy.so
+#	@mv libhashpy.so ..
 
