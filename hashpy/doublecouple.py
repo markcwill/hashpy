@@ -287,3 +287,68 @@ class FocalMech(DoubleCouple):
 		if hro.dbin:
 			self.source = hro.dbin
 		self.algorithm = 'HASH'
+
+
+#------ Work in progress, port these to stop import from heavy beachball.py
+def StrikeDip(n, e, u):
+    """
+    Finds strike and dip of plane given normal vector having components n, e,
+    and u.
+
+    Adapted from MATLAB script
+    `bb.m <http://www.ceri.memphis.edu/people/olboyd/Software/Software.html>`_
+    written by Andy Michael and Oliver Boyd.
+    """
+    r2d = 180 / np.pi
+    if u < 0:
+        n = -n
+        e = -e
+        u = -u
+
+    strike = np.arctan2(e, n) * r2d
+    strike = strike - 90
+    while strike >= 360:
+            strike = strike - 360
+    while strike < 0:
+            strike = strike + 360
+    x = np.sqrt(np.power(n, 2) + np.power(e, 2))
+    dip = np.arctan2(x, u) * r2d
+    return (strike, dip)
+
+
+def AuxPlane(s1, d1, r1):
+    """
+    Get Strike and dip of second plane.
+
+    Adapted from MATLAB script
+    `bb.m <http://www.ceri.memphis.edu/people/olboyd/Software/Software.html>`_
+    written by Andy Michael and Oliver Boyd.
+    """
+    r2d = 180 / np.pi
+
+    z = (s1 + 90) / r2d
+    z2 = d1 / r2d
+    z3 = r1 / r2d
+    # slick vector in plane 1
+    sl1 = -np.cos(z3) * np.cos(z) - np.sin(z3) * np.sin(z) * np.cos(z2)
+    sl2 = np.cos(z3) * np.sin(z) - np.sin(z3) * np.cos(z) * np.cos(z2)
+    sl3 = np.sin(z3) * np.sin(z2)
+    (strike, dip) = StrikeDip(sl2, sl1, sl3)
+
+    n1 = np.sin(z) * np.sin(z2)  # normal vector to plane 1
+    n2 = np.cos(z) * np.sin(z2)
+    h1 = -sl2  # strike vector of plane 2
+    h2 = sl1
+    # note h3=0 always so we leave it out
+    # n3 = np.cos(z2)
+
+    z = h1 * n1 + h2 * n2
+    z = z / np.sqrt(h1 * h1 + h2 * h2)
+    z = np.arccos(z)
+    rake = 0
+    if sl3 > 0:
+        rake = z * r2d
+    if sl3 <= 0:
+        rake = -z * r2d
+    return (strike, dip, rake)
+
