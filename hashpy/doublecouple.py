@@ -1,13 +1,16 @@
 # -*- coding: utf-8 -*-
 #
-#  focalmech.py
+#  doublecouple.py
 #
 # by Mark Williams 2012.313
-# First motion focal mechanism classes
+# Calulator for getting double couple information
+#
+# dc = DoubleCouple(270, 90, 180)
+# dc.plane1
+# dc.plane2
+# dc.axis['P']
 
 import numpy as np
-from obspy.core.util import AttribDict
-from obspy.imaging.beachball import AuxPlane
 
 # following two subs are from GMT utlimeca.c
 #
@@ -131,165 +134,7 @@ def nodal2pt(str1,da1,sa1,str2,da2,sa2):
 	dip_p, dip_t, azi_p, azi_t = dp, dt, pp, pt
 	return dip_p, dip_t, azi_p, azi_t
 
-
-class NodalPlane(list):
-	'''List to hold strike, dip, rake of a nodal plane
-	
-	Overview
-	--------
-	Basically, a list consisting of:
-	[strike, dip, rake]
-	with each element accessible by name as well as index.
-	
-	Construct with sequence, list, or named keyword args, see
-	constructor doc for deatails.
-	
-	Attributes
-	----------
-	strike	:	int or float of degrees
-	dip		:	int or float of degrees
-	rake	:	int or float of degrees
-	'''
-	_imap = {'strike': 0,
-			 'dip'   : 1,
-			 'rake'  : 2}
-	
-	def __init__(self, *args, **kwargs):
-		'''
-		NodalPlane(strk, dp, rk)
-		NodalPlane([strk,dp,rk])
-		NodalPlane(strike=strk, dip=dp, rake=rk)
-		
-		strike	:	int or float of degrees
-		dip		:	int or float of degrees
-		rake	:	int or float of degrees
-		
-		Examples
-		--------
-		>>> l = [123, 45, 67]
-		>>> p = NodalPlane(l)
-		>>> p = NodalPlane(145, 45, 67)
-		>>> p = NodalPlane(strike=145, dip=45, rake=67)
-		>>> p.dip = 30
-		'''
-		super(NodalPlane,self).__init__([None,None,None])
-		
-		if args:
-			if isinstance(args[0], list) or isinstance(args[0], tuple) and len(args[0]) == 3 :
-				self[:] = args[0]
-			elif len(args) == 3:
-				self[:] = args
-			else:
-				pass
-		if kwargs:
-			for key in kwargs:
-				if key in self._imap:
-					self.__setattr__(key, kwargs[key])
-	
-	def __getindex(self, key):
-		'''Maps an attribute key to a list index'''
-		if key in self._imap:
-			index = self._imap[key]
-		else:
-			index = None
-		return index
-	
-	def __getattr__(self, key):
-		'''Look for attribute in list'''
-		index = self.__getindex(key)
-		if index is not None:
-			return self[index]
-		else:
-			raise AttributeError("Attribute must be 'strike', 'dip', or 'rake'")
-	
-	def __setattr__(self, key, value):
-		'''Set attribute in list'''
-		index = self.__getindex(key)
-		if index is not None:
-			self[index] = value
-		else:
-			raise AttributeError("Attribute must be 'strike', 'dip', or 'rake'")
-
-
-class DoubleCouple(object):
-	'''Holds nodal planes and P and T axes of a double couple focal mech
-	
-	The attributes are set up to calulate everything on the fly from the
-	initial plane (strike, dip, rake), so you can change something (like
-	a rake in your primary plane), and calling for a 'P' axis, e.g. will
-	give you the new answer...
-	
-	Attributes
-	----------
-	plane1	:	NodalPlane of primary plane
-	plane2	:	NodalPlane of auxiliary plane
-	axis	:	AttribDict of axes ('P' and 'T')
-					containing list of [azi, dip]
-	'''
-	
-	_plane = None
-	
-	@property
-	def plane1(self):
-		'''Return Preferred plane'''
-		return NodalPlane(*self._plane)
-	
-	@property
-	def plane2(self):
-		'''Return Auxiliary plane'''
-		auxplane = AuxPlane(*self._plane)
-		return NodalPlane(*auxplane)
-	
-	@property
-	def axis(self):
-		'''return direction and dip for P and T axes'''
-		dipP, dipT, aziP, aziT = nodal2pt(*self.plane1+self.plane2)
-		return AttribDict({'P': AttribDict({'azi': aziP, 'dip': dipP}),
-						   'T': AttribDict({'azi': aziT, 'dip': dipT}) })
-	
-	def __init__(self, nodal_plane=None):
-		self._plane = nodal_plane
-
-
-class FocalMech(DoubleCouple):
-	'''Generic Class to hold a focal mechansim solution
-	
-	Is a DoubleCouple, with additional info needed to make a plot
-	(station names, azimuth and takoff angles, etc)
-	'''
-	orid   = None # integer id for an event origin hypocenter
-	source = None # place for input database/file name
-	picks  = None # array of station/azimuth/takeoff/polarities
-	algorithm = None
-	_dt = np.dtype([('station', 'a6'), ('azimuth', float), ('takeoff',float), ('polarity', int), ('arid', int)])
-	
-	
-	def load_hash(self, hro=None):
-		'''Map HASH variables to data for methods to use
-		'''
-		from hashpy import HashPype
-		assert isinstance(hro, HashPype), "Must pass a HashRun in here to load data!"
-		
-		n = hro.npol
-		picks = np.empty(n, dtype=self._dt)
-		picks['station'] = hro.sname[:n]
-		picks['azimuth'] = hro.p_azi_mc[:n,0]
-		picks['takeoff'] = hro.p_the_mc[:n,0]
-		picks['polarity'] = hro.p_pol[:n]
-		if hro.arid.any():
-			picks['arid'] = hro.arid[:n]
-		
-		plane1 = NodalPlane(hro.str_avg[0], hro.dip_avg[0], hro.rak_avg[0])
-		
-		self.orid = hro.icusp
-		self.picks = picks
-		self._plane = plane1
-		if hro.dbin:
-			self.source = hro.dbin
-		self.algorithm = 'HASH'
-
-
-#------ Work in progress, port these to stop import from heavy beachball.py
+# These two taken from obspy.imaging.beachball
 def StrikeDip(n, e, u):
     """
     Finds strike and dip of plane given normal vector having components n, e,
@@ -351,4 +196,125 @@ def AuxPlane(s1, d1, r1):
     if sl3 <= 0:
         rake = -z * r2d
     return (strike, dip, rake)
+
+
+class NodalPlane(list):
+	'''List to hold strike, dip, rake of a nodal plane
+	
+	Overview
+	--------
+	Basically, a list consisting of:
+	[strike, dip, rake]
+	with each element accessible by name as well as index.
+	
+	Construct with sequence, list, or named keyword args, see
+	constructor doc for deatails.
+	
+	Attributes
+	----------
+	strike	:	int or float of degrees
+	dip		:	int or float of degrees
+	rake	:	int or float of degrees
+	'''
+	_imap = {'strike': 0,
+			 'dip'   : 1,
+			 'rake'  : 2}
+	
+	def __init__(self, *args, **kwargs):
+		'''
+		NodalPlane(strk, dp, rk)
+		NodalPlane([strk,dp,rk])
+		NodalPlane(strike=strk, dip=dp, rake=rk)
+		
+		strike	:	int or float of degrees
+		dip		:	int or float of degrees
+		rake	:	int or float of degrees
+		
+		Examples
+		--------
+		>>> l = [123, 45, 67]
+		>>> p = NodalPlane(l)
+		>>> p = NodalPlane(145, 45, 67)
+		>>> p = NodalPlane(strike=145, dip=45, rake=67)
+		>>> p.dip = 30
+		'''
+		super(NodalPlane,self).__init__([None,None,None])
+		
+		if args:
+			if isinstance(args[0], list) or isinstance(args[0], tuple) and len(args[0]) == 3 :
+				self[:] = [float(n) for n in args[0]]
+			elif len(args) == 3:
+				self[:] = [float(n) for n in args]
+			else:
+				pass
+		if kwargs:
+			for key, value in kwargs.iteritems():
+				if key in self._imap:
+					self.__setattr__(key, float(value))
+	
+	def __getindex(self, key):
+		'''Maps an attribute key to a list index'''
+		if key in self._imap:
+			index = self._imap[key]
+		else:
+			index = None
+		return index
+	
+	def __getattr__(self, key):
+		'''Look for attribute in list'''
+		index = self.__getindex(key)
+		if index is not None:
+			return self[index]
+		else:
+			raise AttributeError("Attribute must be 'strike', 'dip', or 'rake'")
+	
+	def __setattr__(self, key, value):
+		'''Set attribute in list'''
+		index = self.__getindex(key)
+		if index is not None:
+			self[index] = value
+		else:
+			raise AttributeError("Attribute must be 'strike', 'dip', or 'rake'")
+
+
+class DoubleCouple(object):
+	'''Holds nodal planes and P and T axes of a double couple focal mech
+	
+	The attributes are set up to calulate everything on the fly from the
+	initial plane (strike, dip, rake), so you can change something (like
+	a rake in your primary plane), and calling for a 'P' axis, e.g. will
+	give you the new answer...
+	
+	Attributes
+	----------
+	plane1	:	NodalPlane of primary plane
+	plane2	:	NodalPlane of auxiliary plane
+	axis	:	AttribDict of axes ('P' and 'T')
+					containing list of [azi, dip]
+	'''
+	
+	_plane = None
+	
+	@property
+	def plane1(self):
+		'''Return Preferred plane'''
+		return NodalPlane(*self._plane)
+	
+	@property
+	def plane2(self):
+		'''Return Auxiliary plane'''
+		auxplane = AuxPlane(*self._plane)
+		return NodalPlane(*auxplane)
+	
+	@property
+	def axis(self):
+		'''return direction and dip for P and T axes'''
+		dipP, dipT, aziP, aziT = nodal2pt(*self.plane1+self.plane2)
+		return {'P': {'azimuth': aziP, 'dip': dipP}),
+			    'T': {'azimuth': aziT, 'dip': dipT}),
+                }
+	
+	def __init__(self, nodal_plane=None):
+		self._plane = nodal_plane
+
 

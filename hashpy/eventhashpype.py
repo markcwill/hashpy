@@ -203,8 +203,8 @@ class EventHashPype(HashPype):
         focal_mech.nodal_planes.nodal_plane_1 = NodalPlane(*dc.plane1)
         focal_mech.nodal_planes.nodal_plane_2 = NodalPlane(*dc.plane2)
         focal_mech.principal_axes = PrincipalAxes()
-        focal_mech.principal_axes.t_axis = Axis(azimuth=ax.T.azi, plunge=ax.T.dip)
-        focal_mech.principal_axes.p_axis = Axis(azimuth=ax.P.azi, plunge=ax.P.dip)
+        focal_mech.principal_axes.t_axis = Axis(azimuth=ax['T']['azimuth'], plunge=ax['T']['dip'])
+        focal_mech.principal_axes.p_axis = Axis(azimuth=ax['P']['azimuth'], plunge=ax['P']['dip'])
         focal_mech.station_polarity_count = n
         focal_mech.azimuthal_gap = self.magap
         focal_mech.misfit = self.mfrac[s]
