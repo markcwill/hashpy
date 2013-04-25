@@ -77,7 +77,7 @@ def dbhash_loc2(args):
 	else:
 		pf = load_pf()
 	# Grab data from the db...
-	ev = db2event(args.dbin, orid=args.orid, phase_data=True)
+	ev = db2event(dbin, orid=args.orid, phase_data=True)
 	# Create a HASH run instance and load the data...
 	hro = EventHashPype(**pf)
 	hro.load_event(ev)
