@@ -9,7 +9,7 @@ from hashpy.db.utils import add_antelope_path, load_pf, readANTELOPE, eventfocal
 from hashpy.db.database import DbConnection, db2event
 from hashpy.db.plotter3 import FocalMechPlotter
 add_antelope_path()
-from antelope.datascope import dbopen
+from antelope.datascope import dbopen, dblookup
 
 
 def dbhash_cli(args):
@@ -66,8 +66,8 @@ def dbhash_loc2(args):
 	### Parse special command line args from dbloc2 'origin' menu:
 	# Go into database
 	dbin = args.dbin.rstrip('.origin')
-	db = dbopen(dbin).lookup(table='origin')
-	# hack, if in loc2 mode, dbout is actually rec # of 'tmp/trial'
+	db = dbopen(dbin)
+	db = dblookup(db, table='origin')
 	db.record = int(args.dbout)
 	args.orid = db.getv('orid')[0]
 	

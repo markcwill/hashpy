@@ -310,9 +310,7 @@ class DoubleCouple(object):
 	def axis(self):
 		'''return direction and dip for P and T axes'''
 		dipP, dipT, aziP, aziT = nodal2pt(*self.plane1+self.plane2)
-		return {'P': {'azimuth': aziP, 'dip': dipP}),
-			    'T': {'azimuth': aziT, 'dip': dipT}),
-                }
+		return {'P': {'azimuth': aziP, 'dip': dipP}, 'T': {'azimuth': aziT, 'dip': dipT}}
 	
 	def __init__(self, nodal_plane=None):
 		self._plane = nodal_plane
