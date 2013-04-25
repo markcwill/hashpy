@@ -65,8 +65,8 @@ def dbhash_loc2(args):
 	'''Perform a HASH run using Database input from dbloc2 menu'''
 	### Parse special command line args from dbloc2 'origin' menu:
 	# Go into database
-	dbin = args.dbin.rstrip('.origin')
-	db = dbopen(dbin)
+	args.dbin = args.dbin.rstrip('.origin')
+	db = dbopen(args.dbin)
 	db = dblookup(db, table='origin')
 	db.record = int(args.dbout)
 	args.orid = db.getv('orid')[0]
@@ -77,7 +77,7 @@ def dbhash_loc2(args):
 	else:
 		pf = load_pf()
 	# Grab data from the db...
-	ev = db2event(dbin, orid=args.orid, phase_data=True)
+	ev = db2event(args.dbin, orid=args.orid, phase_data=True)
 	# Create a HASH run instance and load the data...
 	hro = EventHashPype(**pf)
 	hro.load_event(ev)
