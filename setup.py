@@ -1,17 +1,27 @@
-#!/usr/bin/env python
-
 from numpy.distutils.core import setup, Extension
-import os
+import sys, os
 
+#--- libhashpy SETUP ---------------------------------------------------------
 # Build extension based on the fucntion numpy.f2py.f2py2e.run_compile
 srcf = ['fmech_subs.f', 'uncert_subs.f', 'util_subs.f',
         'pol_subs.f', 'vel_subs.f', 'station_subs.f', 'vel_subs2.f' ]
 
 src_list = ['hashpy/src/' + src for src in srcf]
 
-ext = Extension('hashpy.libhashpy', sources=src_list)
+ext_args = { 'sources' : src_list }
 
+ANT_EXT_ARGS = {'include_dirs' : ['/opt/antelope/python2.7.2-64/include',
+                                  '/opt/antelope/python2.7.2-64/lib/python2.7/site-packages/numpy/core/include'],
+                'library_dirs' : ['/opt/antelope/python2.7.2-64/lib'], 
+               }
+
+if 'antelope' in sys.executable:
+    ext_args.update(ANT_EXT_ARGS)
+
+ext = Extension('hashpy.libhashpy', **ext_args)
+#-----------------------------------------------------------------------------
 # Regular setup stuff
+
 s_args = {'name'         : 'HASHpy',
           'version'      : '2.0',
           'description'  : 'Routines for running HASH algorithms',
