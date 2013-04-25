@@ -67,7 +67,18 @@ class HashPype(object):
 	input/output for whatever system is used.
 	
 	*See the EventHashPype or DbHashPype class in the program for details.
-	
+    
+    Methods
+    -------
+      load_velocity_models(model_list=None)
+      generate_trial_data()
+      calculate_takeoff_angles()
+      view_polarity_data()
+      check_minimum_polarity()
+      check_maximum_gap()
+      calculate_hash_focalmech()
+      calculate_quality()
+
 	"""
 	# These MUST be the same as the fortran includes!!
 	# (They are compiled into the Fortran subroutines)
