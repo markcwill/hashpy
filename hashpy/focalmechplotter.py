@@ -13,7 +13,27 @@ from matplotlib.gridspec import GridSpec
 import mplstereonet
 
 class FocalMechPlotter(object):
-    '''Class to create interactive stereonet plot of a HASH first motion'''
+    """
+    Class to create interactive stereonet plot of a HASH first motion
+    
+    This is a simple, slow, matplotlib script to plot a first motion
+    focal mechanism using ObsPy object input. Currently supports:
+
+    Event with a FocalMechanism
+                 Origin/Arrivals
+                 Picks
+    
+    <optional>
+    Stream containing waveform data for first motion picks
+    
+    Notes
+    -----
+    Requires the mplstereonet matplotlib extension.
+
+    Future plan would be to do this in straight Tkinter or
+    preferable Qt toolkit.
+
+    """
     fig = None      # handle to figure
     ax = None       # list of axes in the figure
     h = None        # list of handles of FM picks 
@@ -231,7 +251,19 @@ class FocalMechPlotter(object):
         return ax
     
     def __init__(self, event=None, datastream=None, save=None, source=None):
-        '''Create a plot for focal mechanisms'''
+        """
+        Create a plot for focal mechanisms
+
+        Input
+        -----
+        event : obspy.core.event.Event containing 
+            FocalMechanism
+            Picks
+            Origin/Arrivals
+
+        datastream : Stream with Traces - sta/chan names matching Event Picks.
+        
+        """
         self.event = event
         self.data = datastream
         self.ax = []
@@ -241,7 +273,7 @@ class FocalMechPlotter(object):
         
         # Draw figure and set up 
         self.fig = plt.figure(facecolor='#D9D9EE')
-        self.fig.canvas.set_window_title('Focal Mechanism - dbhash')
+        self.fig.canvas.set_window_title('Focal Mechanism')
         
         ### INTERACTIVE - MAIN MODE ###
         self.gs = GridSpec(8,5) # 8x5 grid of axis space
