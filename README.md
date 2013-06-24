@@ -3,6 +3,8 @@ HASHpy
 
 This is a fork of HASH v1.2, the first motion focal mechanism program by Hardebeck and Shearer. The subroutines (in Fortran 77, which I did not write) are compiled into a python module, 'libhashpy.so', which will import all the subs and common blocks into the python namespace. There is a base class, HashPype, that contains attributes which hold data for a HASH calculation, and methods which can be called to do the HASH calculation. This class facilitates easily writing a 'hash driver' script in python. See below for details.
 
+Note: As stated in the in-code docs,  the current code is based on the 'hashdriver2' script, and as such, does not utilize the 'amp' routines for S/P amplitude measurements. This will most likely be added in the near future. If someone wants to take it upon themselves to add the compiler directives in the source and the methods to the HashPype class, throw me a pull request.
+
 ### Installation
 The latest version of this code uses `numpy.distutils`, which can nicely compile Fortran code. The source code and makefiles to remake the libhashpy module are installed to the hashpy folder, so with a little hacking, one could just remake them in place, if one wanted to change the source code.
 
@@ -92,6 +94,8 @@ hro.print_solution_line()
   Seismological Society of America, 93, 2434-2444, 2003.
 
 ### Future
+Add remaining HASH routines (like those in fmamp_subs.f) to wrapped library and class methods.
+
 If I ever get ambitious, I would redo the structure of some of the Fortran subroutines (already started this with vel-subs2) and rewrite them in Fortran 90/95/2003. Probably couldn't ditch the common blocks without a full rewrite, but at least try and get rid of the GOTOs. Biggest improvement would be allocatable arrays, so you could avoid the includes and max-size arrays.
 
 There will probably be small adjustments to the locations and structure of what functions are in what files, but the HashPype class and methods will be the main way to interact with HASH.
