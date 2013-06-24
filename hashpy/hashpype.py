@@ -66,7 +66,7 @@ class HashPype(object):
 	methods and attributes to another class which defines various
 	input/output for whatever system is used.
 	
-	*See the EventHashPype or DbHashPype class in the program for details.
+	*See the EventHashPype class in the program for details.
     
     Methods
     -------
@@ -182,7 +182,8 @@ class HashPype(object):
 		
 		Example
 		-------
-		>>> h = HashPype()
+        >>> param_dict_from_some_input = { 'npolmin': 20, 'badfrac': 0.25 }
+		>>> h = HashPype(**param_dict_from_some_input)
 		"""
 		
 		# INCLUDES ------------------------------------------------
