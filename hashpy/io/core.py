@@ -22,6 +22,8 @@ IO_REGISTRY = { "OBSPY" : { "module" : "obspyIO" ,
                             "out"    : "outputOBSPY",
                           },
 
+                "ANTELOPE" : { "module" : "antelopeIO" }.
+                
                 "FPFIT" : { "module" : NotImplemented },
               }
 ##############################################################################
@@ -78,7 +80,6 @@ class Inputter(object):
 
     def __call__(self, *args, **kwargs):
         return self._input(*args, **kwargs)
-
 
 
 class Outputter(object):
