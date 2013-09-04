@@ -35,11 +35,11 @@ ext = Extension('hashpy.libhashpy', **ext_args)
 ### Regular setup stuff ######################################################
 
 s_args = {'name'         : 'HASHpy',
-          'version'      : '2.0',
+          'version'      : '0.3.0',
           'description'  : 'Routines for running HASH algorithms',
           'author'       : 'Mark Williams',
           'url'          : 'https//github.com/markcwill',
-          'packages'     : ['hashpy', 'hashpy.db'],
+          'packages'     : ['hashpy', 'hashpy.io'],
           'package_data' : {'hashpy':['src/*.inc','src/Makefile','data/*', 'src/*.f']},
           'ext_modules'  : [ext],
 }
