@@ -2,14 +2,13 @@
 #
 #  dbhash.py
 #
-# fucntions which run HASH using Antelope and hashpy
+# functions which run HASH using Antelope and hashpy
+#
 from obspy.core.utcdatetime import UTCDateTime
 from hashpy.eventhashpype import EventHashPype, HashError
 from hashpy.db.utils import add_antelope_path, load_pf, readANTELOPE, eventfocalmech2db
 from hashpy.db.database import DbConnection, db2event
-from hashpy.db.plotter3 import FocalMechPlotter
-add_antelope_path()
-from antelope.datascope import dbopen, dblookup
+from hashpy.focalmechplotter import FocalMechPlotter
 
 
 def dbhash_cli(args):
@@ -62,8 +61,14 @@ def dbhash_cli(args):
 
 
 def dbhash_loc2(args):
-	'''Perform a HASH run using Database input from dbloc2 menu'''
-	### Parse special command line args from dbloc2 'origin' menu:
+	"""
+    Perform a HASH run using Database input from dbloc2 menu
+    """
+   
+    add_antelope_path()
+    from antelope.datascope import dbopen, dblookup
+	
+    ### Parse special command line args from dbloc2 'origin' menu:
 	# Go into database
 	args.dbin = args.dbin.rstrip('.origin')
 	db = dbopen(args.dbin)
