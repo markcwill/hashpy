@@ -1,6 +1,6 @@
 #
 """
-HASH input/output module
+HASH input/output core module
 
 Here one can specify and register IO formats for HASH.
 
@@ -15,6 +15,8 @@ function names are "input" and "output".
 """
 import importlib
 
+### Add I/O formats here! ####################################################
+#
 IO_REGISTRY = { "OBSPY" : { "module" : "obspyIO" ,
                             "in"     : "inputOBSPY",
                             "out"    : "outputOBSPY",
@@ -22,9 +24,34 @@ IO_REGISTRY = { "OBSPY" : { "module" : "obspyIO" ,
 
                 "FPFIT" : { "module" : NotImplemented },
               }
+##############################################################################
+
+#
+# EXAMPLE used as default if an output format can't be determined
+#
+def outputSTRING(hp):
+    """
+    Simple string line output of best solution
+    
+    NOTES
+    -----
+    This is called as a default if hp.output() is called with no format.
+    
+    Uses the hp._best_quality_index method, from the original HASH code,
+    so this is easily modified to a custom quality assessment/output
+
+    """
+    x = hp._best_quality_index
+    s,d,r = hp.str_avg[x], hp.dip_avg[x], hp.rak_avg[x]
+    return 'Solution:{orid} |  STRIKE: {st:0.1f}  DIP: {dp:0.1f}  RAKE: {rk:0.1f}  | Quality:{q}'.format(orid=hp.icusp,
+        st=float(s), dp=float(d), rk=float(r), q=hp.qual[x])
 
 
 class Inputter(object):
+    """
+    Class whose instances are input/load/read functions for HASH
+
+    """
     
     __input_fxn = None
 
@@ -53,7 +80,12 @@ class Inputter(object):
         return self._input(*args, **kwargs)
 
 
+
 class Outputter(object):
+    """
+    Class whose instances are output/write functions for HASH
+
+    """
     
     __output_fxn = None
 
@@ -69,14 +101,15 @@ class Outputter(object):
     def __init__(self, format=None):
         """
         Get the input function and return an inputter that calls it
+        
         """
         if format is not None and format in IO_REGISTRY:
             io_format = IO_REGISTRY[format.upper()]
             io_module = importlib.import_module("hashpy.io." + io_format["module"]) # TODO catch keyerror, importerror
             output_fxn_name = io_format.get("out", "output")
-            self._input = getattr(io_module, output_fxn_name)
+            self._output = getattr(io_module, output_fxn_name)
         else:
-            raise NotImplementedError("Can't determine format, must explicity state")
+            self._output = outputSTRING
     
     def __call__(self, *args, **kwargs):
         return self._output(*args, **kwargs)

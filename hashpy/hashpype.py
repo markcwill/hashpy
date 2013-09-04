@@ -285,6 +285,24 @@ class HashPype(object):
             raise IOError("Can't find a module for the format {0}".format(format))
         inputter(self, data, *args, **kwargs)
 
+    def output(self, format=None, *args, **kwargs):
+        """
+        Output data using a formatting standard from the 'io' module
+        
+        Inputs
+        ------
+        format   : str of a format type registered in hashpy.io module
+
+        The current module will output a simple one-line string of the
+        best solution stored in the run.
+
+        """
+        try:
+            outputter = Outputter(format=format)
+        except:
+            raise IOError("Can't find a module for the format {0}".format(format))
+        outputter(self, *args, **kwargs)
+        
     def load_velocity_models(self, model_list=None):
         """
         "Load velocity model data
@@ -393,11 +411,41 @@ class HashPype(object):
                 self.qual[imult]='C'
             else:
                 self.qual[imult]='D'
+    
+    @property
+    def _best_quality_index(self):
+        """
+        Returns index of highest quality solution
+        ( imult of nmult in HASH-speak )
+        
+        Just use the A-D quality for now, could use
+        (self.prob self.var_avg, self.mfrac, self.stdr)
+        to make your own quality assessment...
+        """
+        # todo: make more sophisticated "Best" function
+        return self.qual[:self.nmult].argsort()[0]
 
-    def driver2(self):
+
+    def driver2(self, check_for_minimum_picks=True, check_for_maximum_gap_size=True):
         """
         This approximately acts like the "hash_driver2.f" program in the original HASH code
+        
         """
+        # Generate preliminary data for run
+        self.load_velocity_models() # file list in 'self.vmodels'
+        self.generate_trial_data()
+        self.calculate_takeoff_angles()
+        
+        pass1 = self.check_minimum_polarity()
+        pass2 = self.check_maximum_gap()
+        
+        # If it passes checks, run HASH
+        if check_for_minimum_picks and not pass1:
+            raise ValueError("Didn't pass check: # picks = {0} | Minimum = {1}".format(self.npol, self.npolmin))
+        if check_for_maximum_gap_size and not pass2:
+            raise ValueError("Didn't pass check: agap/pgap = {0}/{1} | Max allowed = {2}/{3}".format(self.magap, self.mpgap, self.max_agap, self.max_pgap))
+
+        self.calculate_hash_focalmech()
 
 
 class HashError(Exception):
