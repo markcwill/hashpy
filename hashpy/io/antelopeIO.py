@@ -174,13 +174,14 @@ def output(hp, dbout=None, solution=0, schema="css3.0"):
             'rake1', round(rak1,1),
             'algorithm', "HASH",
             'mechid', mechid,
+            'auth', 'hashpy:'+ hp.author,
             'str2' , round(str2,1) ,
             'dip2' , round(dip2,1) ,
             'rake2', round(rak2,1),
-            'taxazm', round(axes['T']['azimuth'])
-            'taxplg', round(axes['T']['dip'])
-            'paxazm', round(axes['P']['azimuth'])
-            'paxplg', round(axes['P']['dip'])
+            'taxazm', round(axes['T']['azimuth'],1),
+            'taxplg', round(axes['T']['dip'],1),
+            'paxazm', round(axes['P']['azimuth'],1),
+            'paxplg', round(axes['P']['dip'],1),
             )
     
     dbpmec = dblookup(db,table='predmech')

@@ -118,8 +118,8 @@ class HashPype(object):
     prob    = None
     qual    = None
     
-    # Chosen fm run setings: (pf file should look like this:)
-    # dbhash.pf -----------------------------------------------------
+    # Chosen fm run setings: (a config file could look like this:)
+    # dbhash.conf -----------------------------------------------------
     # Defaults
     npolmin  = 8    # Enter mininum number of polarities (e.g., 8)
     max_agap = 90   # Enter maximum azimuthal gap (e.g., 90)
