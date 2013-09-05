@@ -1,14 +1,16 @@
 # -*- coding: utf-8 -*-
-#
-#  doublecouple.py
-#
-# by Mark Williams 2012.313
-# Calulator for getting double couple information
-#
-# dc = DoubleCouple([270, 90, 180])
-# dc.plane1
-# dc.plane2
-# dc.axis['P']
+"""
+  doublecouple.py
+
+ by Mark Williams 2012.313
+ Calulator for getting double couple information
+
+ dc = DoubleCouple([270, 90, 180])
+ dc.plane1
+ dc.plane2
+ dc.axis['P']
+
+"""
 
 import numpy as np
 
@@ -23,7 +25,7 @@ class NodalPlane(list):
 	with each element accessible by name as well as index.
 	
 	Construct with sequence, list, or named keyword args, see
-	constructor doc for deatails.
+	constructor doc for details.
 	
 	Attributes
 	----------

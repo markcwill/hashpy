@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
-#
-# plotter.py
-#
-# by Mark Williams 2012.313
-#
-# Interactive plotter using ObsPy Event as I/O
-#
+"""
+ plotter.py
+
+ by Mark Williams 2012.313
+
+ Interactive plotter using ObsPy Event as I/O
+ (See docstring for class 'FocalMechPlotter')
+
+"""
 
 from numpy import arange
 from matplotlib import pyplot as plt

@@ -1,11 +1,12 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-#
-#  hash_utils.py
-#
-# - by MArk
-# utilities for running HASH using the python version of hash_driver2
-# (hash_driver2.py)
+"""
+  hash_utils.py
+
+ -by Mark Williams (2013), NSL
+ 
+ utilities for running HASH using the python version of hash_driver2
+ (hash_driver2.py)
+"""
 
 def parameter(**kwargs):
 	'''returns variables inside a fortran 'parameter' call'''

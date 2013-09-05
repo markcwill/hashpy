@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
-#
-#  hashpype.py
-#
-# by Mark Williams 2012.313
-# First motion focal mechanism classes for running HASH
+"""
+  hashpype.py
+
+ by Mark Williams 2012.313
+ First motion focal mechanism class for running HASH
+
+"""
 
 # import all Fortran subroutines and common blocks from the mod
 # plus my custom utils and numpy arrays
