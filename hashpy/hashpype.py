@@ -59,18 +59,13 @@ class HashPype(object):
     most are accessible as attributes.
     
     One can make a "HASH" driver program by calling the methods of this
-    class on the data held within it, but the input data must be entered
-    somehow. There are no input methods, and one very simple output
-    method. Why?
-    
-    The idea is to use this as a metaclass which inherits all these
-    methods and attributes to another class which defines various
-    input/output for whatever system is used.
-    
-    *See the EventHashPype class in the program for details.
+    class on the data held within it, see the 'driver2' method. Input and
+    output formats can be registered in the 'io' package, in the 'core'
+    module.
     
     Methods
     -------
+      input(data, format=None, *args, **kwargs)
       load_velocity_models(model_list=None)
       generate_trial_data()
       calculate_takeoff_angles()
@@ -79,6 +74,9 @@ class HashPype(object):
       check_maximum_gap()
       calculate_hash_focalmech()
       calculate_quality()
+      output(format=None, *args, **kwargs)
+
+      driver2(check_for_minimum_picks=True, check_for_maximum_gap_size=True)
 
     """
     # These MUST be the same as the fortran includes!!
