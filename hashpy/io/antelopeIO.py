@@ -67,7 +67,7 @@ def input(hp, dbname, evid=None, orid=None):
     ph = RowPointerDict(db, record=0)
 
     hp.nrecs = len(ph)
-    if len(ph) > 0:
+    if len(ph) <= 0:
         raise ValueError("No picks for this ORID: {0}".format(orid) )
         
     hp.tstamp = ph['origin.time']
@@ -233,9 +233,10 @@ def load_pf(hp, pffile='dbhash.pf'):
         from antelope.stock import pfread as pfget
     
     pf_settings = pfget(pffile)
-    
+    pf_keys = pf_settings.keys() # b/c v5.3 broke backwards dict compat
+
     # Little hack to do type conversions 
-    for key in pf_settings:
+    for key in pf_keys:
         pfi = pf_settings[key]
         if key in ['badfrac','prob_max']:
             pfi = float(pfi)
@@ -245,7 +246,7 @@ def load_pf(hp, pffile='dbhash.pf'):
             pass
         hp.__setattr__(key, pfi)
     
-    if 'vmodel_dir' in pf_settings and 'vmodels' in pf_settings:
+    if 'vmodel_dir' in pf_keys and 'vmodels' in pf_keys:
         hp.vmodels = [os.path.join(hp.vmodel_dir, table) for table in hp.vmodels]
 
 

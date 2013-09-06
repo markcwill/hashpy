@@ -22,7 +22,7 @@ IO_REGISTRY = { "OBSPY" : { "module" : "obspyIO" ,
                             "out"    : "outputOBSPY",
                           },
 
-                "ANTELOPE" : { "module" : "antelopeIO" }.
+                "ANTELOPE" : { "module" : "antelopeIO" },
                 
                 "FPFIT" : { "module" : NotImplemented },
               }

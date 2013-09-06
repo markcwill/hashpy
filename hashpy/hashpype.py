@@ -281,8 +281,8 @@ class HashPype(object):
         """
         try:
             inputter = Inputter(format=format)
-        except:
-            raise IOError("Can't find a module for the format {0}".format(format))
+        except ImportError as ierr:
+            raise ImportError("Couldn't import module for the format {0}: {1}".format(format, ierr.message))
         inputter(self, data, *args, **kwargs)
 
     def output(self, format=None, *args, **kwargs):
@@ -301,7 +301,7 @@ class HashPype(object):
             outputter = Outputter(format=format)
         except:
             raise IOError("Can't find a module for the format {0}".format(format))
-        outputter(self, *args, **kwargs)
+        return outputter(self, *args, **kwargs)
         
     def load_velocity_models(self, model_list=None):
         """
@@ -446,7 +446,7 @@ class HashPype(object):
             raise ValueError("Didn't pass check: agap/pgap = {0}/{1} | Max allowed = {2}/{3}".format(self.magap, self.mpgap, self.max_agap, self.max_pgap))
 
         self.calculate_hash_focalmech()
-
+        self.calculate_quality()
 
 class HashError(Exception):
     """Throw this if something happens while running"""

@@ -1,7 +1,6 @@
 #
 # HashPype class which uses ObsPy Event as I/O for focal mech data
 # 
-from hashpy.hashpype import HashPype, HashError
 from hashpy.doublecouple import DoubleCouple
 from obspy.core.utcdatetime import UTCDateTime
 from obspy.core.event import (Catalog, Event, Origin, CreationInfo, Magnitude,
@@ -10,18 +9,6 @@ from obspy.core.event import (Catalog, Event, Origin, CreationInfo, Magnitude,
     QuantityError, Arrival, FocalMechanism, MomentTensor, NodalPlanes,
     PrincipalAxes, Axis, NodalPlane, SourceTimeFunction, Tensor, DataUsed,
     ResourceIdentifier, StationMagnitudeContribution)
-    
-def _best_quality_index(hash_pype):
-    """
-    Returns index of highest quality solution
-    ( imult of nmult in HASH-speak )
-    
-    Just use the A-D quality for now, could use
-    (prob var_avg, mfrac, stdr)
-    to make your own quality assessment...
-    """
-    # todo: make more sophisticated "Best" function
-    return hash_pype.qual[:hash_pype.nmult].argsort()[0]
     
 def inputOBSPY(hp, event):
     """
@@ -41,7 +28,6 @@ def inputOBSPY(hp, event):
     _o = event.preferred_origin()
     _m = event.preferred_magnitude()
     
-    hp = HashPype()
     hp.tstamp = _o.time.timestamp
     hp.qlat   = _o.latitude
     hp.qlon   = _o.longitude
