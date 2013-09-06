@@ -2,8 +2,9 @@
 *.pyc
 *.o
 *.so
+*settings.py
 test2.out
 test2.out2
 *.png
-test_examples
+examples
 build
