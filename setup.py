@@ -4,7 +4,7 @@ from distutils.core import setup
 import os
 
 kwargs = {'name'         : 'HASHpy',
-          'version'      : '1.0',
+          'version'      : '0.1.0',
           'description'  : 'Routines for running HASH algorithms',
           'author'       : 'Mark Williams',
           'url'          : 'https//github.com/markcwill',
