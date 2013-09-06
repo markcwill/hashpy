@@ -6,6 +6,7 @@ This is a fork of HASH v1.2, the first motion focal mechanism program by Hardebe
 Note: As stated in the in-code docs,  the current code is based on the 'hashdriver2' script, and as such, does not utilize the 'amp' routines for S/P amplitude measurements. This will most likely be added in the near future. If someone wants to take it upon themselves to add the compiler directives in the source and the methods to the HashPype class, throw me a pull request.
 
 ### Installation
+
 The latest version of this code uses `numpy.distutils`, which can nicely compile Fortran code. The source code and makefiles to remake the libhashpy module are installed to the hashpy folder, so with a little hacking, one could just remake them in place, if one wanted to change the source code.
 
 For basic install:
@@ -13,6 +14,10 @@ For basic install:
 ```shell
 # First, install dependencies. Then cd to this top directory and:
 python setup.py install
+
+# or use pip
+pip install git+https://github.com/markcwill/hashpy.git
+
 ```
 
 ### Testing and Usage
@@ -53,28 +58,44 @@ COMMON blocks:
 In [3]: 
 ```
 
-Right now, there are no input/output methods. There is one VERY simple output which will print out the event ID with the best strike/dip/rake, but that is it. The idea is to use this as a metaclass, and build classes which inherit from HashPype and define their own I/O. See the EventHashPype class which uses `obspy.core.event` objects for I/O.
+### Input/Output
+
+Data can be input into HASH in various formats. This is currently handled in HASHpy by registering a format in the `hashpy.io` module by adding a module/functions to the dictionary in `hashpy.io.core`. (May change in future releases). I/O functions are then called by the HashPype methods `HashPype.input()` and `HashPype.output()`. If the 'output' method is called with no format it will return a simple string with the event ID with the best strike/dip/rake
+
+Currently Supports:
+* ObsPy Event object I/O
+* Antelope Datascope database I/O
 
 ```python
 # Usage example:
-class MyHashRun(HashPype):
-    def input(self, input_files):
-        # read in from files, database, STDIN, etc
+# Typical "hash_driver2" style script
 
-    def output(self):
-        # output to a file, command line, etc...
+from hashpy import HashPype, HashError
 
-# Then script:
-hro = MyHashRun()
-hro.input(my_input)
-hro.load_velocity_models()
-hro.generate_trial_data()
-hro.calculate_takeoff_angles()                
-check1 = hro.check_minimum_polarity()
-check2 = hro.check_maximum_gap()
-hro.calculate_hash_focalmech()
-hro.add_solution_to_dict()
-hro.print_solution_line()
+# Set configuration at creation with a dict...
+# ...can from file or interactively, etc
+
+config = { "npolmin" : 10,
+           "max_agap": 90,
+           "vmodels" : '/path/to/my/vmodel/file.vz' 
+           }
+
+hp = HashPype(**config)
+hp.input(my_input_data, format="MYSPECIALFORMAT")
+hp.load_velocity_models()
+hp.generate_trial_data()
+hp.calculate_takeoff_angles()
+
+pass1 = hp.check_minimum_polarity()
+pass2 = hp.check_maximum_gap()
+
+if pass1 and pass2:
+    hp.calculate_hash_focalmech()
+    hp.calculate_quality()
+    print hp.output()
+else:
+    raise HashError("Didn't pass user checks!")
+
 ```
 
 ### Dependencies
