@@ -393,7 +393,7 @@ def eventfocalmech2db(event=None, database=None):
     P = focm.principal_axes.p_axis
     orid = int(o.creation_info.version)
     
-    db Dbptr(database, perm='r+')
+    db = Dbptr(database, perm='r+')
     try:
         # Use the original db if in a dbloc2 'tmp/trial' db
         db = dbloc_source_db(db)
