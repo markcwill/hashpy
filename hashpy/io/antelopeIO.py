@@ -304,18 +304,18 @@ def readANTELOPE(database, station=None, channel=None, starttime=None, endtime=N
 
     if isinstance(database,Dbptr):
         db = Dbptr(database)
-        db = db.lookup(db,table='wfdisc')
+        db = db.lookup(table='wfdisc')
     else:
         raise TypeError("Must input a string or pointer to a valid database")
         
     if station is not None:
-        db = db.subset(db,'sta=~/{0}/'.format(station))
+        db = db.subset('sta=~/{0}/'.format(station))
     if channel is not None:
-        db = db.subset(db,'chan=~/{0}/'.format(channel))
+        db = db.subset('chan=~/{0}/'.format(channel))
     if starttime is not None and endtime is not None:
         ts = starttime.timestamp
         te = endtime.timestamp
-        db = db.subset(db,'endtime > {0} && time < {1}'.format(ts,te) )
+        db = db.subset('endtime > {0} && time < {1}'.format(ts,te) )
     else:
         ts = starttime
         te = endtime
@@ -334,7 +334,7 @@ def readANTELOPE(database, station=None, channel=None, starttime=None, endtime=N
         if os.path.exists(fname):
             _st = read(fname, starttime=t0, endtime=t1)      # add format?
             _st = _st.select(station=dbr['sta'], channel=dbr['chan']) #not location aware
-            _st[0].db = dbr
+            #_st[0].db = dbr
             if dbr['calib'] < 0:
                 _st[0].data *= -1
             st += _st

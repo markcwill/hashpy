@@ -39,7 +39,7 @@ s_args = {'name'         : 'HASHpy',
           'description'  : 'Routines for running HASH algorithms',
           'author'       : 'Mark Williams',
           'url'          : 'https//github.com/markcwill',
-          'packages'     : ['hashpy', 'hashpy.io'],
+          'packages'     : ['hashpy', 'hashpy.io', 'hashpy.plotting'],
           'package_data' : {'hashpy':['src/*.inc','src/Makefile','data/*', 'src/*.f']},
           'ext_modules'  : [ext],
 }
