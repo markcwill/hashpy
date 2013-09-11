@@ -4,7 +4,7 @@
 #
 # functions which run HASH using Antelope and hashpy
 #
-from obspy.core import UTCDateTime
+#from obspy.core import UTCDateTime
 from hashpy.hashpype import HashPype, HashError
 from hashpy.io.antelopeIO import ( load_pf, readANTELOPE, eventfocalmech2db, get_first_motions, RowPointerDict )
 
@@ -78,9 +78,10 @@ def main():
     if args.dbout:
         db = hp.output(format="ANTELOPE", dbout=args.dbout)
     
+    return hp
 
 
 if __name__ == '__main__':
-    main()    
+    hp = main()    
 
 
