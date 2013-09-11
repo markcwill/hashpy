@@ -66,119 +66,6 @@ class FocalMechPlotter(object):
         '''Pick pointed to by current arrival'''
         return self._arrv.pick_id.getReferredObject()
         
-    def onpick(self, event):
-        '''Plot waveform of Z channel when a station is clicked
-        
-        When a first motion is clicked on the stereonet, get the
-        waveform from the database and plot it. This will be the data
-        associated with the first motion P pick.
-        
-        See the 'get_waveform_from_arid' in hashpy.db.utils 
-        '''
-        N = len(event.ind)
-        if not N: return True
-        
-        if event.artist in self.h:
-            self._pickevent = event
-        else:
-            return True
-        
-        # Clear figure, set up to plot
-        fig = self.fig 
-        ax = self.ax[1]
-        ax.clear()
-        
-        # Find the right pick in our data that was clicked on
-        #dataind = event.ind[0]              # index of events IN that handle
-        dataind = self.h.index(event.artist) # index of which handle
-        self._curh = self.h[dataind]         # set current handle
-        k = self.ind[dataind]                # index of which arrival that handle plot is
-        self._arrv = self._orig.arrivals[k]  # set current arrival
-        pick = self._pick
-        
-        # Data fetch (in here for now)
-        if self.data:
-            #st = get_waveform_from_arid(self.database, pick.creation_info.version, window=0.5)
-            st = self.data.select(station=pick.waveform_id.station_code, channel=pick.waveform_id.channel_code)
-            half_window = 0.5/2.
-            st = st.slice(pick.time - half_window, pick.time + half_window)
-            if len(st) > 0:
-                # Plot em if you got em
-                self.l, = ax.plot(st[0].data, color=self.wf_color[pick.polarity], lw=2)
-                # to stick a vertical line at the pick... try ax.axvline(x=xpick) or axvspan for rect
-                xpick = len(st[0].data)/2
-                #yt = abs(st[0].data).max()
-                #yb = -yt
-                v = ax.axvline(x=xpick, ls='--', lw=2, color='black')
-                #v, = ax.plot([xpick,xpick],[yb,yt],'--k', lw=2)
-            else:
-                self.l = None
-        else:
-            self.l = None
-        if self.l is None:
-            h_text = ax.text(0.5, 0.5,'No data for this station', 
-                horizontalalignment='center',
-                verticalalignment='center',
-                transform = ax.transAxes)
-        ax.set_xlabel("{0} -- {1} -> {2}".format(pick.waveform_id.station_code, pick.creation_info.version, pick.polarity))
-        ax.set_xticklabels([])
-        ax.set_yticklabels([])
-        plt.draw()
-        return True
-    
-    def enter_axes(self, event):
-        '''When mouse enters button area'''
-        if event.inaxes in self.ax[2:]:
-            event.inaxes.patch.set_facecolor('gray')
-            event.canvas.draw()
-        return True
-    
-    def leave_axes(self, event):
-        '''When mouse leaves button area'''
-        if event.inaxes in self.ax[2:]:
-            event.inaxes.patch.set_facecolor('white')
-            event.canvas.draw()
-        return True
-    
-    def click_on_button(self, event):
-        '''Change the first motion designation of a pick
-        
-        When waveform axes is clicked on, change the polarity to its
-        opposite, e.g., from 'UP' to 'DOWN'. The waveform will change
-        color correspondingly.
-        '''
-        if event.inaxes is self._axis['change']:
-            # Cycle through 'up, down, exclude' first motion picks
-            if self._pick.polarity is not None:
-                ind = self.picks_list.index(self._pick.polarity)
-                if ind < 2:
-                    ind += 1
-                else:
-                    ind = 0
-                self._pick.polarity = self.picks_list[ind]
-                if self.l:
-                    self.l.set_color(self.wf_color[self.picks_list[ind]])
-                    self.ax[1].set_ylabel("{0}".format(self.picks_list[ind]))
-                event.canvas.draw()
-        elif event.inaxes is self._axis['save']:
-            # Save planes/P,T axes/takeoffs/picks to db tables
-            event.inaxes.patch.set_facecolor('red')
-            event.canvas.draw()
-            # should be a referred save function to support external namespaces
-            if self.save:
-                self.save(self.event, self.source)
-            else:
-                self.fig.savefig('focal_mech_'+ self._orig.creation_info.version +'.png')
-            # done saving, rc=True is success
-            event.inaxes.patch.set_facecolor('white')
-            event.canvas.draw()
-        elif event.inaxes is self._axis['quit']:
-            # Close window / go back to previous program
-            plt.close(self.fig)
-        else:
-            pass
-        return True
-    
     def plot_on_stereonet(self, axis=None):
         '''Plot first motions from an Event instance
         
@@ -228,30 +115,20 @@ class FocalMechPlotter(object):
             index.append(ind)
             if True:
                 h_text = ax.rake(azi, toa+5, 90, marker='$   {0}$'.format(p.waveform_id.station_code), color='black',markersize=20)
-            for comm in self._focm.comments:
-                if 'quality' in comm.resource_id.resource_id:
-                    qual = comm.text
-                else:
-                    qual = None
-            plane_str = "STRIKE:{0: > 7.1f}\nDIP:{1: > 7.1f}\nRAKE:{2: > 7.1f}"
-            h_text = self.fig.text(0.25, 0.88, plane_str.format(strike1, dip1, rake1), ha='right', va='top', family='monospace')
-            h_text = self.fig.text(0.25, 0.33, 'Quality: {0}'.format(qual), ha='right', va='top', family='monospace')  
+        
+        for comm in self._focm.comments:
+            if 'quality' in comm.resource_id.resource_id:
+                qual = comm.text
+            else:
+                qual = None
+        plane_str = "STRIKE:{0: > 7.1f}\nDIP:{1: > 7.1f}\nRAKE:{2: > 7.1f}\n\nSTRIKE:{3: > 7.1f}\nDIP:{4: > 7.1f}\nRAKE:{5: > 7.1f}"
+        h_text = self.fig.text(0.25, 0.88, plane_str.format(strike1, dip1, rake1, strike2, dip2, rake2), ha='right', va='top', family='monospace')
+        h_text = self.fig.text(0.25, 0.11, 'Quality: {0}\nNumber of picks: {1}'.format(qual, len(self._orig.arrivals)), ha='right', va='top', family='monospace')  
         
         if not axis:
             self.h = h
             self.ind = index
             
-    def _add_button(self, gridslice, textlabel):
-        '''Add a button to the thing'''
-        ax = self.fig.add_subplot(gridslice) # waveform
-        ax.set_xticks([])
-        ax.set_yticks([])
-        ax.text(0.5, 0.5, textlabel,
-            horizontalalignment='center',
-            verticalalignment='center',
-            transform = ax.transAxes)
-        return ax
-    
     def __init__(self, event=None, datastream=None, save=None, source=None):
         """
         Create a plot for focal mechanisms
@@ -281,39 +158,13 @@ class FocalMechPlotter(object):
         self.gs = GridSpec(8,5) # 8x5 grid of axis space
         
         # Stereonet axis
-        ax = self.fig.add_subplot(self.gs[:-2,:-1], projection='stereonet') # net
+        ax = self.fig.add_subplot(self.gs[:,1:], projection='stereonet') # gs[:-2,:-1]
         self.ax.append(ax)
         self._axis['stereonet'] = ax
-        
-        # Waveform display
-        ax = self.fig.add_subplot(self.gs[-2:,:])
-        ax.set_xticklabels([])
-        ax.set_yticklabels([])
-        self.h_text = ax.text(0.5, 0.5,'Waveform data - click station',
-                    horizontalalignment='center',
-                    verticalalignment='center',
-                    transform = ax.transAxes)
-        self._axis['waveform'] = ax
-        self.ax.append(self._axis['waveform'])
-        
-        # Buttons that do things
-        self._axis['quit'] = self._add_button(self.gs[2,-1], 'Return')
-        self.ax.append(self._axis['quit'])
-        
-        self._axis['save'] = self._add_button(self.gs[0:2,-1], 'SAVE') #\nfocal mech\nto db')
-        self.ax.append(self._axis['save'])
-        
-        self._axis['change'] = self._add_button(self.gs[-3,-1], 'Change\ndirection')
-        self.ax.append(self._axis['change'])
         
         # Plot first motions
         self.plot_on_stereonet()
         
-        # Set mouse events to method functions.
-        self.fig.canvas.mpl_connect('pick_event', self.onpick)
-        self.fig.canvas.mpl_connect('axes_enter_event', self.enter_axes)
-        self.fig.canvas.mpl_connect('axes_leave_event', self.leave_axes)
-        self.fig.canvas.mpl_connect('button_press_event', self.click_on_button)
         # Save and draw
         plt.show()
     
