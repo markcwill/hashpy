@@ -1,46 +1,38 @@
 # -*- coding: utf-8 -*-
 """
- plotter.py
+ focalmechplotter.py
 
  by Mark Williams 2012.313
 
- Interactive plotter using ObsPy Event as I/O
+ Focal Mechanism Plotter using ObsPy Event as I/O
  (See docstring for class 'FocalMechPlotter')
 
 """
 
-from numpy import arange
 from matplotlib import pyplot as plt
 from matplotlib.gridspec import GridSpec
 import mplstereonet
 
 class FocalMechPlotter(object):
     """
-    Class to create interactive stereonet plot of a HASH first motion
+    Class to create stereonet plot of a HASH first motion
     
     This is a simple, slow, matplotlib script to plot a first motion
     focal mechanism using ObsPy object input. Currently supports:
 
-    Event with a FocalMechanism
-                 Origin/Arrivals
-                 Picks
-    
-    <optional>
-    Stream containing waveform data for first motion picks
+    Event with a FocalMechanism (marked as preferred)
+                 Origin/Arrivals (marked as preferred)
+                 Picks (referred to by each Arrival)
     
     Notes
     -----
     Requires the mplstereonet matplotlib extension.
-
-    Future plan would be to do this in straight Tkinter or
-    preferable Qt toolkit.
 
     """
     fig = None      # handle to figure
     ax = None       # list of axes in the figure
     h = None        # list of handles of FM picks 
     gs = None       # GridSpec instance of plot figure
-    l = None        # handle to current waveform line plot
     h_text = None   # handle for text labels
     event = None    # Event object
     ind = None      # indicies of which picks in Origin.arrivals are plotted
@@ -121,15 +113,15 @@ class FocalMechPlotter(object):
                 qual = comm.text
             else:
                 qual = None
-        plane_str = "STRIKE:{0: > 7.1f}\nDIP:{1: > 7.1f}\nRAKE:{2: > 7.1f}\n\nSTRIKE:{3: > 7.1f}\nDIP:{4: > 7.1f}\nRAKE:{5: > 7.1f}"
+        plane_str = "STRIKE1:{0: > 7.1f}\nDIP1:{1: > 7.1f}\nRAKE1:{2: > 7.1f}\n\nSTRIKE2:{3: > 7.1f}\nDIP2:{4: > 7.1f}\nRAKE2:{5: > 7.1f}"
         h_text = self.fig.text(0.25, 0.88, plane_str.format(strike1, dip1, rake1, strike2, dip2, rake2), ha='right', va='top', family='monospace')
-        h_text = self.fig.text(0.25, 0.11, 'Quality: {0}\nNumber of picks: {1}'.format(qual, len(self._orig.arrivals)), ha='right', va='top', family='monospace')  
+        h_text = self.fig.text(0.25, 0.11, 'Quality:  {0}\n# of picks: {1}'.format(qual, len(self._orig.arrivals)), ha='right', va='top', family='monospace')  
         
         if not axis:
             self.h = h
             self.ind = index
             
-    def __init__(self, event=None, datastream=None, save=None, source=None):
+    def __init__(self, event=None, save=None, source=None):
         """
         Create a plot for focal mechanisms
 
@@ -140,11 +132,8 @@ class FocalMechPlotter(object):
             Picks
             Origin/Arrivals
 
-        datastream : Stream with Traces - sta/chan names matching Event Picks.
-        
         """
         self.event = event
-        self.data = datastream
         self.ax = []
         self._axis = {}
         self.save = save
