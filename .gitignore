@@ -6,5 +6,7 @@
 test2.out
 test2.out2
 *.png
+*.egg-info
+*.json
 examples
 build
