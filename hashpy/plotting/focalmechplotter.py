@@ -8,12 +8,14 @@
  (See docstring for class 'FocalMechPlotter')
 
 """
-
+import matplotlib
+matplotlib.use('TkAgg')
 from matplotlib import pyplot as plt
 from matplotlib.gridspec import GridSpec
 from matplotlib.backend_bases import NavigationToolbar2
 from matplotlib.backends.backend_tkagg import NavigationToolbar2TkAgg
 import mplstereonet
+
 
 class FocalMechPlotter(object):
     """
