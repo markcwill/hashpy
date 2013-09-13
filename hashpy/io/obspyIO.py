@@ -172,7 +172,9 @@ def outputOBSPY(hp, event=None, only_fm_picks=False):
         focal_mech.azimuthal_gap = hp.magap
         focal_mech.misfit = hp.mfrac[s]
         focal_mech.station_distribution_ratio = hp.stdr[s]
-        focal_mech.comments.append(Comment(hp.qual[s], resource_id=ResourceIdentifier('comment/quality')))
+        focal_mech.comments.append(
+            Comment(hp.qual[s], resource_id=ResourceIdentifier(focal_mech.resource_id.resource_id + '/comment/quality'))
+            )
         #----------------------------------------
         event.focal_mechanisms.append(focal_mech)
         if s == x:
