@@ -400,7 +400,7 @@ def eventfocalmech2db(event=None, database=None):
         # save solution as a new mechid
         mechid = db.nextid('mechid')
         # in fplane...
-        dbfpln = db.lookup(db,table='fplane')
+        dbfpln = dblookup(db,table='fplane')
         dbfpln.record = dbfpln.addnull()
         dbfpln.putv('orid', orid,
             'str1', round(plane1.strike,1) ,
@@ -417,8 +417,8 @@ def eventfocalmech2db(event=None, database=None):
             'auth', focm.creation_info.author,
             'mechid', mechid,
             )
-        dbpmec = db.lookup(db,table='predmech')
-        dbparr = db.lookup(db,table='predarr')
+        dbpmec = dblookup(db,table='predmech')
+        dbparr = dblookup(db,table='predarr')
         for av in o.arrivals:
             pk = av.pick_id.getReferredObject()
             if pk.polarity is 'positive':
