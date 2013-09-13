@@ -11,6 +11,8 @@
 
 from matplotlib import pyplot as plt
 from matplotlib.gridspec import GridSpec
+from matplotlib.backend_bases import NavigationToolbar2
+from matplotlib.backends.backend_tkagg import NavigationToolbar2TkAgg
 import mplstereonet
 
 class FocalMechPlotter(object):
@@ -35,6 +37,7 @@ class FocalMechPlotter(object):
     gs = None       # GridSpec instance of plot figure
     h_text = None   # handle for text labels
     event = None    # Event object
+    focm = None     # Current FM plotted
     ind = None      # indicies of which picks in Origin.arrivals are plotted
     _arrv = None    # current arrival
     _curh = None    # current handle
@@ -45,6 +48,13 @@ class FocalMechPlotter(object):
     picks_list = ('undecidable', 'positive', 'negative')
     wf_color = { 'positive' : 'red', 'negative' : 'blue', 'undecidable' : 'black' }
     
+    @property
+    def _fm_index(self):
+        return self.event.focal_mechanisms.index(self.focm)
+    @property
+    def _num_fms(self):
+        return len(self.event.focal_mechanisms)
+
     @property       # preferred origin
     def _orig(self):
         '''Stub'''
@@ -58,15 +68,21 @@ class FocalMechPlotter(object):
         '''Pick pointed to by current arrival'''
         return self._arrv.pick_id.getReferredObject()
         
-    def plot_on_stereonet(self, axis=None):
+    def plot_on_stereonet(self, axis=None, fm=None):
         '''Plot first motions from an Event instance
         
         Stored in self.event
         '''
+
         if axis:
             ax = axis
         else:
             ax = self._axis['stereonet']
+        
+        if fm is None:
+            self.focm = self._focm
+        else:
+            self.focm = self.event.focal_mechanisms[fm]
         
         ax.clear() 
         ax.set_title('Origin: {0}'.format(self._orig.creation_info.version))
@@ -76,8 +92,8 @@ class FocalMechPlotter(object):
         index = []
        
         # Planes
-        np1 = self._focm.nodal_planes.nodal_plane_1
-        np2 = self._focm.nodal_planes.nodal_plane_2
+        np1 = self.focm.nodal_planes.nodal_plane_1
+        np2 = self.focm.nodal_planes.nodal_plane_2
         strike1,dip1,rake1 = np1.strike, np1.dip, np1.rake
         strike2,dip2,rake2 = np2.strike, np2.dip, np2.rake
         
@@ -108,7 +124,7 @@ class FocalMechPlotter(object):
             if True:
                 h_text = ax.rake(azi, toa+5, 90, marker='$   {0}$'.format(p.waveform_id.station_code), color='black',markersize=20)
         
-        for comm in self._focm.comments:
+        for comm in self.focm.comments:
             if 'quality' in comm.resource_id.resource_id:
                 qual = comm.text
             else:
@@ -120,8 +136,27 @@ class FocalMechPlotter(object):
         if not axis:
             self.h = h
             self.ind = index
-            
-    def __init__(self, event=None, save=None, source=None):
+        
+        self._set_window_title()
+
+    def draw_stereonet_axis(self, gridspec_slice=None):
+        # Stereonet axis
+        if gridspec_slice is None:
+            gridspec_slice = self.gs_slice
+        ax = self.fig.add_subplot(gridspec_slice, projection='stereonet') # gs[:-2,:-1]
+        self.ax.append(ax)
+        self._axis['stereonet'] = ax
+
+    def _set_window_title(self):
+        self.fig.canvas.set_window_title('Focal Mechanism: {0} of {1}'.format(self._fm_index+1, self._num_fms))
+    
+    def plot(self, solution=None):
+        self.fig.clear()
+        self.draw_stereonet_axis()
+        self.plot_on_stereonet(fm=solution)
+        plt.draw()
+
+    def __init__(self, event=None, save=None):
         """
         Create a plot for focal mechanisms
 
@@ -132,28 +167,63 @@ class FocalMechPlotter(object):
             Picks
             Origin/Arrivals
 
+        save : function handle, the instance is passed as 1st arg
+               "save(self)", called on save button press
+
         """
         self.event = event
         self.ax = []
         self._axis = {}
         self.save = save
-        self.source = source
-        
-        # Draw figure and set up 
-        self.fig = plt.figure(facecolor='#D9D9EE')
-        self.fig.canvas.set_window_title('Focal Mechanism')
-        
-        ### INTERACTIVE - MAIN MODE ###
         self.gs = GridSpec(8,5) # 8x5 grid of axis space
+        self.gs_slice = self.gs[:,1:]
         
-        # Stereonet axis
-        ax = self.fig.add_subplot(self.gs[:,1:], projection='stereonet') # gs[:-2,:-1]
-        self.ax.append(ax)
-        self._axis['stereonet'] = ax
+        # Hijack buttons
+        # -------------------------------------------------------------------#
+        # Make forward plot next solution
+        forward = NavigationToolbar2.forward
+        def next_fm(navtb, *args, **kwargs):
+            m = self._fm_index
+            n = self._num_fms
+            if m < n-1:
+                self.plot(solution=m+1)
+            forward(navtb, *args, **kwargs)
+        NavigationToolbar2.forward = next_fm
         
-        # Plot first motions
-        self.plot_on_stereonet()
+        # Make back plot previous solution
+        back = NavigationToolbar2.back
+        def prev_fm(navtb, *args, **kwargs):
+            m = self._fm_index
+            if m > 0:
+                self.plot(solution=m-1)
+            back(navtb, *args, **kwargs)
+        NavigationToolbar2.back = prev_fm
         
-        # Save and draw
+        # Make home plot preferred solution
+        home = NavigationToolbar2.home
+        def pref_fm(navtb, *args, **kwargs):
+            self.plot()
+            home(navtb, *args, **kwargs)
+        NavigationToolbar2.home = pref_fm
+        
+        # Take a 'save' function passed on creation and try to call it
+        if self.save:
+            savefig = NavigationToolbar2TkAgg.save_figure
+            def save_fm(navtb, *args, **kwargs):
+                try:
+                    navtb.set_message("Saving...")
+                    self.save(self)
+                    navtb.set_message("DONE")
+                except Exception as e:
+                    navtb.set_message("FAILED:{0}".format(e.message))
+                    
+            NavigationToolbar2TkAgg.save_figure = save_fm
+        # -------------------------------------------------------------------#
+
+        # Draw figure
+        self.fig = plt.figure(facecolor='#D9D9EE')
+        self.plot()
+        
+        
         plt.show()
     
