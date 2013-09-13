@@ -8,12 +8,16 @@
 from hashpy.hashpype import HashPype, HashError
 from hashpy.io.antelopeIO import ( load_pf, readANTELOPE, eventfocalmech2db, get_first_motions, RowPointerDict )
 
-import warnings
-warnings.filterwarnings("ignore")
-
 def dbhash_run(args):
     """
     Perform a HASH run using Database input and command line args
+    
+    Input
+    -----
+    args : Namespace of command line args
+    
+    Returns : hp : a hashpy.HashPype object containing solutions
+
     """
     hp = HashPype()
     # Load settings data from a pf file...
@@ -33,11 +37,10 @@ def dbhash_run(args):
     # For interactive scripting and debugging:
     return hp
     
-
-
 def main():
     from argparse import ArgumentParser
     
+    # Get command line args
     parser = ArgumentParser()
     parser.add_argument("dbin",   help="Input database")
     parser.add_argument("dbout",  help="Output database", nargs='?')
@@ -49,6 +52,23 @@ def main():
     group.add_argument("--orid", help="Origin ID", type=int)
     args = parser.parse_args()
     
+    if args.dbout:
+        savedb = args.dbout
+    else:
+        savedb = args.dbin       
+    
+
+    # Now that we have a save location from command line args,
+    # make a function to save to that database.
+    def save_to_db(fmplotter, dbname=savedb, *args, **kwargs):
+        focal_mech = fmplotter.event.focal_mechanisms[fmplotter._fm_index]
+        if focal_mech is not fmplotter.event.preferred_focal_mechanism():
+            fmplotter.event.preferred_focal_mechanism_id = focal_mech.resource_id.resource_id
+            #print fmplotter.event
+        eventfocalmech2db(event=fmplotter.event, database=dbname)
+    
+
+    # Run HASH (special parsing mode for dbloc2)
     if args.loc:
         hash_prog = dbhash_loc2
     else:
@@ -56,32 +76,34 @@ def main():
     
     hp = hash_prog(args)
     
-    # Grab waveform data and launch plotter or spit out solution...
+
+    # Launch plotter or spit out solution
     if args.plot:
         from hashpy.plotting.focalmechplotter import FocalMechPlotter
-        # little script to get the FM pick waveform data for plotting
-        #adb = get_first_motions(args.dbin, orid=args.orid)
-        #t0 = UTCDateTime(RowPointerDict(adb, record=0)['arrival.time']) - 10
-        #t1 = UTCDateTime(RowPointerDict(adb, record=adb.nrecs()-1 )['arrival.time']) + 10
-        #st = readANTELOPE(adb, starttime=t0, endtime=t1)
-        #adb.close()
-        #if args.dbout:
-        #    savedb = args.dbout
-        #else:
-        #    savedb = args.dbin       
         ev = hp.output(format="OBSPY")
-        p = FocalMechPlotter(ev)
+        p = FocalMechPlotter(ev, save=save_to_db)
     else:
         # quick orid/strike/dip/rake line
         print hp.output()
-
-    if args.dbout:
-        db = hp.output(format="ANTELOPE", dbout=args.dbout)
-    
-    return hp
+        p = 0
+        
+        if args.dbout:
+            db = hp.output(format="ANTELOPE", dbout=args.dbout)
+    # Done, return HashPype and/or FocalMechPlotter for debugging
+    return hp, p
 
 
 if __name__ == '__main__':
-    hp = main()    
+    hp, p = main()    
 
+# little script to get the FM pick waveform data for plotting
+#adb = get_first_motions(args.dbin, orid=args.orid)
+#t0 = UTCDateTime(RowPointerDict(adb, record=0)['arrival.time']) - 10
+#t1 = UTCDateTime(RowPointerDict(adb, record=adb.nrecs()-1 )['arrival.time']) + 10
+#st = readANTELOPE(adb, starttime=t0, endtime=t1)
+#adb.close()
+#if args.dbout:
+#    savedb = args.dbout
+#else:
+#    savedb = args.dbin       
 
