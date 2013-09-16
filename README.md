@@ -109,7 +109,7 @@ else:
 
 ### Plotting
 
-A trial implementation of plotting is implemented, using `matplotlib` and the `mplstereonet' package, as the  `hashpy.plotting.focalmechplotter.FocalMechPlotter` class. It accepts an ObsPy Event containing Picks, Origin/Arrivals, FocalMechanism, etc, objects (as output from HashPype) and generates a stereonet plot. Multiple FocalMechansim solutions from HASH are accessible through the navigation toolbar 'back' and 'forward' arrows.
+A trial implementation of plotting exists, using `matplotlib` and the `mplstereonet` package, as the  `hashpy.plotting.focalmechplotter.FocalMechPlotter` class. It accepts an ObsPy Event containing Picks, Origin/Arrivals, FocalMechanism, etc, objects (as output from HashPype) and generates a stereonet plot. Multiple FocalMechansim solutions from HASH are accessible through the navigation toolbar 'back' and 'forward' arrows.
 
 ```python
 # Get an obspy Event object as output
