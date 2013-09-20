@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
-#
+"""
 #  dbhash.py
 #
 # functions which run HASH using Antelope and hashpy
 #
+# optionally, can plot by passing ObsPy output to a plotter
+"""
 #from obspy.core import UTCDateTime
 from hashpy.hashpype import HashPype, HashError
 from hashpy.io.antelopeIO import ( load_pf, readANTELOPE, eventfocalmech2db, get_first_motions, RowPointerDict )
@@ -20,13 +22,16 @@ def dbhash_run(args):
 
     """
     hp = HashPype()
+    
     # Load settings data from a pf file...
     if args.pf:
         load_pf(hp,pffile=args.pf)
     else:
         load_pf(hp)
+    
     # Grab data from the db...
     hp.input(args.dbin, format="ANTELOPE", orid=args.orid)
+    
     # Run and catch errors from the minimum requirements checks
     try:
         hp.driver2(check_for_maximum_gap_size=False)
@@ -34,7 +39,7 @@ def dbhash_run(args):
         print "Failed! " + e.message
     except:
         raise
-    # For interactive scripting and debugging:
+    
     return hp
     
 def main():
@@ -59,22 +64,23 @@ def main():
     
 
     # Now that we have a save location from command line args,
-    # make a function to save to that database.
+    # make a function to save to that database. The plotter is I/O
+    # agnostic, it will accept a function to save anything anyhow anywhichway
+    #
     def save_to_db(fmplotter, dbname=savedb, *args, **kwargs):
         focal_mech = fmplotter.event.focal_mechanisms[fmplotter._fm_index]
         if focal_mech is not fmplotter.event.preferred_focal_mechanism():
             fmplotter.event.preferred_focal_mechanism_id = focal_mech.resource_id.resource_id
-            #print fmplotter.event
+        
         eventfocalmech2db(event=fmplotter.event, database=dbname)
     
 
     # Run HASH (special parsing mode for dbloc2)
     if args.loc:
-        hash_prog = dbhash_loc2
-    else:
-        hash_prog = dbhash_run
+        pass
+        # alter args b/c dbloc2 passes a db and a row number
     
-    hp = hash_prog(args)
+    hp = dbhash_run(args)
     
 
     # Launch plotter or spit out solution

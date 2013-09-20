@@ -35,7 +35,7 @@ ext = Extension('hashpy.libhashpy', **ext_args)
 ### Regular setup stuff ######################################################
 
 s_args = {'name'         : 'HASHpy',
-          'version'      : '0.3.0',
+          'version'      : '0.4.0',
           'description'  : 'Routines for running HASH algorithms',
           'author'       : 'Mark Williams',
           'url'          : 'https//github.com/markcwill',
@@ -52,7 +52,7 @@ s_args = {'name'         : 'HASHpy',
 if 'ANTELOPE' in os.environ:
     ant_bin = os.path.join(os.environ['ANTELOPE'], 'bin')
     ant_pf  = os.path.join(os.environ['ANTELOPE'], 'data', 'pf')
-    s_args['data_files'] = [(ant_bin, ['hashpy/db/dbhash']),
+    s_args['data_files'] = [(ant_bin, ['hashpy/scripts/dbhash.py']),
                             (ant_pf,  ['hashpy/db/dbhash.pf'])]
 #-----------------------------------------------------------------------------
 
