@@ -1,7 +1,17 @@
 # -*- coding: utf-8 -*-
-#
-# Module for HASH
-# first motion focal mechanisms
+"""
+HASHpy
+
+Module for calculating first motion focal mechanisms for earthquakes
+using Python and HASH
+
+:copyright:
+    Mark C. Williams
+
+"""
 
 from hashpype import HashPype, HashError
-from libhashpy import *
+from doublecouple import DoubleCouple
+
+__version__ = "0.4.0"
+
