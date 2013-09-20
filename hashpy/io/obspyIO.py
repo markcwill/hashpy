@@ -152,30 +152,32 @@ def outputOBSPY(hp, event=None, only_fm_picks=False):
 	    origin.arrivals = arrivals
 	    event.picks = picks
     # Use me double couple calculator and populate planes/axes etc
-    s = hp._best_quality_index
-    # Right now, only FocalMechansim for 's' is used, for speed.
-    # todo: loop through possible solutions, add them all, make 's' the preferred one
-    #       so could use a future GUI to look at them all???
-    dc = DoubleCouple([hp.str_avg[s], hp.dip_avg[s], hp.rak_avg[s]])
-    ax = dc.axis
-    focal_mech = FocalMechanism()
-    focal_mech.creation_info = CreationInfo(creation_time=UTCDateTime(), author=hp.author)
-    focal_mech.triggering_origin_id = origin.resource_id
-    focal_mech.resource_id = ResourceIdentifier('smi:hash/FocalMechanism/{0}'.format(hp.icusp))
-    focal_mech.method_id = ResourceIdentifier('HASH')
-    focal_mech.nodal_planes = NodalPlanes()
-    focal_mech.nodal_planes.nodal_plane_1 = NodalPlane(*dc.plane1)
-    focal_mech.nodal_planes.nodal_plane_2 = NodalPlane(*dc.plane2)
-    focal_mech.principal_axes = PrincipalAxes()
-    focal_mech.principal_axes.t_axis = Axis(azimuth=ax['T']['azimuth'], plunge=ax['T']['dip'])
-    focal_mech.principal_axes.p_axis = Axis(azimuth=ax['P']['azimuth'], plunge=ax['P']['dip'])
-    focal_mech.station_polarity_count = n
-    focal_mech.azimuthal_gap = hp.magap
-    focal_mech.misfit = hp.mfrac[s]
-    focal_mech.station_distribution_ratio = hp.stdr[s]
-    focal_mech.comments.append(Comment(hp.qual[s], resource_id=ResourceIdentifier('comment/quality')))
-    #----------------------------------------
-    event.focal_mechanisms.append(focal_mech)
-    event.preferred_focal_mechanism_id = focal_mech.resource_id.resource_id
+    x = hp._best_quality_index
+    # Put all the mechanisms into the 'focal_mechanisms' list, mark "best" as preferred
+    for s in range(hp.nmult):
+        dc = DoubleCouple([hp.str_avg[s], hp.dip_avg[s], hp.rak_avg[s]])
+        ax = dc.axis
+        focal_mech = FocalMechanism()
+        focal_mech.creation_info = CreationInfo(creation_time=UTCDateTime(), author=hp.author)
+        focal_mech.triggering_origin_id = origin.resource_id
+        focal_mech.resource_id = ResourceIdentifier('smi:hash/FocalMechanism/{0}/{1}'.format(hp.icusp, s+1))
+        focal_mech.method_id = ResourceIdentifier('HASH')
+        focal_mech.nodal_planes = NodalPlanes()
+        focal_mech.nodal_planes.nodal_plane_1 = NodalPlane(*dc.plane1)
+        focal_mech.nodal_planes.nodal_plane_2 = NodalPlane(*dc.plane2)
+        focal_mech.principal_axes = PrincipalAxes()
+        focal_mech.principal_axes.t_axis = Axis(azimuth=ax['T']['azimuth'], plunge=ax['T']['dip'])
+        focal_mech.principal_axes.p_axis = Axis(azimuth=ax['P']['azimuth'], plunge=ax['P']['dip'])
+        focal_mech.station_polarity_count = n
+        focal_mech.azimuthal_gap = hp.magap
+        focal_mech.misfit = hp.mfrac[s]
+        focal_mech.station_distribution_ratio = hp.stdr[s]
+        focal_mech.comments.append(
+            Comment(hp.qual[s], resource_id=ResourceIdentifier(focal_mech.resource_id.resource_id + '/comment/quality'))
+            )
+        #----------------------------------------
+        event.focal_mechanisms.append(focal_mech)
+        if s == x:
+            event.preferred_focal_mechanism_id = focal_mech.resource_id.resource_id
     return event
     

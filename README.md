@@ -21,6 +21,9 @@ pip install git+https://github.com/markcwill/hashpy.git
 ```
 
 ### Testing and Usage
+
+For lower-level programming, the Fortran subroutines are available in `hashpy.libhashpy`
+
 ```python
 In [1]: from hashpy import libhashpy
 
@@ -69,19 +72,25 @@ Currently Supports:
 ```python
 # Usage example:
 # Typical "hash_driver2" style script
+# Using the ObsPy Event format as input for origin, picks, and arrivals
 
 from hashpy import HashPype, HashError
 
+# Make an ObsPy Event, or get from a QuakeML file
+from obspy.core.event import readEvents
+event = readEvents('my_quakeml_file.xml').events[0]
+
 # Set configuration at creation with a dict...
 # ...can from file or interactively, etc
-
 config = { "npolmin" : 10,
            "max_agap": 90,
-           "vmodels" : '/path/to/my/vmodel/file.vz' 
+           "vmodels" : ['/path/to/my/vmodel/file1.vz', 
+                        '/new/picking/model/file2.vz',
+                       ] 
            }
 
 hp = HashPype(**config)
-hp.input(my_input_data, format="MYSPECIALFORMAT")
+hp.input(event, format="OBSPY")
 hp.load_velocity_models()
 hp.generate_trial_data()
 hp.calculate_takeoff_angles()
@@ -92,18 +101,34 @@ pass2 = hp.check_maximum_gap()
 if pass1 and pass2:
     hp.calculate_hash_focalmech()
     hp.calculate_quality()
-    print hp.output()
+    print hp.output() # default output is a simple string
 else:
     raise HashError("Didn't pass user checks!")
 
 ```
 
+### Plotting
+
+A trial implementation of plotting exists, using `matplotlib` and the `mplstereonet` package, as the  `hashpy.plotting.focalmechplotter.FocalMechPlotter` class. It accepts an ObsPy Event containing Picks, Origin/Arrivals, FocalMechanism, etc, objects (as output from HashPype) and generates a stereonet plot. Multiple FocalMechansim solutions from HASH are accessible through the navigation toolbar 'back' and 'forward' arrows.
+
+```python
+# Get an obspy Event object as output
+>>> event = hp.output(format="OBSPY")
+# Pass to plotter class as constructor variable
+>>> fmp = FocalMechPlotter(event)
+# Plots a figure, accessible as 'fmp.fig'
+```
+
 ### Dependencies
 
+#### Required
 * Fortran compiler + library (tested with gfortran + libgfortran3)
-* NumPy (main dependancy, for numerical arrays and f2py)
-* [ObsPy](https://github.com/obspy/obspy.git) (Only if using EventHashPype class)
-* [mplstereonet](https://github.com/joferkington/mplstereonet.git) (only for Plotter)
+* NumPy (main dependancy, for numerical arrays and f2py compiling)
+
+#### Optional
+* [ObsPy](https://github.com/obspy/obspy.git) (Only for plotting and ObsPy I/O))
+* [mplstereonet](https://github.com/joferkington/mplstereonet.git) (Only for plotting)
+* [Antelope](http://www.brtt.com) (Only for Antelope database I/O)
 
 ### HASH references
 
@@ -121,4 +146,3 @@ If I ever get ambitious, I would redo the structure of some of the Fortran subro
 
 There will probably be small adjustments to the locations and structure of what functions are in what files, but the HashPype class and methods will be the main way to interact with HASH.
 
-Currently working on generic FocalMech and Plotter classes to abstract out the specific algorithm. These will likely be moved to their own module.

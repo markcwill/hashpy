@@ -28,39 +28,7 @@ add_antelope_path()
 from aug.contrib.orm import open_db_or_string, AttribDbptr, DbrecordPtr
 from antelope.datascope import (Dbptr, dbopen, dblookup, dbsubset, dblookup,
 	dbprocess, dbDATABASE_NAME, dbDBPATH)
-from antelope.stock import pfget
 
-def load_pf(pffile='dbhash.pf'):
-	"""
-	Load HASH runtime settings from a pf file to a dictionary
-	
-	One can also specify names of velocity model files in the pf.
-	
-	Right now these settings are inherited from the HashPype class,
-	 and are not instance attributes.
-	 
-	 Input
-	 -----
-	 pffile : string of full path to pf file
-	 
-	"""
-	pf_settings = pfget(pffile)
-	
-	# Little hack to do type conversions 
-	# (pfget_int will throw error if var not there...)
-	for key in pf_settings:
-		pfi = pf_settings[key]
-		if key in ['badfrac','prob_max']:
-			pfi = float(pfi)
-		elif key in ['npolmin','max_agap','max_pgap','dang','nmc','maxout', 'delmax','cangle']:
-			pfi = int(pfi)
-		else:
-			pass
-		pf_settings[key] = pfi
-	
-	if 'vmodel_dir' in pf_settings and 'vmodels' in pf_settings:
-		pf_settings['vmodels'] = [os.path.join(pf_settings['vmodel_dir'], table) for table in pf_settings['vmodels']]
-	return pf_settings
 
 def readANTELOPE(database, station=None, channel=None, starttime=None, endtime=None):
 	"""
