@@ -3,5 +3,5 @@
 # Module for HASH
 # first motion focal mechanisms
 
-from hashpype import HashPype
+from hashpype import HashPype, HashError
 from libhashpy import *
