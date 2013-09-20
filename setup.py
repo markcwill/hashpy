@@ -6,31 +6,37 @@ import sys, os
 
 #--- libhashpy SETUP ---------------------------------------------------------
 #
-# Build extension based on the fucntion numpy.f2py.f2py2e.run_compile
+# Build extension from FORTRAN source
+# (based on the fucntion numpy.f2py.f2py2e.run_compile)
+srcdir = 'hashpy/src'
+
 srcf = ['fmech_subs.f', 'uncert_subs.f', 'util_subs.f',
         'pol_subs.f', 'vel_subs.f', 'station_subs.f', 'vel_subs2.f' ]
 
-src_list = ['hashpy/src/' + src for src in srcf]
+src_list = [ os.path.join(srcdir,src) for src in srcf ]
 
 ext_args = { 'sources' : src_list }
 
-#--- Special case includes for compiling/linking with Antelope python
 #
 # Use as a template for non-standard (non-distro) python installls...
 #
-python_folder = '/opt/antelope/python2.7.2-64'
+def get_linker_args_for_virtualenv(virtualenv=None):
 
-ANT_EXT_ARGS = {'include_dirs' : [ python_folder + '/include',
-                                   python_folder + '/lib/python2.7/site-packages/numpy/core/include'],
-                'library_dirs' : [ python_folder + '/lib'], 
-               }
+     return  {'include_dirs' : [ virtualenv + '/include',
+                                 virtualenv + '/lib/python2.7/site-packages/numpy/core/include'],
 
+              'library_dirs' : [ virtualenv + '/lib'], 
+              }
+
+# Have to link against antelope libs if installing to Antelope python
 if 'antelope' in sys.executable:
+    python_folder = '/opt/antelope/python2.7.2-64'
+    ANT_EXT_ARGS  = get_linker_args_for_virtualenv(python_folder)
     ext_args.update(ANT_EXT_ARGS)
 
+ext = Extension('hashpy.libhashpy', **ext_args)
 #-----------------------------------------------------------------------------
 
-ext = Extension('hashpy.libhashpy', **ext_args)
 
 ### Regular setup stuff ######################################################
 
@@ -40,7 +46,7 @@ s_args = {'name'         : 'HASHpy',
           'author'       : 'Mark Williams',
           'url'          : 'https//github.com/markcwill',
           'packages'     : ['hashpy', 'hashpy.io', 'hashpy.plotting'],
-          'package_data' : {'hashpy':['src/*.inc','src/Makefile','data/*', 'src/*.f']},
+          'package_data' : {'hashpy': ['src/*.inc','src/Makefile','data/*', 'src/*.f']},
           'ext_modules'  : [ext],
 }
 
