@@ -41,7 +41,7 @@ ext = Extension('hashpy.libhashpy', **ext_args)
 ### Regular setup stuff ######################################################
 
 s_args = {'name'         : 'HASHpy',
-          'version'      : '0.4.0',
+          'version'      : '0.5.0',
           'description'  : 'Routines for running HASH algorithms',
           'author'       : 'Mark Williams',
           'url'          : 'https//github.com/markcwill',
