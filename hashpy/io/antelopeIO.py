@@ -346,7 +346,7 @@ def readANTELOPE(database, station=None, channel=None, starttime=None, endtime=N
     #   db.close()
     return st
 
-def dbloc_source_db(db):
+def dbloc_source_db(db, pointer=True):
     """
     Checks if you are in a dbloc2 'trial' db and returns the source
     one if you are, otherwise returns the same Dbptr. This is for running
@@ -361,6 +361,7 @@ def dbloc_source_db(db):
     except ImportError:
         from antelope.stock import pfread as pfget
     
+    db = Dbptr(db, perm='r+') 
     dbname = db.query('dbDATABASE_NAME')
     pf_settings = pfget('dbloc2')
     pfdef = pf_settings['Define']
@@ -371,12 +372,16 @@ def dbloc_source_db(db):
         # path of trial db from dbloc2
         dbcwd = os.path.dirname(dbname)
         # relative name of 1st db in 'trial' database decriptor file
-        dbpath0 = db.query(dbDBPATH).split(':')[0].translate(None,'{}')
+        dbpath0 = db.query('dbDBPATH').split(':')[0].translate(None,'{}')
         # full absolute path database name to source
-        realdb = os.path.abspath(os.path.join(dbcwd, dbpath0))
+        dbname = os.path.abspath(os.path.join(dbcwd, dbpath0))
         db.close()
-        db = Dbptr(realdb, perm='r+')
-    return db
+        db = Dbptr(dbname, perm='r+')
+    if pointer:
+        return db
+    else:
+        db.close()
+        return dbname
 
 def eventfocalmech2db(event=None, database=None):
     """
@@ -396,7 +401,7 @@ def eventfocalmech2db(event=None, database=None):
     db = Dbptr(database, perm='r+')
     try:
         # Use the original db if in a dbloc2 'tmp/trial' db
-        db = dbloc_source_db(db)
+        #db = dbloc_source_db(db)
         # save solution as a new mechid
         mechid = db.nextid('mechid')
         # in fplane...

@@ -7,10 +7,28 @@
 # optionally, can plot by passing ObsPy output to a plotter
 """
 #from obspy.core import UTCDateTime
+import os
 from hashpy.hashpype import HashPype, HashError
-from hashpy.io.antelopeIO import ( load_pf, readANTELOPE, eventfocalmech2db, get_first_motions, RowPointerDict )
+from hashpy.io.antelopeIO import ( load_pf, eventfocalmech2db, dbloc_source_db, RowPointerDict )
 
-def dbhash_run(args):
+def _dump_bitmap(figure=None, directory='.', uid=None):
+    """
+    Dump mpl figure to a file
+    
+    Given a figure & dir, make folder called 'images' and
+    dump it into a png file called '<uid>_focalmech.png'
+
+    """
+    filename = 'focalmech.png'
+    if uid:
+        filename = '_'.join([str(uid),filename])
+    imagedir = os.path.join(directory, 'images')
+    if not os.path.exists(imagedir):
+        os.mkdir(imagedir)
+    fullname = os.path.join(imagedir, filename)
+    figure.savefig(fullname)
+
+def dbhash_run(dbname, orid=None, pf=None):
     """
     Perform a HASH run using Database input and command line args
     
@@ -24,13 +42,13 @@ def dbhash_run(args):
     hp = HashPype()
     
     # Load settings data from a pf file...
-    if args.pf:
-        load_pf(hp,pffile=args.pf)
+    if pf:
+        load_pf(hp, pffile=pf)
     else:
         load_pf(hp)
     
     # Grab data from the db...
-    hp.input(args.dbin, format="ANTELOPE", orid=args.orid)
+    hp.input(dbname, format="ANTELOPE", orid=orid)
     
     # Run and catch errors from the minimum requirements checks
     try:
@@ -51,65 +69,61 @@ def main():
     parser.add_argument("dbout",  help="Output database", nargs='?')
     parser.add_argument("-p", "--plot", help="Plot result", action='store_true')
     parser.add_argument("-l", "--loc", help="dbloc2 mode", action='store_true')
+    parser.add_argument("-i", "--image", help="Save image with db", action='store_true')
     parser.add_argument("--pf",   help="Parameter file")
     group = parser.add_mutually_exclusive_group() #required=True)
     group.add_argument("--evid", help="Event ID", type=int)
     group.add_argument("--orid", help="Origin ID", type=int)
     args = parser.parse_args()
     
-    if args.dbout:
-        savedb = args.dbout
-    else:
-        savedb = args.dbin       
+    # Special 'dbloc2' settings
+    if args.loc:
+        from antelope.datascope import Dbptr
+        # alter args b/c dbloc2 passes a db and a row number
+        args.dbin = args.dbin.rstrip('.origin')
+        db = Dbptr(args.dbin)
+        db = db.lookup(table='origin')
+        db.record = int(args.dbout)
+        args.orid = db.getv('orid')[0]
+        args.dbout = dbloc_source_db(args.dbin, pointer=False)
+        args.plot = True   # force plot
+        args.image = True  # force saving image to db folder
     
-
     # Now that we have a save location from command line args,
     # make a function to save to that database. The plotter is I/O
     # agnostic, it will accept a function to save anything anyhow anywhichway
     #
-    def save_to_db(fmplotter, dbname=savedb, *args, **kwargs):
+    def save_plot_to_db(fmplotter, dbname=args.dbout, dump_bitmap=args.image):
         focal_mech = fmplotter.event.focal_mechanisms[fmplotter._fm_index]
         if focal_mech is not fmplotter.event.preferred_focal_mechanism():
             fmplotter.event.preferred_focal_mechanism_id = focal_mech.resource_id.resource_id
         
+        # Save to db        
         eventfocalmech2db(event=fmplotter.event, database=dbname)
-    
+        
+        if dump_bitmap:
+            vers = fmplotter.event.preferred_origin().creation_info.version
+            dbdir = os.path.dirname(dbname)
+            _dump_bitmap(figure=fmplotter.fig, directory=dbdir, uid=vers)
 
-    # Run HASH (special parsing mode for dbloc2)
-    if args.loc:
-        pass
-        # alter args b/c dbloc2 passes a db and a row number
-    
-    hp = dbhash_run(args)
-    
+    # Run HASH
+    hp = dbhash_run(args.dbin, orid=args.orid, pf=args.pf)
 
     # Launch plotter or spit out solution
     if args.plot:
         from hashpy.plotting.focalmechplotter import FocalMechPlotter
         ev = hp.output(format="OBSPY")
-        p = FocalMechPlotter(ev, save=save_to_db)
+        p = FocalMechPlotter(ev, save=save_plot_to_db)
     else:
         # quick orid/strike/dip/rake line
         print hp.output()
-        p = 0
-        
+        p = 0    
         if args.dbout:
             db = hp.output(format="ANTELOPE", dbout=args.dbout)
+    
     # Done, return HashPype and/or FocalMechPlotter for debugging
     return hp, p
 
 
 if __name__ == '__main__':
-    hp, p = main()    
-
-# little script to get the FM pick waveform data for plotting
-#adb = get_first_motions(args.dbin, orid=args.orid)
-#t0 = UTCDateTime(RowPointerDict(adb, record=0)['arrival.time']) - 10
-#t1 = UTCDateTime(RowPointerDict(adb, record=adb.nrecs()-1 )['arrival.time']) + 10
-#st = readANTELOPE(adb, starttime=t0, endtime=t1)
-#adb.close()
-#if args.dbout:
-#    savedb = args.dbout
-#else:
-#    savedb = args.dbin       
-
+    ret = main()    

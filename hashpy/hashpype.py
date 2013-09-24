@@ -1,9 +1,14 @@
 # -*- coding: utf-8 -*-
 """
-  hashpype.py
+Module to call and run HASH subroutines in Fortran
+ 
+    Contains: HashPype
+    First motion focal mechanism class for running HASH
 
- by Mark Williams 2012.313
- First motion focal mechanism class for running HASH
+
+:copyright:
+    Mark Williams (2013) 
+    Nevada Seismological Laboratory
 
 """
 
@@ -267,16 +272,15 @@ class HashPype(object):
         
         An input function is passed the current HashPype, the object for
         input (could be object instance, open file handle, string of filename, etc)
-        and any other args and kwargs required. New inputs can be added to
-        hashpy.io module and registered in hashpy.io.core
+        and any other args and kwargs required. New inputs can be added to the
+        `hashpy.io` module and registered in `hashpy.io.core`
 
-        Inputs
-        ------
-        data     : The picks/data to be input into a HashPype run
-        format   : str of a format type registered in hashpy.io module
+        :param data: The picks/data to be input into a HashPype run, format
+            depends on the input function
+        :param str format: A  format type registered in `hashpy.io` module
         
-        *args    : Passed to the input function to be interpreted by the
-        **kwargs :   registered module for custom behavior
+        :param args:    Additional arguments are passed to the input function
+        :param kwargs:  Additioanl keywords are passed to the input function
         
         """
         try:
@@ -289,12 +293,10 @@ class HashPype(object):
         """
         Output data using a formatting standard from the 'io' module
         
-        Inputs
-        ------
-        format   : str of a format type registered in hashpy.io module
-
         The current module will output a simple one-line string of the
         best solution stored in the run.
+        
+        :params str format: A format type registered in `hashpy.io` module
 
         """
         try:
@@ -305,13 +307,14 @@ class HashPype(object):
         
     def load_velocity_models(self, model_list=None):
         """
-        "Load velocity model data
+        Load velocity model data
         
-        Inputs
-        ------
-        model_list : list of str of velocity model filenames
+        If a None is specified (the default), will use the list in 
+        `HashPype.vmodels`
         
-        ** if None, will use the list in 'self.vmodels'
+        :type model_list:  list of str
+        :param model_list: Optional velocity model filenames
+        
         """
         # Future -- allow adding on fly, check and append to existing
         #
@@ -330,6 +333,7 @@ class HashPype(object):
     def generate_trial_data(self):
         """
         Make data for running trials
+        
         (MUST have loaded data and vel mods already)
         
         Algorithm by H & S (From HASH driver script)
@@ -363,14 +367,18 @@ class HashPype(object):
             print '{0}   {1} {2} {3} {4}'.format(k,self.sname[k],self.p_azi_mc[k,0],self.p_the_mc[k,0],self.p_pol[k])
     
     def check_minimum_polarity(self):
-        """Polarity check"""
+        """
+        Polarity check
+        """
         if self.npol >= self.npolmin:
             return True
         else:
             return False
     
     def check_maximum_gap(self):
-        """Gap check"""
+        """
+        Gap check
+        """
         if ((self.magap > self.max_agap) or (self.mpgap > self.max_pgap)):
             return False
         else:
