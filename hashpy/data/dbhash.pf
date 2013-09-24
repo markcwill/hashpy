@@ -1,0 +1,29 @@
+# pf file for dbhash
+#
+# These are parameters passed to the interactive version of HASH.
+# They are used to constrain various things during runtime. An
+# additional constraint is found in the include files for the FORTRAN
+# routines, but libhashpy must be recompiled if those files are changed.
+
+npolmin  8    # Enter mininum number of polarities (e.g., 8)
+max_agap 90   # Enter maximum azimuthal gap (e.g., 90)
+max_pgap 60   # Enter maximum takeoff angle gap (e.g., 60)
+dang     5    # Enter grid angle for focal mech search, in degrees 5(min {0})
+nmc      25   # Enter number of trials (e.g., 30)
+maxout   100  # Enter maxout for focal mech. output (e.g., 500)
+badfrac  0.1  # Enter fraction of picks presumed bad (e.g., 0.10)
+delmax   500  # Enter maximum allowed source-station distance, in km (e.g., 120)
+cangle   45   # Enter angle for computing mechanisms probability, in degrees (e.g., 45)
+prob_max 0.25 # Enter probability threshold for multiples (e.g., 0.1)
+
+# Added by Mark ----------------------------------#
+# Directory containing velocity model files:
+vmodel_dir /home/markwill/Code/python/hashpy/hashpy/data
+
+# List of velocity model file names:
+# Format: z (km)  v (km/s)
+vmodels &Tbl{
+    vz.pickema1
+    vz.pickema2
+    vz.pickema3
+    }

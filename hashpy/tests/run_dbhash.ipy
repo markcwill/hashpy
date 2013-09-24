@@ -1,0 +1,7 @@
+#
+if __name__=='__main__':
+    import time
+    from dbhash import main
+    t0 = time.time()
+    ret = main()
+    print time.time()-t0
