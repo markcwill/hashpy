@@ -24,7 +24,7 @@ IO_REGISTRY = { "OBSPY" : { "module" : "obspyIO" ,
 
                 "ANTELOPE" : { "module" : "antelopeIO" },
                 
-                "FPFIT" : { "module" : NotImplemented },
+                "FPFIT" : { "module" : 'fpfitIO' },
               }
 ##############################################################################
 
