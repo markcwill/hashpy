@@ -118,6 +118,7 @@ A trial implementation of plotting exists, using `matplotlib` and the `mplstereo
 >>> fmp = FocalMechPlotter(event)
 # Plots a figure, accessible as 'fmp.fig'
 ```
+![](http://markcwill.github.io/hashpy/images/979567_focalmech.png)
 
 ### Dependencies
 
