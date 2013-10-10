@@ -1,0 +1,220 @@
+<!doctype html>
+<!-- The Time Machine GitHub pages theme was designed and developed by Jon Rohan, on Feb 7, 2012. -->
+<!-- Follow him for fun. http://twitter.com/jonrohan. Tail his code on http://github.com/jonrohan -->
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+  <link rel="stylesheet" href="stylesheets/stylesheet.css" media="screen"/>
+  <link rel="stylesheet" href="stylesheets/pygment_trac.css"/>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+  <script type="text/javascript" src="javascripts/script.js"></script>
+
+  <title>Hashpy</title>
+  <meta name="description" content="Python wrapped fork of HASH first motion focal mechanism code.">
+
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+
+</head>
+
+<body>
+
+  <div class="wrapper">
+    <header>
+      <h1 class="title">Hashpy</h1>
+    </header>
+    <div id="container">
+      <p class="tagline">Python wrapped fork of HASH first motion focal mechanism code.</p>
+      <div id="main" role="main">
+        <div class="download-bar">
+        <div class="inner">
+          <a href="https://github.com/markcwill/hashpy/tarball/master" class="download-button tar"><span>Download</span></a>
+          <a href="https://github.com/markcwill/hashpy/zipball/master" class="download-button zip"><span>Download</span></a>
+          <a href="https://github.com/markcwill/hashpy" class="code">View Hashpy on GitHub</a>
+        </div>
+        <span class="blc"></span><span class="trc"></span>
+        </div>
+        <article class="markdown-body">
+          <h2>
+<a name="hashpy" class="anchor" href="#hashpy"><span class="octicon octicon-link"></span></a>HASHpy</h2>
+
+<p>This is a fork of HASH v1.2, the first motion focal mechanism program by Hardebeck and Shearer. The subroutines (in Fortran 77, which I did not write) are compiled into a python module, 'libhashpy.so', which will import all the subs and common blocks into the python namespace. There is a base class, HashPype, that contains attributes which hold data for a HASH calculation, and methods which can be called to do the HASH calculation. This class facilitates easily writing a 'hash driver' script in python. See below for details.</p>
+
+<p>Note: As stated in the in-code docs,  the current code is based on the 'hashdriver2' script, and as such, does not utilize the 'amp' routines for S/P amplitude measurements. This will most likely be added in the near future. If someone wants to take it upon themselves to add the compiler directives in the source and the methods to the HashPype class, throw me a pull request.</p>
+
+<h3>
+<a name="installation" class="anchor" href="#installation"><span class="octicon octicon-link"></span></a>Installation</h3>
+
+<p>The latest version of this code uses <code>numpy.distutils</code>, which can nicely compile Fortran code. The source code and makefiles to remake the libhashpy module are installed to the hashpy folder, so with a little hacking, one could just remake them in place, if one wanted to change the source code.</p>
+
+<p>For basic install:</p>
+
+<pre lang="shell"><code># First, install dependencies. Then cd to this top directory and:
+python setup.py install
+
+# or use pip
+pip install git+https://github.com/markcwill/hashpy.git
+
+</code></pre>
+
+<h3>
+<a name="testing-and-usage" class="anchor" href="#testing-and-usage"><span class="octicon octicon-link"></span></a>Testing and Usage</h3>
+
+<p>For lower-level programming, the Fortran subroutines are available in <code>hashpy.libhashpy</code></p>
+
+<div class="highlight highlight-python"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="kn">from</span> <span class="nn">hashpy</span> <span class="kn">import</span> <span class="n">libhashpy</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">2</span><span class="p">]:</span> <span class="n">libhashpy</span><span class="err">?</span>
+<span class="n">Type</span><span class="p">:</span>       <span class="n">module</span>
+<span class="n">Base</span> <span class="n">Class</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">type</span> <span class="s">'module'</span><span class="o">&gt;</span>
+<span class="n">String</span> <span class="n">Form</span><span class="p">:</span><span class="o">&lt;</span><span class="n">module</span> <span class="s">'hashpy.libhashpy'</span> <span class="kn">from</span> <span class="s">'/opt/antelope/python2.7.2-64/lib/python2.7/site-packages/hashpy/libhashpy.so'</span><span class="o">&gt;</span>
+<span class="n">Namespace</span><span class="p">:</span>  <span class="n">Interactive</span>
+<span class="n">File</span><span class="p">:</span>       <span class="o">/</span><span class="n">opt</span><span class="o">/</span><span class="n">antelope</span><span class="o">/</span><span class="n">python2</span><span class="o">.</span><span class="mf">7.2</span><span class="o">-</span><span class="mi">64</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">python2</span><span class="o">.</span><span class="mi">7</span><span class="o">/</span><span class="n">site</span><span class="o">-</span><span class="n">packages</span><span class="o">/</span><span class="n">hashpy</span><span class="o">/</span><span class="n">libhashpy</span><span class="o">.</span><span class="n">so</span>
+<span class="n">Docstring</span><span class="p">:</span>
+<span class="n">This</span> <span class="n">module</span> <span class="s">'libhashpy'</span> <span class="ow">is</span> <span class="n">auto</span><span class="o">-</span><span class="n">generated</span> <span class="k">with</span> <span class="n">f2py</span> <span class="p">(</span><span class="n">version</span><span class="p">:</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span>
+<span class="n">Functions</span><span class="p">:</span>
+  <span class="n">nf</span><span class="p">,</span><span class="n">strike</span><span class="p">,</span><span class="n">dip</span><span class="p">,</span><span class="n">rake</span><span class="p">,</span><span class="n">faults</span><span class="p">,</span><span class="n">slips</span> <span class="o">=</span> <span class="n">focalmc</span><span class="p">(</span><span class="n">p_azi_mc</span><span class="p">,</span><span class="n">p_the_mc</span><span class="p">,</span><span class="n">p_pol</span><span class="p">,</span><span class="n">p_qual</span><span class="p">,</span><span class="n">nmc</span><span class="p">,</span><span class="n">dang</span><span class="p">,</span><span class="n">maxout</span><span class="p">,</span><span class="n">nextra</span><span class="p">,</span><span class="n">ntotal</span><span class="p">,</span><span class="n">npsta</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">p_pol</span><span class="p">))</span>
+  <span class="n">nsltn</span><span class="p">,</span><span class="n">str_avg</span><span class="p">,</span><span class="n">dip_avg</span><span class="p">,</span><span class="n">rak_avg</span><span class="p">,</span><span class="n">prob</span><span class="p">,</span><span class="n">rms_diff</span> <span class="o">=</span> <span class="n">mech_prob</span><span class="p">(</span><span class="n">norm1in</span><span class="p">,</span><span class="n">norm2in</span><span class="p">,</span><span class="n">cangle</span><span class="p">,</span><span class="n">prob_max</span><span class="p">,</span><span class="n">nf</span><span class="o">=</span><span class="n">shape</span><span class="p">(</span><span class="n">norm1in</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+  <span class="n">norm1_avg</span><span class="p">,</span><span class="n">norm2_avg</span> <span class="o">=</span> <span class="n">mech_avg</span><span class="p">(</span><span class="n">norm1</span><span class="p">,</span><span class="n">norm2</span><span class="p">,</span><span class="n">nf</span><span class="o">=</span><span class="n">shape</span><span class="p">(</span><span class="n">norm1</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+  <span class="n">rota</span> <span class="o">=</span> <span class="n">mech_rot</span><span class="p">(</span><span class="n">norm1</span><span class="p">,</span><span class="n">norm2</span><span class="p">,</span><span class="n">slip1</span><span class="p">,</span><span class="n">slip2</span><span class="p">)</span>
+  <span class="n">v3</span> <span class="o">=</span> <span class="n">cross</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span><span class="n">v2</span><span class="p">)</span>
+  <span class="n">to_car</span><span class="p">(</span><span class="n">the</span><span class="p">,</span><span class="n">phi</span><span class="p">,</span><span class="n">r</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">z</span><span class="p">)</span>
+  <span class="n">fpcoor</span><span class="p">(</span><span class="n">strike</span><span class="p">,</span><span class="n">dip</span><span class="p">,</span><span class="n">rake</span><span class="p">,</span><span class="n">fnorm</span><span class="p">,</span><span class="n">slip</span><span class="p">,</span><span class="n">idir</span><span class="p">)</span>
+  <span class="n">fran</span> <span class="o">=</span> <span class="n">ran_norm</span><span class="p">()</span>
+  <span class="n">mfrac</span><span class="p">,</span><span class="n">stdr</span> <span class="o">=</span> <span class="n">get_misf</span><span class="p">(</span><span class="n">p_azi_mc</span><span class="p">,</span><span class="n">p_the_mc</span><span class="p">,</span><span class="n">p_pol</span><span class="p">,</span><span class="n">p_qual</span><span class="p">,</span><span class="n">str_avg</span><span class="p">,</span><span class="n">dip_avg</span><span class="p">,</span><span class="n">rak_avg</span><span class="p">,</span><span class="n">npol</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">p_azi_mc</span><span class="p">))</span>
+  <span class="n">magap</span><span class="p">,</span><span class="n">mpgap</span> <span class="o">=</span> <span class="n">get_gap</span><span class="p">(</span><span class="n">p_azi_mc</span><span class="p">,</span><span class="n">p_the_mc</span><span class="p">,</span><span class="n">npol</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">p_azi_mc</span><span class="p">))</span>
+  <span class="n">sort</span><span class="p">(</span><span class="n">ra</span><span class="p">,</span><span class="n">n</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">ra</span><span class="p">))</span>
+  <span class="n">ntab</span> <span class="o">=</span> <span class="n">mk_table</span><span class="p">(</span><span class="n">ntab</span><span class="p">)</span>
+  <span class="n">tt</span><span class="p">,</span><span class="n">iflag</span> <span class="o">=</span> <span class="n">get_tts</span><span class="p">(</span><span class="n">ip</span><span class="p">,</span><span class="k">del</span><span class="p">,</span><span class="n">qdep</span><span class="p">)</span>
+  <span class="n">layertrace</span><span class="p">(</span><span class="n">p1</span><span class="p">,</span><span class="n">h1</span><span class="p">,</span><span class="n">utop1</span><span class="p">,</span><span class="n">ubot1</span><span class="p">,</span><span class="n">imth</span><span class="p">,</span><span class="n">dx1</span><span class="p">,</span><span class="n">dt1</span><span class="p">,</span><span class="n">irtr</span><span class="p">)</span>
+  <span class="n">flat</span><span class="p">,</span><span class="n">flon</span><span class="p">,</span><span class="n">felev</span> <span class="o">=</span> <span class="n">getstat_tri</span><span class="p">(</span><span class="n">stlfile</span><span class="p">,</span><span class="n">snam</span><span class="p">,</span><span class="n">scom</span><span class="p">,</span><span class="n">snet</span><span class="p">)</span>
+  <span class="n">stpol</span> <span class="o">=</span> <span class="n">check_pol</span><span class="p">(</span><span class="n">polfile</span><span class="p">,</span><span class="n">snam</span><span class="p">,</span><span class="n">evyr</span><span class="p">,</span><span class="n">evmon</span><span class="p">,</span><span class="n">evdy</span><span class="p">,</span><span class="n">evhr</span><span class="p">)</span>
+  <span class="n">qcor</span> <span class="o">=</span> <span class="n">get_cor</span><span class="p">(</span><span class="n">stlfile</span><span class="p">,</span><span class="n">snam</span><span class="p">,</span><span class="n">scom</span><span class="p">,</span><span class="n">snet</span><span class="p">)</span>
+  <span class="n">ntab</span> <span class="o">=</span> <span class="n">mk_table_add</span><span class="p">(</span><span class="n">ind</span><span class="p">,</span><span class="n">vmodel</span><span class="p">)</span>
+<span class="n">COMMON</span> <span class="n">blocks</span><span class="p">:</span>
+  <span class="o">/</span><span class="n">angtable</span><span class="o">/</span> <span class="n">table</span><span class="p">(</span><span class="mi">101</span><span class="p">,</span><span class="mi">14</span><span class="p">,</span><span class="mi">10</span><span class="p">),</span><span class="n">delttab</span><span class="p">(</span><span class="mi">101</span><span class="p">),</span><span class="n">deptab</span><span class="p">(</span><span class="mi">14</span><span class="p">),</span><span class="n">ndel</span><span class="p">,</span><span class="n">ndep</span>
+<span class="o">.</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">3</span><span class="p">]:</span> 
+</pre></div>
+
+<h3>
+<a name="inputoutput" class="anchor" href="#inputoutput"><span class="octicon octicon-link"></span></a>Input/Output</h3>
+
+<p>Data can be input into HASH in various formats. This is currently handled in HASHpy by registering a format in the <code>hashpy.io</code> module by adding a module/functions to the dictionary in <code>hashpy.io.core</code>. (May change in future releases). I/O functions are then called by the HashPype methods <code>HashPype.input()</code> and <code>HashPype.output()</code>. If the 'output' method is called with no format it will return a simple string with the event ID with the best strike/dip/rake</p>
+
+<p>Currently Supports:</p>
+
+<ul>
+<li>ObsPy Event object I/O</li>
+<li>Antelope Datascope database I/O</li>
+</ul><div class="highlight highlight-python"><pre><span class="c"># Usage example:</span>
+<span class="c"># Typical "hash_driver2" style script</span>
+<span class="c"># Using the ObsPy Event format as input for origin, picks, and arrivals</span>
+
+<span class="kn">from</span> <span class="nn">hashpy</span> <span class="kn">import</span> <span class="n">HashPype</span><span class="p">,</span> <span class="n">HashError</span>
+
+<span class="c"># Make an ObsPy Event, or get from a QuakeML file</span>
+<span class="kn">from</span> <span class="nn">obspy.core.event</span> <span class="kn">import</span> <span class="n">readEvents</span>
+<span class="n">event</span> <span class="o">=</span> <span class="n">readEvents</span><span class="p">(</span><span class="s">'my_quakeml_file.xml'</span><span class="p">)</span><span class="o">.</span><span class="n">events</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="c"># Set configuration at creation with a dict...</span>
+<span class="c"># ...can from file or interactively, etc</span>
+<span class="n">config</span> <span class="o">=</span> <span class="p">{</span> <span class="s">"npolmin"</span> <span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+           <span class="s">"max_agap"</span><span class="p">:</span> <span class="mi">90</span><span class="p">,</span>
+           <span class="s">"vmodels"</span> <span class="p">:</span> <span class="p">[</span><span class="s">'/path/to/my/vmodel/file1.vz'</span><span class="p">,</span> 
+                        <span class="s">'/new/picking/model/file2.vz'</span><span class="p">,</span>
+                       <span class="p">]</span> 
+           <span class="p">}</span>
+
+<span class="n">hp</span> <span class="o">=</span> <span class="n">HashPype</span><span class="p">(</span><span class="o">**</span><span class="n">config</span><span class="p">)</span>
+<span class="n">hp</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="s">"OBSPY"</span><span class="p">)</span>
+<span class="n">hp</span><span class="o">.</span><span class="n">load_velocity_models</span><span class="p">()</span>
+<span class="n">hp</span><span class="o">.</span><span class="n">generate_trial_data</span><span class="p">()</span>
+<span class="n">hp</span><span class="o">.</span><span class="n">calculate_takeoff_angles</span><span class="p">()</span>
+
+<span class="n">pass1</span> <span class="o">=</span> <span class="n">hp</span><span class="o">.</span><span class="n">check_minimum_polarity</span><span class="p">()</span>
+<span class="n">pass2</span> <span class="o">=</span> <span class="n">hp</span><span class="o">.</span><span class="n">check_maximum_gap</span><span class="p">()</span>
+
+<span class="k">if</span> <span class="n">pass1</span> <span class="ow">and</span> <span class="n">pass2</span><span class="p">:</span>
+    <span class="n">hp</span><span class="o">.</span><span class="n">calculate_hash_focalmech</span><span class="p">()</span>
+    <span class="n">hp</span><span class="o">.</span><span class="n">calculate_quality</span><span class="p">()</span>
+    <span class="k">print</span> <span class="n">hp</span><span class="o">.</span><span class="n">output</span><span class="p">()</span> <span class="c"># default output is a simple string</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="n">HashError</span><span class="p">(</span><span class="s">"Didn't pass user checks!"</span><span class="p">)</span>
+
+</pre></div>
+
+<h3>
+<a name="plotting" class="anchor" href="#plotting"><span class="octicon octicon-link"></span></a>Plotting</h3>
+
+<p>A trial implementation of plotting exists, using <code>matplotlib</code> and the <code>mplstereonet</code> package, as the  <code>hashpy.plotting.focalmechplotter.FocalMechPlotter</code> class. It accepts an ObsPy Event containing Picks, Origin/Arrivals, FocalMechanism, etc, objects (as output from HashPype) and generates a stereonet plot. Multiple FocalMechansim solutions from HASH are accessible through the navigation toolbar 'back' and 'forward' arrows.</p>
+
+<div class="highlight highlight-python"><pre><span class="c"># Get an obspy Event object as output</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">event</span> <span class="o">=</span> <span class="n">hp</span><span class="o">.</span><span class="n">output</span><span class="p">(</span><span class="n">format</span><span class="o">=</span><span class="s">"OBSPY"</span><span class="p">)</span>
+<span class="c"># Pass to plotter class as constructor variable</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">fmp</span> <span class="o">=</span> <span class="n">FocalMechPlotter</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+<span class="c"># Plots a figure, accessible as 'fmp.fig'</span>
+</pre></div>
+
+<h3>
+<a name="dependencies" class="anchor" href="#dependencies"><span class="octicon octicon-link"></span></a>Dependencies</h3>
+
+<h4>
+<a name="required" class="anchor" href="#required"><span class="octicon octicon-link"></span></a>Required</h4>
+
+<ul>
+<li>Fortran compiler + library (tested with gfortran + libgfortran3)</li>
+<li>NumPy (main dependancy, for numerical arrays and f2py compiling)</li>
+</ul><h4>
+<a name="optional" class="anchor" href="#optional"><span class="octicon octicon-link"></span></a>Optional</h4>
+
+<ul>
+<li>
+<a href="https://github.com/obspy/obspy.git">ObsPy</a> (Only for plotting and ObsPy I/O))</li>
+<li>
+<a href="https://github.com/joferkington/mplstereonet.git">mplstereonet</a> (Only for plotting)</li>
+<li>
+<a href="http://www.brtt.com">Antelope</a> (Only for Antelope database I/O)</li>
+</ul><h3>
+<a name="hash-references" class="anchor" href="#hash-references"><span class="octicon octicon-link"></span></a>HASH references</h3>
+
+<ul>
+<li>Hardebeck, Jeanne L. and Peter M. Shearer, A new method for determining first-
+motion focal mechanisms, Bulletin of the Seismological Society of America, 92,
+2264-2276, 2002.</li>
+<li>Hardebeck, Jeanne L. and Peter M. Shearer, Using S/P Amplitude Ratios to
+Constrain the Focal Mechanisms of Small Earthquakes, Bulletin of the
+Seismological Society of America, 93, 2434-2444, 2003.</li>
+</ul><h3>
+<a name="future" class="anchor" href="#future"><span class="octicon octicon-link"></span></a>Future</h3>
+
+<p>Add remaining HASH routines (like those in fmamp_subs.f) to wrapped library and class methods.</p>
+
+<p>If I ever get ambitious, I would redo the structure of some of the Fortran subroutines (already started this with vel-subs2) and rewrite them in Fortran 90/95/2003. Probably couldn't ditch the common blocks without a full rewrite, but at least try and get rid of the GOTOs. Biggest improvement would be allocatable arrays, so you could avoid the includes and max-size arrays.</p>
+
+<p>There will probably be small adjustments to the locations and structure of what functions are in what files, but the HashPype class and methods will be the main way to interact with HASH.</p>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="owner">
+      <p><a href="https://github.com/markcwill" class="avatar"><img src="https://0.gravatar.com/avatar/7996059431e33e7860b7271a43b0ea0e?d=https%3A%2F%2Fidenticons.github.com%2F115fff42e6e582954ac62908ce6e5a68.png&amp;s=30" width="48" height="48"/></a> <a href="https://github.com/markcwill">markcwill</a> maintains <a href="https://github.com/markcwill/hashpy">Hashpy</a></p>
+
+
+      </div>
+      <div class="creds">
+        <small>This page generated using <a href="https://pages.github.com/">GitHub Pages</a><br/>theme by <a href="https://twitter.com/jonrohan/">Jon Rohan</a></small>
+      </div>
+    </footer>
+  </div>
+  <div class="current-section">
+    <a href="#top">Scroll to top</a>
+    <a href="https://github.com/markcwill/hashpy/tarball/master" class="tar">tar</a><a href="https://github.com/markcwill/hashpy/zipball/master" class="zip">zip</a><a href="" class="code">source code</a>
+    <p class="name"></p>
+  </div>
+
+  
+</body>
+</html>
