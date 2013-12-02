@@ -110,12 +110,19 @@ class FocalMechPlotter(object):
                        'markeredgewidth' : 2,
                        }
         for ind, a in enumerate(self._orig.arrivals):
+            p = a.pick_id.getReferredObject()
+            # Calculate strike azi from direct (dip-pointing) azi 
+            azi = a.azimuth - 90.
             #--- HASH takeoffs are 0-180 from vertical UP!!
             #--- Stereonet angles 0-90 inward (dip)
             #--- Classic FM's are toa from center???
-            p = a.pick_id.getReferredObject()
-            azi = a.azimuth - 90.
-            toa = abs(a.takeoff_angle - 90)
+            if 90. <= a.takeoff_angle <= 180.:
+                toa = a.takeoff_angle - 90.
+            elif 0. <= a.takeoff_angle < 90.:
+                toa = a.takeoff_angle + 180.
+            else:
+                raise ValueError("Takeoff angle ({0}) must be in [0, 180]".format(a.azimuth))
+            
             if p.polarity is 'positive':
                 #plot_specs.update({'markeredgecolor' : 'black', 'markerfacecolor' : 'red'   })
                 h += ax.rake(azi, toa, 90, 'o', markeredgecolor='black', markerfacecolor='red', **plot_specs)
