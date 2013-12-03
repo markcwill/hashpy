@@ -114,12 +114,13 @@ class FocalMechPlotter(object):
             # Calculate strike azi from direct (dip-pointing) azi 
             azi = a.azimuth - 90.
             #--- HASH takeoffs are 0-180 from vertical UP!!
+            #--- obspy QuakeML are 0-180 from vertical DOWN
             #--- Stereonet angles 0-90 inward (dip)
             #--- Classic FM's are toa from center???
-            if 90. <= a.takeoff_angle <= 180.:
-                toa = a.takeoff_angle - 90.
-            elif 0. <= a.takeoff_angle < 90.:
-                toa = a.takeoff_angle + 180.
+            if 0. <= a.takeoff_angle < 90.:
+                toa = 90. - a.takeoff_angle  # complement for downward angles
+            elif 90. <= a.takeoff_angle <= 180.:
+                toa = 270. - a.takeoff_angle  # project upward angles
             else:
                 raise ValueError("Takeoff angle ({0}) must be in [0, 180]".format(a.azimuth))
             
