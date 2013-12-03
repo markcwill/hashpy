@@ -44,16 +44,15 @@ ext = Extension('hashpy.libhashpy', **ext_args)
 
 ### Regular setup stuff #######################################################
 
-s_args = {'name':         'HASHpy',
-          'version':      '0.5.2',
-          'description':  'Routines for running HASH algorithms',
-          'author':       'Mark Williams',
-          'url':          'https//github.com/markcwill',
-          'packages':     ['hashpy', 'hashpy.io', 'hashpy.plotting'],
-          'package_data': {'hashpy': ['src/*.inc', 'src/Makefile', 'data/*',
-                                      'scripts/*', 'src/*.f']},
-          'ext_modules':  [ext],
-          }
+s_args = {'name'         : 'HASHpy',
+          'version'      : '0.5.3',
+          'description'  : 'Routines for running HASH algorithms',
+          'author'       : 'Mark Williams',
+          'url'          : 'https//github.com/markcwill',
+          'packages'     : ['hashpy', 'hashpy.io', 'hashpy.plotting'],
+          'package_data' : {'hashpy': ['src/*.inc','src/Makefile','data/*','scripts/*', 'src/*.f']},
+          'ext_modules'  : [ext],
+}
 
 # hashpy.db ------------------------------------------------------------------
 # TO BE OBSELETED - break out to separate module/package so hashpy can

@@ -131,7 +131,7 @@ def outputOBSPY(hp, event=None, only_fm_picks=False):
 	    a.creation_info = CreationInfo(version=hp.arid[_i])
 	    a.resource_id = ResourceIdentifier('smi:nsl/Arrival/{0}'.format(p.creation_info.version))
 	    a.azimuth = hp.p_azi_mc[_i,0]
-	    a.takeoff_angle = hp.p_the_mc[_i,0]
+	    a.takeoff_angle = 180. - hp.p_the_mc[_i,0]
 	    a.pick_id = p.resource_id
 	    origin.arrivals.append(a)
 	    event.picks.append(p)
