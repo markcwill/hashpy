@@ -84,7 +84,7 @@ class NodalPlane(list):
                 self[:] = [float(n) for n in args]
             else:
                 pass
-        for key, value in kwargs.iteritems():
+        for key, value in kwargs.items():
             if hasattr(self, key):
                 self.__setattr__(key, float(value))
 
