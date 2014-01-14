@@ -364,7 +364,7 @@ class HashPype(object):
         Print out a list of polarity data for interactive runs
         """
         for k in range(self.npol):
-            print '{0}   {1} {2} {3} {4}'.format(k,self.sname[k],self.p_azi_mc[k,0],self.p_the_mc[k,0],self.p_pol[k])
+            print('{0}   {1} {2} {3} {4}'.format(k,self.sname[k],self.p_azi_mc[k,0],self.p_the_mc[k,0],self.p_pol[k]))
     
     def check_minimum_polarity(self):
         """

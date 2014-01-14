@@ -233,7 +233,7 @@ def load_pf(hp, pffile='dbhash.pf'):
         from antelope.stock import pfread as pfget
     
     pf_settings = pfget(pffile)
-    pf_keys = pf_settings.keys() # b/c v5.3 broke backwards dict compat
+    pf_keys = list(pf_settings.keys()) # b/c v5.3 broke backwards dict compat
 
     # Little hack to do type conversions 
     for key in pf_keys:
