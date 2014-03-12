@@ -14,6 +14,7 @@ from antelope.datascope import Dbptr, dbtmp, dblookup, dbprocess
 degrad = 180. / np.pi
 rad = 1. / degrad
 
+
 class RowPointerDict(dict):
     
     _dbptr = None
@@ -33,7 +34,6 @@ class RowPointerDict(dict):
 
     def __len__(self):
         return self._dbptr.nrecs()
-
 
 
 def input(hp, dbname, evid=None, orid=None):
@@ -56,7 +56,7 @@ def input(hp, dbname, evid=None, orid=None):
         dbv = dbprocess(db,['dbopen event', 'dbsubset evid == '+str(evid)])
         orid = RowPointerDict(dbv)['prefor']
     
-    db = dbprocess(db,[ 'dbopen origin', 'dbsubset orid == '+str(orid),
+    db = dbprocess(db,['dbopen origin', 'dbsubset orid == '+str(orid),
                     'dbjoin origerr', 'dbjoin assoc',  'dbjoin arrival',
                     'dbjoin affiliation', 'dbjoin site',
                     'dbsubset iphase =~ /.*[Pp].*/',
@@ -71,13 +71,13 @@ def input(hp, dbname, evid=None, orid=None):
         raise ValueError("No picks for this ORID: {0}".format(orid) )
         
     hp.tstamp = ph['origin.time']
-    hp.qlat   = ph['origin.lat']
-    hp.qlon   = ph['origin.lon']
-    hp.qdep   = ph['origin.depth']
-    hp.qmag   = ph['origin.ml']
-    hp.icusp  = ph['origin.orid']
-    hp.seh    = ph['origerr.smajax']
-    hp.sez    = ph['origerr.sdepth']
+    hp.qlat = ph['origin.lat']
+    hp.qlon = ph['origin.lon']
+    hp.qdep = ph['origin.depth']
+    hp.qmag = ph['origin.ml']
+    hp.icusp = ph['origin.orid']
+    hp.seh = ph['origerr.smajax']
+    hp.sez = ph['origerr.sdepth']
     
     aspect = np.cos(hp.qlat / degrad) # convert using python later.
     
@@ -86,21 +86,20 @@ def input(hp, dbname, evid=None, orid=None):
     # May be able to update with a rewrite... YMMV
     k = 0
     for n in range(len(ph)):
-        
+        # Extract pick data from the db 
         ph = RowPointerDict(db, record=n)
 
-        hp.sname[k]   = ph['sta']
-        hp.snet[k]    = ph['net']
-        hp.scomp[k]   = ph['chan']
-        hp.pickonset[k] = 'I'
-        hp.pickpol[k]   = ph['fm']
-        hp.arid[k]    = ph['arid']
+        hp.sname[k] = ph['sta']
+        hp.snet[k] = ph['net']
+        hp.scomp[k] = ph['chan']
+        hp.pickonset[k] = ph['qual'].strip('.')
+        hp.pickpol[k] = ph['fm']
+        hp.arid[k] = ph['arid']
         
         flat, flon, felv = ph['site.lat'],ph['site.lon'],ph['site.elev']
         hp.esaz[k] = ph['esaz']
 
-        
-        # dist @ azi, get from db OR obspy or another python mod (antelope) could do this on WGS84
+        # Distance and Azimuth filtering
         dx = (flon - hp.qlon) * 111.2 * aspect
         dy = (flat - hp.qlat) * 111.2
         dist = np.sqrt(dx**2 + dy**2)
@@ -108,31 +107,40 @@ def input(hp, dbname, evid=None, orid=None):
         
         if (qazi < 0.):
             qazi = qazi + 360.
+        
         if (dist > hp.delmax):
             continue
-        if (hp.pickpol[k] in 'CcUu'):
+
+        # Try to get an up/down polarity
+        if not hp.pickpol[k].lower():
+            continue
+        if (hp.pickpol[k].lower() in 'cu'):
             hp.p_pol[k] = 1
-        elif (hp.pickpol[k] in 'RrDd'):
+        elif (hp.pickpol[k].lower() in 'dr'):
             hp.p_pol[k] = -1
         else:
             continue
-        
-        # save them for other functions -MCW
+
+        # Save them for other functions
         hp.dist[k] = dist
         hp.qazi[k] = qazi
         hp.flat[k] = flat
         hp.flon[k] = flon
         hp.felv[k] = felv
         
-        if (hp.pickonset[k] in 'Ii'):
+        # Try to get the onset, impulsive if none
+        if (hp.pickonset[k].lower() == 'i'):
             hp.p_qual[k] = 0
-        else:
+        elif (hp.pickonset[k].lower() == 'e'):
             hp.p_qual[k] = 1
+        elif (hp.pickonset[k].lower() == 'w'):
+            hp.p_qual[k] = 1
+        else:
+            hp.p_qual[k] = 0
         
         # polarity check in original code... doesn't work here
         #hp.p_pol[k] = hp.p_pol[k] * hp.spol
         k += 1
-    #npol = k - 1
     hp.npol = k # k is zero indexed in THIS loop
     db.close()
 
@@ -168,15 +176,15 @@ def output(hp, dbout=None, solution=0, schema="css3.0"):
     
     dbfpln.record = dbfpln.addnull()
     dbfpln.putv(
-            'orid' , hp.icusp,
-            'str1' , round(str1,1) ,
-            'dip1' , round(dip1,1) ,
+            'orid', hp.icusp,
+            'str1', round(str1,1) ,
+            'dip1', round(dip1,1) ,
             'rake1', round(rak1,1),
             'algorithm', "HASH",
             'mechid', mechid,
             'auth', 'hashpy:'+ hp.author,
-            'str2' , round(str2,1) ,
-            'dip2' , round(dip2,1) ,
+            'str2', round(str2,1) ,
+            'dip2', round(dip2,1) ,
             'rake2', round(rak2,1),
             'taxazm', round(axes['T']['azimuth'],1),
             'taxplg', round(axes['T']['dip'],1),
