@@ -1,6 +1,8 @@
 HASHpy
 ------
 
+[![DOI](https://zenodo.org/badge/3723/markcwill/hashpy.png)](http://dx.doi.org/10.5281/zenodo.9808)
+
 This is a fork of HASH v1.2, the first motion focal mechanism program by Hardebeck and Shearer. The subroutines (in Fortran 77, which I did not write) are compiled into a python module, 'libhashpy.so', which will import all the subs and common blocks into the python namespace. There is a base class, HashPype, that contains attributes which hold data for a HASH calculation, and methods which can be called to do the HASH calculation. This class facilitates easily writing a 'hash driver' script in python. See below for details.
 
 Note: As stated in the in-code docs,  the current code is based on the 'hashdriver2' script, and as such, does not utilize the 'amp' routines for S/P amplitude measurements. This will most likely be added in the near future. If someone wants to take it upon themselves to add the compiler directives in the source and the methods to the HashPype class, throw me a pull request.
