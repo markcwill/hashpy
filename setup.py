@@ -41,7 +41,7 @@ if 'antelope' in sys.executable:
 
 ### SETUP ####################################################################
 s_args = {'name'         : 'HASHpy',
-          'version'      : '0.5.6',
+          'version'      : '0.6.0',
           'description'  : 'Routines for running HASH algorithms',
           'author'       : 'Mark Williams',
           'url'          : 'https//github.com/markcwill/hashpy',
