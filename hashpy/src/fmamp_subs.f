@@ -40,6 +40,24 @@ c input and output arrays
       integer p_pol(npsta)
       save dangold,nrot,b1,b2,b3    
       save amptable,phitable,thetable
+cf2py intent(in)  p_azi_mc
+cf2py intent(in)  p_the_mc
+cf2py intent(in)  sp_amp
+cf2py intent(in)  p_pol
+cf2py intent(in)  npsta
+cf2py intent(in)  nmc
+cf2py intent(in)  dang
+cf2py intent(in)  maxout
+cf2py intent(in)  nextra
+cf2py intent(in)  ntotal
+cf2py intent(in)  qextra
+cf2py intent(in)  qtotal
+cf2py intent(out)  nf
+cf2py intent(out)  strike
+cf2py intent(out)  dip
+cf2py intent(out)  rake
+cf2py intent(out)  faults
+cf2py intent(out)  slips
 
 c coordinate transformation arrays
       real b1(3,ncoor),bb1(3)
@@ -328,6 +346,17 @@ c               stdr = station distribution ratio
 
       subroutine GET_MISF_AMP(npol,p_azi_mc,p_the_mc,sp_ratio,p_pol,
      &          str_avg,dip_avg,rak_avg,mfrac,mavg,stdr)
+cf2py intent(in)  npol
+cf2py intent(in)  p_azi_mc
+cf2py intent(in)  p_the_mc
+cf2py intent(in)  sp_ratio
+cf2py intent(in)  p_pol
+cf2py intent(in)  str_avg
+cf2py intent(in)  dip_avg
+cf2py intent(in)  rak_avg
+cf2py intent(out)  mfrac
+cf2py intent(out)  mavg
+cf2py intent(out)  stdr
 
       dimension p_azi_mc(npol),p_the_mc(npol)
       real str_avg,dip_avg,rak_avg,M(3,3),a(3),b(3),sp_ratio(npol)
