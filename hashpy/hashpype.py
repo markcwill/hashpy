@@ -20,7 +20,7 @@ import os
 from pwd import getpwuid
 from hashpy.io.core import Inputter, Outputter
 from hashpy.libhashpy import (mk_table_add, angtable, ran_norm, get_tts, get_gap,
-    focalmc, mech_prob, get_misf,)
+    focalmc, mech_prob, get_misf, focalamp_mc, get_misf_amp)
 
 def parameter(**kwargs):
     """
@@ -103,11 +103,11 @@ class HashPype(object):
     pickonset = None
     p_pol     = None
     p_qual    = None
-    spol      = None
     p_azi_mc  = None
     p_the_mc  = None
     index     = None
     qdep2     = None
+    sp_ratio  = None
     
     # Output arrays
     f1norm  = None
@@ -121,6 +121,7 @@ class HashPype(object):
     var_est = None
     var_avg = None
     mfrac   = None
+    mavg    = None
     stdr    = None
     prob    = None
     qual    = None
@@ -138,6 +139,8 @@ class HashPype(object):
     delmax   = 500  # Enter maximum allowed source-station distance, in km (e.g., 120)
     cangle   = 45   # Enter angle for computing mechanisms probability, in degrees (e.g., 45)
     prob_max = 0.1  # Enter probability threshold for multiples (e.g., 0.1)
+    ratmin   = 3.0  # Enter minimum allowed signal-to-noise ratio
+    qbadfrac = 0.3  # Enter the assumed noise in amplitude ratios, log10 (e.g. 0.3 for factor of 2)
     #----------------------------------------------------------------
     
     # Mark's spec'd object variables
@@ -147,10 +150,11 @@ class HashPype(object):
     arid    = None    # unique number for each pick...
     author  = None    # logged in user
     
-    
     # Variables HASH keeps internally, for ref and passing to fxns
     ntab = 0     # number of tables loaded
-    npol = 0     # number of polarity picks
+    npol = 0     # number of observations
+    nppl = 0     # number of p polarities
+    nspr = 0     # number of s/p ratios
     dist = None  # distance from source im km
     qazi = None  # azimuth from event to station
     flat = None  # pick station lat
@@ -169,7 +173,8 @@ class HashPype(object):
     icusp   = None
     seh     = None
     sez     = None
-    
+    rms     = None
+    terr    = None
     
     # polarity reversals, [-1,1] stub for now
     spol = 1
@@ -225,6 +230,7 @@ class HashPype(object):
         self.p_pol     = np.empty(npick0, int, 'F')
         self.p_qual    = np.empty(npick0, int, 'F')
         self.spol      = np.empty(npick0, int, 'F')
+        self.sp_ratio  = np.empty(npick0, float, 'F')
         self.p_azi_mc  = np.empty((npick0,nmc0), float, 'F')
         self.p_the_mc  = np.empty((npick0,nmc0), float, 'F')
         self.index     = np.empty(nmc0, int, 'F')
@@ -242,6 +248,7 @@ class HashPype(object):
         self.var_est = np.empty((2,5), float, 'F')
         self.var_avg = np.empty(5, float, 'F')
         self.mfrac   = np.empty(5, float, 'F')
+        self.mavg    = np.empty(5, float, 'F')
         self.stdr    = np.empty(5, float, 'F')
         self.prob    = np.empty(5, float, 'F')
         self.qual    = np.empty(5, 'a', 'F')
@@ -384,31 +391,46 @@ class HashPype(object):
         else:
             return True
     
-    def calculate_hash_focalmech(self):
+    def calculate_hash_focalmech(self, use_amplitudes=False):
         """
         Run the actual focal mech calculation, and find the probable mech
+
+        use_amplitudes : bool of whether to use the 'focalamp_mc' routine
         """
-        # determine maximum acceptable number misfit polarities
-        nmismax = max(int(self.npol * self.badfrac),2)        # nint
-        nextra  = max(int(self.npol * self.badfrac * 0.5),2)  # nint
+        if use_amplitudes:
+            # determine maximum acceptable number misfit polarities
+            nmismax = max(int(self.nppl * self.badfrac),2)        # nint
+            nextra  = max(int(self.nppl * self.badfrac * 0.5),2)  # nint
+            qmismax = max(int(self.nspr * self.qbadfrac),2)        # nint
+            qextra  = max(int(self.nspr * self.qbadfrac * 0.5),2)  # nint
+            # find the set of acceptable focal mechanisms for all trials
+            self.nf2, self.strike2, self.dip2, self.rake2, self.f1norm, self.f2norm = focalamp_mc(self.p_azi_mc, self.p_the_mc, self.sp_ratio[:self.npol], self.p_pol[:self.npol], self.nmc, self.dang2, self.nmax0, nextra, nmismax, self.qextra, self.qmismax, self.npol)
+        else:
+            # determine maximum acceptable number misfit polarities
+            nmismax = max(int(self.npol * self.badfrac),2)        # nint
+            nextra  = max(int(self.npol * self.badfrac * 0.5),2)  # nint
+            
+            # find the set of acceptable focal mechanisms for all trials
+            self.nf2, self.strike2, self.dip2, self.rake2, self.f1norm, self.f2norm = focalmc(self.p_azi_mc, self.p_the_mc, self.p_pol[:self.npol], self.p_qual[:self.npol], self.nmc, self.dang2, self.nmax0, nextra, nmismax, self.npol)
         
-        # find the set of acceptable focal mechanisms for all trials
-        self.nf2, self.strike2, self.dip2, self.rake2, self.f1norm, self.f2norm = focalmc(self.p_azi_mc, self.p_the_mc, self.p_pol[:self.npol], self.p_qual[:self.npol], self.nmc, self.dang2, self.nmax0, nextra, nmismax, self.npol)
         self.nout2 = min(self.nmax0, self.nf2)  # number mechs returned from sub
         self.nout1 = min(self.maxout, self.nf2) # number mechs to return
         
         # find the probable mechanism from the set of acceptable solutions
         self.nmult, self.str_avg, self.dip_avg, self.rak_avg, self.prob, self.var_est = mech_prob(self.f1norm[:,:self.nout2], self.f2norm[:,:self.nout2], self.cangle, self.prob_max, self.nout2) # nout2
     
-    def calculate_quality(self):
+    def calculate_quality(self, use_amplitudes=False):
         """
         Do the quality calulations
         """
         for imult in range(self.nmult):
             self.var_avg[imult] = (self.var_est[0,imult] + self.var_est[1,imult]) / 2.
-            #print 'cid = {0} {1}  mech = {2} {3} {4}'.format(self.icusp, imult, self.str_avg[imult], self.dip_avg[imult], self.rak_avg[imult])
-            # find misfit for prefered solution
-            self.mfrac[imult], self.stdr[imult] = get_misf(self.p_azi_mc[:self.npol,0], self.p_the_mc[:self.npol,0], self.p_pol[:self.npol], self.p_qual[:self.npol], self.str_avg[imult], self.dip_avg[imult], self.rak_avg[imult], self.npol) # npol
+            
+            if use_amplitudes:
+                self.mfrac[imult], self.mavg[imult], self.stdr[imult] = get_misf_amp(self.p_azi_mc[:self.npol,0], self.p_the_mc[:self.npol,0], self.sp_ratio[:self.npol], self.p_pol[:self.npol], self.str_avg[imult], self.dip_avg[imult], self.rak_avg[imult], self.npol) # npol
+            else:
+                # find misfit for prefered solution
+                self.mfrac[imult], self.stdr[imult] = get_misf(self.p_azi_mc[:self.npol,0], self.p_the_mc[:self.npol,0], self.p_pol[:self.npol], self.p_qual[:self.npol], self.str_avg[imult], self.dip_avg[imult], self.rak_avg[imult], self.npol) # npol
             
             # HASH default solution quality rating
             if ((self.prob[imult] > 0.8) and (self.var_avg[imult] < 25) and (self.mfrac[imult] <= 0.15) and (self.stdr[imult] >= 0.5)):
@@ -436,11 +458,17 @@ class HashPype(object):
 
     def driver2(self, check_for_minimum_picks=True, check_for_maximum_gap_size=True):
         """
-        This approximately acts like the "hash_driver2.f" program in the original HASH code
+        Convenience method for hash_driver2
+        
+        This approximately acts like the "hash_driver2.f" program in the original HASH code.
+        One must first input data from one's chosen sources. This method will generate tables,
+        trial data, and takeoff angles from velocity models, don't use it if you make your own.
         
         """
         # Generate preliminary data for run
         self.load_velocity_models() # file list in 'self.vmodels'
+        if not self.ntab:
+            raise RuntimeWarning("No velocity tables loaded, continuing would be futile!")
         self.generate_trial_data()
         self.calculate_takeoff_angles()
         
@@ -455,12 +483,38 @@ class HashPype(object):
 
         self.calculate_hash_focalmech()
         self.calculate_quality()
+    
+    def driver3(self, check_for_minimum_picks=True, check_for_maximum_gap_size=True):
+        """
+        Convenience method for hash_driver3
+        
+        This approximately acts like the "hash_driver3.f" program in the original HASH code.
+        One must first input data from one's chosen sources. This method will generate tables,
+        trial data, and takeoff angles from velocity models, don't use it if you make your own.
+        
+        NOT TESTED!!
+        """
+        # Generate preliminary data for run
+        self.load_velocity_models() # file list in 'self.vmodels'
+        if not self.ntab:
+            raise RuntimeWarning("No velocity tables loaded, continuing would be futile!")
+        self.generate_trial_data()
+        self.calculate_takeoff_angles()
+        
+        pass1 = self.check_minimum_polarity()
+        pass2 = self.check_maximum_gap()
+        
+        # If it passes checks, run HASH
+        if check_for_minimum_picks and not pass1:
+            raise ValueError("Didn't pass check: # picks = {0} | Minimum = {1}".format(self.npol, self.npolmin))
+        if check_for_maximum_gap_size and not pass2:
+            raise ValueError("Didn't pass check: agap/pgap = {0}/{1} | Max allowed = {2}/{3}".format(self.magap, self.mpgap, self.max_agap, self.max_pgap))
 
-class HashError(Exception):
+        self.calculate_hash_focalmech(use_amplitudes=True)
+        self.calculate_quality(use_amplitudes=True)
+
+
+class HashError(StandardError):
     """Throw this if something happens while running"""
     pass
-
-
-
-
 
