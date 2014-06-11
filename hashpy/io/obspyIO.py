@@ -121,7 +121,7 @@ def outputOBSPY(hp, event=None, only_fm_picks=False):
 	for _i in range(n):
 	    p = Pick()
 	    p.creation_info = CreationInfo(version=hp.arid[_i])
-	    p.resource_id = ResourceIdentifier('smi:nsl/Pick/{0}'.format(p.creation_info.version))
+	    p.resource_id = ResourceIdentifier('smi:hash/Pick/{0}'.format(p.creation_info.version))
 	    p.waveform_id = WaveformStreamID(network_code=hp.snet[_i], station_code=hp.sname[_i], channel_code=hp.scomp[_i])
 	    if hp.p_pol[_i] > 0:
 		p.polarity = 'positive'
@@ -129,14 +129,14 @@ def outputOBSPY(hp, event=None, only_fm_picks=False):
 		p.polarity = 'negative'
 	    a = Arrival()
 	    a.creation_info = CreationInfo(version=hp.arid[_i])
-	    a.resource_id = ResourceIdentifier('smi:nsl/Arrival/{0}'.format(p.creation_info.version))
+	    a.resource_id = ResourceIdentifier('smi:hash/Arrival/{0}'.format(p.creation_info.version))
 	    a.azimuth = hp.p_azi_mc[_i,0]
 	    a.takeoff_angle = 180. - hp.p_the_mc[_i,0]
 	    a.pick_id = p.resource_id
 	    origin.arrivals.append(a)
 	    event.picks.append(p)
 	event.origins.append(origin)
-	event.preferred_origin_id = origin.resource_id.resource_id
+	event.preferred_origin_id = str(origin.resource_id)
     else: # just update the changes
 	origin = event.preferred_origin()
 	picks = []
@@ -173,11 +173,11 @@ def outputOBSPY(hp, event=None, only_fm_picks=False):
         focal_mech.misfit = hp.mfrac[s]
         focal_mech.station_distribution_ratio = hp.stdr[s]
         focal_mech.comments.append(
-            Comment(hp.qual[s], resource_id=ResourceIdentifier(focal_mech.resource_id.resource_id + '/comment/quality'))
+            Comment(hp.qual[s], resource_id=ResourceIdentifier(str(focal_mech.resource_id) + '/comment/quality'))
             )
         #----------------------------------------
         event.focal_mechanisms.append(focal_mech)
         if s == x:
-            event.preferred_focal_mechanism_id = focal_mech.resource_id.resource_id
+            event.preferred_focal_mechanism_id = str(focal_mech.resource_id)
     return event
     
