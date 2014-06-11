@@ -11,7 +11,7 @@ from numpy.distutils.core import setup, Extension
 # Build extension from FORTRAN source of HASH subroutines
 # (based on the fucntion numpy.f2py.f2py2e.run_compile)
 srcdir = os.path.join('hashpy', 'src')
-srcf = ['fmech_subs.f', 'uncert_subs.f', 'util_subs.f',
+srcf = ['fmamp_subs.f', 'fmech_subs.f', 'uncert_subs.f', 'util_subs.f',
         'pol_subs.f', 'vel_subs.f', 'station_subs.f', 'vel_subs2.f']
 src_list = [os.path.join(srcdir, src) for src in srcf]
 ext_args = {'sources': src_list}
@@ -41,7 +41,7 @@ if 'antelope' in sys.executable:
 
 ### SETUP ####################################################################
 s_args = {'name'         : 'HASHpy',
-          'version'      : '0.5.6',
+          'version'      : '0.6.0',
           'description'  : 'Routines for running HASH algorithms',
           'author'       : 'Mark Williams',
           'url'          : 'https//github.com/markcwill/hashpy',
