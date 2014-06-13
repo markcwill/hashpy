@@ -237,16 +237,16 @@ subroutine GET_TTS(ip, del, qdep, tt, iflag)
 !           nd     =  number of source depths in table
     common /angtable/ t, x, d, nx, nd
 
-!
-! check if outside depth range
+    !
+    ! check if outside depth range
     if (qdep < d(1) .or. qdep > d(nd0)) then
         iflag = -1
         tt = 999
-        print *,'*** event outside of velocity table depth range, &
-            event depth=',qdep,' table range=',d(1),d(nd0)
+        print *,'*** event outside of velocity table depth range', &
+            ' event depth=',qdep,' table range=',d(1),d(nd0)
         return
     end if
-! first check to see if interpolation alone will work
+    ! first check to see if interpolation alone will work
     d30: do id=2, nd
         if (d(id) < qdep) cycle d30
         id1 = id-1
@@ -276,7 +276,7 @@ subroutine GET_TTS(ip, del, qdep, tt, iflag)
     dfrac = (qdep-d(id1))/(d(id2)-d(id1))
     tt = t1 + dfrac*(t2-t1)
     return
-! extrapolate to get tt
+    ! extrapolate to get tt
 50  iflag = 1
     xoffmin1 = 999.
     xoffmin2 = 999.
@@ -368,7 +368,7 @@ subroutine LAYERTRACE(p1,h1,utop1,ubot1,imth,dx1,dt1,irtr)
     q = y*(u + p)
     qs = dsqrt(q)
 !
-! special function needed for integral at top of layer
+    ! special function needed for integral at top of layer
     if (imth == 2) then
         y = u + qs
         if (p /= 0.) y = y/p
@@ -395,7 +395,7 @@ subroutine LAYERTRACE(p1,h1,utop1,ubot1,imth,dx1,dt1,irtr)
         go to 160
     end if
 !
-! integral at upper limit, 1/b factor omitted until end
+    ! integral at upper limit, 1/b factor omitted until end
     if (imth == 1) then
         etau = -q*qs/3.
         ex = -qs*p
@@ -408,7 +408,7 @@ subroutine LAYERTRACE(p1,h1,utop1,ubot1,imth,dx1,dt1,irtr)
         ex = qr
     end if
 !
-! check lower limit to see if we have turning point
+    ! check lower limit to see if we have turning point
     u = ubot
     if (u <= p) then   !if turning point,
         irtr = 2          !then no contribution

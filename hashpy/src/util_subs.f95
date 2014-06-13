@@ -30,7 +30,7 @@ subroutine TO_CAR(the, phi, r, x, y, z)
       x= r * sin(the*degrad) * cos(phi*degrad)
       y= r * sin(the*degrad) * sin(phi*degrad)
       return
-end
+end subroutine
 !--------------------------------------------------------------!
 
 
