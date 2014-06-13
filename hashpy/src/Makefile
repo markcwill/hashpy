@@ -3,8 +3,8 @@
 # - Mark Williams 2012.320
 # Based on HASH Makefile
 
-SRC=    fmech_subs.f uncert_subs.f util_subs.f \
-        pol_subs.f vel_subs.f station_subs.f vel_subs2.f
+SRC=    fmamp_subs.f95 fmech_subs.f95 uncert_subs.f95 util_subs.f95 \
+        pol_subs.f95 vel_subs.f95 station_subs.f95 vel_subs2.f95
 
 # HASHpype library module:
 hashpy: libhashpy.so
