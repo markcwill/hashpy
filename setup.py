@@ -11,8 +11,8 @@ from numpy.distutils.core import setup, Extension
 # Build extension from FORTRAN source of HASH subroutines
 # (based on the fucntion numpy.f2py.f2py2e.run_compile)
 srcdir = os.path.join('hashpy', 'src')
-srcf = ['fmamp_subs.f', 'fmech_subs.f', 'uncert_subs.f', 'util_subs.f',
-        'pol_subs.f', 'vel_subs.f', 'station_subs.f', 'vel_subs2.f']
+srcf = ['fmamp_subs.f95', 'fmech_subs.f95', 'uncert_subs.f95', 'util_subs.f95',
+        'pol_subs.f95', 'vel_subs.f95', 'station_subs.f95', 'vel_subs2.f95']
 src_list = [os.path.join(srcdir, src) for src in srcf]
 ext_args = {'sources': src_list}
 
@@ -47,7 +47,7 @@ s_args = {'name'         : 'HASHpy',
           'url'          : 'https//github.com/markcwill/hashpy',
           'packages'     : ['hashpy', 'hashpy.io', 'hashpy.plotting'],
           'package_data' : {'hashpy': ['src/*.inc','src/Makefile','data/*',
-                                       'scripts/*', 'src/*.f']},
+                                       'scripts/*', 'src/*.f959595959595959595']},
           'ext_modules'  : [Extension('hashpy.libhashpy', **ext_args)],
 }
 ##############################################################################

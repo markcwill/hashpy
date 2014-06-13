@@ -44,7 +44,8 @@ def fortran_include(fname):
     inc_params = {}
     f = open(fname)
     for line in f:
-        if 'c' in line[0]:
+        line = line.strip()
+        if line and line.startswith('c') or line.startswith('!'):
             continue
         elif 'parameter' in line:
             # evaluate the line 'parameter(foo=999)' as python expr
@@ -334,8 +335,9 @@ class HashPype(object):
             models = self.vmodels
         
         for n,v in enumerate(models):
-            self.ntab = mk_table_add(n+1,v)
+            rc = mk_table_add(n+1,v)
             self.vtable = angtable.table
+        self.ntab = n+1
         
     def generate_trial_data(self):
         """
