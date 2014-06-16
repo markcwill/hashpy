@@ -6,9 +6,14 @@
 #
 # Class to run HASHpy using Antelope database I/O
 #
-import os.path
+import os
 import numpy as np
-from antelope.datascope import Dbptr, dbtmp, dblookup, dbprocess
+try:
+    from antelope.datascope import Dbptr, dbtmp, dblookup, dbprocess
+except ImportError:
+    import sys
+    sys.path.append(os.path.join(os.environ['ANTELOPE'], 'data', 'python'))
+    from antelope.datascope import Dbptr, dbtmp, dblookup, dbprocess
 
 # for HASH compatiblity, change later.
 degrad = 180. / np.pi

@@ -2,38 +2,36 @@
 """
 Module to call and run HASH subroutines in Fortran
  
-    Contains: HashPype
-    First motion focal mechanism class for running HASH
+    Contains: HashPype, HashError
+    First motion focal mechanism classes for running HASH
 
 
 :copyright:
     Mark Williams (2013) 
     Nevada Seismological Laboratory
 
+Much of the code contains comments from the original HASH drivers, and
+the inline docs contain information on the methods and issues/caveats when
+using this version of HASH.
 """
-
-# import all Fortran subroutines and common blocks from the mod
-# plus my custom utils and numpy arrays
-
-import numpy as np
 import os
 from pwd import getpwuid
-from hashpy.io.core import Inputter, Outputter
+
+import numpy as np
+
+from hashpy.io.core import IOFunction
 from hashpy.libhashpy import (mk_table_add, angtable, ran_norm, get_tts, get_gap,
     focalmc, mech_prob, get_misf, focalamp_mc, get_misf_amp)
 
-def parameter(**kwargs):
-    """
-    Returns variables inside a fortran 'parameter' call
-    """
-    return kwargs
 
 def fortran_include(fname):
     """
-    Fortran include
+    Fortran 'include' function
     
-    Quickie for access to 'include' files, needed for access to
-    parameters useful for interacting with f2py wrapped functions
+    Quickie for access to Fortran 'inc' files, needed for access to
+    parameters useful for interacting with f2py wrapped functions. This
+    function tries to grab any variable from a 'parameter' statement and 
+    return them all in a Python dict.
     
     Input
     -----
@@ -41,18 +39,18 @@ def fortran_include(fname):
     
     Returns : dict of parameters described in any 'parameter' call
     """
-    inc_params = {}
-    f = open(fname)
-    for line in f:
-        line = line.strip()
-        if line and line.startswith('c') or line.startswith('!'):
-            continue
-        elif 'parameter' in line:
-            # evaluate the line 'parameter(foo=999)' as python expr
-            inc_params.update(eval(line))
-        else:
-            pass
-    f.close()
+    parameter = dict 
+    inc_params = parameter()
+    
+    with open(fname) as f:
+        for line in f:
+            line = line.strip()  # TODO: split on '!' if inline comments
+            if line and line.startswith('c') or line.startswith('!'):
+                continue
+            elif 'parameter' in line:
+                inc_params.update(eval(line))  # eval 'parameter(a=1)'
+            else:
+                pass
     return inc_params
     
     
@@ -80,8 +78,8 @@ class HashPype(object):
       view_polarity_data()
       check_minimum_polarity()
       check_maximum_gap()
-      calculate_hash_focalmech()
-      calculate_quality()
+      calculate_hash_focalmech(use_amplitudes=True)
+      calculate_quality(use_amplitudes=True)
       output(format=None, *args, **kwargs)
 
       driver2(check_for_minimum_picks=True, check_for_maximum_gap_size=True)
@@ -144,12 +142,12 @@ class HashPype(object):
     qbadfrac = 0.3  # Enter the assumed noise in amplitude ratios, log10 (e.g. 0.3 for factor of 2)
     #----------------------------------------------------------------
     
-    # Mark's spec'd object variables
+    # HashPype object variables
     vmodel_dir = None # string of directory containing velocity models
     vmodels = []      # list of string names of velocity model files
-    vtables = None    # actual travel time tables in common block
-    arid    = None    # unique number for each pick...
-    author  = None    # logged in user
+    vtables = None    # array of actual travel time tables in common block
+    arid    = None    # array of unique number for each pick...
+    author  = None    # str of logged in user
     
     # Variables HASH keeps internally, for ref and passing to fxns
     ntab = 0     # number of tables loaded
@@ -177,7 +175,8 @@ class HashPype(object):
     rms     = None
     terr    = None
     
-    # polarity reversals, [-1,1] stub for now
+    # polarity reversals, [-1,1] stub for now. This should be checked
+    # per pick in any input routines, this class doesn't use it.
     spol = 1
     
     def __init__(self, **kwargs):
@@ -292,7 +291,7 @@ class HashPype(object):
         
         """
         try:
-            inputter = Inputter(format=format)
+            inputter = IOFunction('input', format=format)
         except ImportError as ierr:
             raise ImportError("Couldn't import module for the format {0}: {1}".format(format, ierr.message))
         inputter(self, data, *args, **kwargs)
@@ -307,10 +306,12 @@ class HashPype(object):
         :params str format: A format type registered in `hashpy.io` module
 
         """
+        if format is None:
+            format = 'hashpy.io.core'
         try:
-            outputter = Outputter(format=format)
-        except:
-            raise IOError("Can't find a module for the format {0}".format(format))
+            outputter = IOFunction('output', format=format)
+        except ImportError as ierr:
+            raise IOError("Failed getting output function for the format {0}: {1}".format(format, ierr.message))
         return outputter(self, *args, **kwargs)
         
     def load_velocity_models(self, model_list=None):
@@ -336,7 +337,7 @@ class HashPype(object):
         
         for n,v in enumerate(models):
             rc = mk_table_add(n+1,v)
-            self.vtable = angtable.table
+        self.vtable = angtable.table
         self.ntab = n+1
         
     def generate_trial_data(self):
@@ -379,10 +380,9 @@ class HashPype(object):
         """
         Polarity check
         """
-        if self.npol >= self.npolmin:
-            return True
-        else:
+        if self.npol < self.npolmin:
             return False
+        return True
     
     def check_maximum_gap(self):
         """
@@ -390,14 +390,20 @@ class HashPype(object):
         """
         if ((self.magap > self.max_agap) or (self.mpgap > self.max_pgap)):
             return False
-        else:
-            return True
+        return True
     
     def calculate_hash_focalmech(self, use_amplitudes=False):
         """
         Run the actual focal mech calculation, and find the probable mech
 
-        use_amplitudes : bool of whether to use the 'focalamp_mc' routine
+        use_amplitudes : bool of whether to use the 'focalamp_mc' routine (False)
+        
+        Notes
+        =====
+        If 'use_amplitudes' is True, run the Fortran subroutines which include S/P amplitude
+        calculations, if False (the default), use the sub for just first-motion picks. To use
+        the amplitudes, you MUST have loaded them properly into the arrays. See HASH doc for
+        details.
         """
         if use_amplitudes:
             # determine maximum acceptable number misfit polarities
@@ -424,6 +430,13 @@ class HashPype(object):
     def calculate_quality(self, use_amplitudes=False):
         """
         Do the quality calulations
+        
+        use_amplitudes : bool of whether to use the 'get_misf_amp' routine (False)
+
+        Notes
+        =====
+        If 'use_amplitudes' is True, run the Fortran subroutines which include S/P amplitude
+        calculations, if False (the default), use the sub for just first-motion picks.
         """
         for imult in range(self.nmult):
             self.var_avg[imult] = (self.var_est[0,imult] + self.var_est[1,imult]) / 2.
@@ -457,7 +470,9 @@ class HashPype(object):
         # todo: make more sophisticated "Best" function
         return self.qual[:self.nmult].argsort()[0]
 
-
+    #
+    # Convenience methods for running common 'driver' analyses after loading data/config.
+    # -----------------------------------------------------------------------------------
     def driver2(self, check_for_minimum_picks=True, check_for_maximum_gap_size=True):
         """
         Convenience method for hash_driver2
