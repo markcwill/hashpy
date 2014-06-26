@@ -8,7 +8,7 @@ Calulator for getting double couple information
 
 """
 
-import numpy as np
+import math
 
 class NodalPlane(list):
     """
@@ -177,7 +177,7 @@ class DoubleCouple(object):
         str2 = dd2 - 90;
         '''
         # Constants, mostly unnecessary, fix later:
-        # e.g. M_PI = np.pi
+        # e.g. M_PI = math.pi
         EPSIL   = .0001
         M_PI    = 3.14159265358979323846
         M_PI_2  = 1.57079632679489661923
@@ -191,15 +191,15 @@ class DoubleCouple(object):
         im = 0
         pure_strike_slip = 0
         
-        if abs(np.sin(sa1 * D2R)) > EPSIL:
+        if abs(math.sin(sa1 * D2R)) > EPSIL:
             im = sa1 / abs(sa1)
-        elif abs(np.sin(sa2 * D2R)) > EPSIL:
+        elif abs(math.sin(sa2 * D2R)) > EPSIL:
             im = sa2 / abs(sa2)
         else:
             pure_strike_slip = 1
         
         if pure_strike_slip:
-            if np.cos(sa1 * D2R) < 0:
+            if math.cos(sa1 * D2R) < 0:
                 pp = cls.zero_360(str1 + 45)
                 pt = cls.zero_360(str1 - 45)
             else:
@@ -208,20 +208,20 @@ class DoubleCouple(object):
             dp = 0
             dt = 0
         else:
-            cd1 = np.cos(da1 * D2R) *  M_SQRT2
-            sd1 = np.sin(da1 * D2R) *  M_SQRT2
-            cd2 = np.cos(da2 * D2R) *  M_SQRT2
-            sd2 = np.sin(da2 * D2R) *  M_SQRT2
-            cp1 = -(np.cos(str1 * D2R)) * sd1
-            sp1 = np.sin(str1 * D2R) * sd1
-            cp2 = -(np.cos(str2 * D2R)) * sd2
-            sp2 = np.sin(str2 * D2R) * sd2
+            cd1 = math.cos(da1 * D2R) *  M_SQRT2
+            sd1 = math.sin(da1 * D2R) *  M_SQRT2
+            cd2 = math.cos(da2 * D2R) *  M_SQRT2
+            sd2 = math.sin(da2 * D2R) *  M_SQRT2
+            cp1 = -(math.cos(str1 * D2R)) * sd1
+            sp1 = math.sin(str1 * D2R) * sd1
+            cp2 = -(math.cos(str2 * D2R)) * sd2
+            sp2 = math.sin(str2 * D2R) * sd2
             
             amz = -(cd1 + cd2)
             amx = -(sp1 + sp2)
             amy =   cp1 + cp2
-            dx  = np.arctan2(np.sqrt(amx * amx + amy * amy), amz) - M_PI_2
-            px  = np.arctan2(amy, -amx)
+            dx  = math.atan2(math.sqrt(amx * amx + amy * amy), amz) - M_PI_2
+            px  = math.atan2(amy, -amx)
 
             if px < 0:
                 px += TWO_PI
@@ -229,8 +229,8 @@ class DoubleCouple(object):
             amz   = cd1 - cd2
             amx   = sp1 - sp2
             amy   = - cp1 + cp2
-            dy = np.arctan2(np.sqrt(amx * amx + amy * amy), -abs(amz)) - M_PI_2
-            py = np.arctan2(amy, -amx)
+            dy = math.atan2(math.sqrt(amx * amx + amy * amy), -abs(amz)) - M_PI_2
+            py = math.atan2(amy, -amx)
 
             if amz > 0:
                 py -= M_PI
@@ -268,20 +268,20 @@ class DoubleCouple(object):
         `bb.m <http://www.ceri.memphis.edu/people/olboyd/Software/Software.html>`_
         written by Andy Michael and Oliver Boyd.
         """
-        r2d = 180 / np.pi
+        r2d = 180 / math.pi
         if u < 0:
             n = -n
             e = -e
             u = -u
 
-        strike = np.arctan2(e, n) * r2d
+        strike = math.atan2(e, n) * r2d
         strike = strike - 90
         while strike >= 360:
                 strike = strike - 360
         while strike < 0:
                 strike = strike + 360
-        x = np.sqrt(np.power(n, 2) + np.power(e, 2))
-        dip = np.arctan2(x, u) * r2d
+        x = math.sqrt(math.pow(n, 2) + math.pow(e, 2))
+        dip = math.atan2(x, u) * r2d
         return (strike, dip)
 
     @classmethod
@@ -293,27 +293,27 @@ class DoubleCouple(object):
         `bb.m <http://www.ceri.memphis.edu/people/olboyd/Software/Software.html>`_
         written by Andy Michael and Oliver Boyd.
         """
-        r2d = 180 / np.pi
+        r2d = 180 / math.pi
 
         z = (s1 + 90) / r2d
         z2 = d1 / r2d
         z3 = r1 / r2d
         # slick vector in plane 1
-        sl1 = -np.cos(z3) * np.cos(z) - np.sin(z3) * np.sin(z) * np.cos(z2)
-        sl2 = np.cos(z3) * np.sin(z) - np.sin(z3) * np.cos(z) * np.cos(z2)
-        sl3 = np.sin(z3) * np.sin(z2)
+        sl1 = -math.cos(z3) * math.cos(z) - math.sin(z3) * math.sin(z) * math.cos(z2)
+        sl2 = math.cos(z3) * math.sin(z) - math.sin(z3) * math.cos(z) * math.cos(z2)
+        sl3 = math.sin(z3) * math.sin(z2)
         (strike, dip) = cls.get_strike_dip(sl2, sl1, sl3)
 
-        n1 = np.sin(z) * np.sin(z2)  # normal vector to plane 1
-        n2 = np.cos(z) * np.sin(z2)
+        n1 = math.sin(z) * math.sin(z2)  # normal vector to plane 1
+        n2 = math.cos(z) * math.sin(z2)
         h1 = -sl2  # strike vector of plane 2
         h2 = sl1
         # note h3=0 always so we leave it out
         # n3 = np.cos(z2)
 
         z = h1 * n1 + h2 * n2
-        z = z / np.sqrt(h1 * h1 + h2 * h2)
-        z = np.arccos(z)
+        z = z / math.sqrt(h1 * h1 + h2 * h2)
+        z = math.acos(z)
         rake = 0
         if sl3 > 0:
             rake = z * r2d
