@@ -3,8 +3,19 @@
 #
 import sys
 import os
+import inspect
+
 from numpy.distutils.core import setup, Extension
 
+
+SETUP_DIRECTORY = os.path.dirname(os.path.abspath(inspect.getfile(
+    inspect.currentframe())))
+
+# Import the version string.
+UTIL_PATH = os.path.join(SETUP_DIRECTORY, "hashpy", "util")
+sys.path.insert(0, UTIL_PATH)
+from version import get_git_version  # @UnresolvedImport
+sys.path.pop(0)
 
 #--- libhashpy Fortran extension --------------------------------------------#
 #
@@ -41,13 +52,17 @@ if 'antelope' in sys.executable:
 
 ### SETUP ####################################################################
 s_args = {'name'         : 'HASHpy',
-          'version'      : '0.6.0',
+          'version'      : get_git_version(),
           'description'  : 'Routines for running HASH algorithms',
           'author'       : 'Mark Williams',
           'url'          : 'https//github.com/markcwill/hashpy',
           'packages'     : ['hashpy', 'hashpy.io', 'hashpy.plotting'],
-          'package_data' : {'hashpy': ['src/*.inc','src/Makefile','data/*',
-                                       'scripts/*', 'src/*.f959595959595959595']},
+          'package_data' : {'hashpy': [
+                                'RELEASE-VERSION',
+                                'src/*.inc','src/Makefile','data/*',
+                                'scripts/*', 'src/*.f95'
+                                ]
+                            },
           'ext_modules'  : [Extension('hashpy.libhashpy', **ext_args)],
 }
 ##############################################################################
