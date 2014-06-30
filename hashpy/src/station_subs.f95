@@ -21,16 +21,9 @@
 !
 !
 subroutine GETSTAT_TRI(stlfile, snam, scom, snet, flat, flon, felev)
-!f2py intent(in)  stlfile
-!f2py intent(in)  snam
-!f2py intent(in)  scom 
-!f2py intent(in)  snet 
-!f2py intent(out) flat  
-!f2py intent(out) flon  
-!f2py intent(out) felev  
-    parameter(nsta0=20000)
+    integer, parameter :: nsta0 = 20000
 
-    character(len=100) :: stlfile
+    character(len=100), intent(in) :: stlfile
     character(len=4) :: snam, stname(nsta0)
     character(len=3) :: scom, scompt(nsta0), scom2
     character(len=2) :: snet, snetwk(nsta0)
@@ -39,6 +32,8 @@ subroutine GETSTAT_TRI(stlfile, snam, scom, snet, flat, flon, felev)
     logical :: firstcall
     save firstcall, stname, slat, slon, selev, nsta, scompt, snetwk
     data firstcall /.true./
+    intent(in) :: snam, scom, snet 
+    intent(out) :: flat, flon, felev
 
 
     ! read in station list - in alphabetical order!
@@ -64,9 +59,9 @@ subroutine GETSTAT_TRI(stlfile, snam, scom, snet, flat, flon, felev)
     d30: do it=1, 30
         i = (i1+i2)/2
         if (snam == stname(i)) then
-            goto 40
+            go to 40
         else if (i1 == i2) then
-            goto 999
+            go to 999
         else if (snam < stname(i)) then
             i2 = i-1
         else 
@@ -105,7 +100,6 @@ subroutine GETSTAT_TRI(stlfile, snam, scom, snet, flat, flon, felev)
     felev = 999.
     return
 end subroutine
-
 ! --------------------------------------------------------------- !
 
 
@@ -135,16 +129,10 @@ end subroutine
 !     15-18      i4     end of reversal: year
 !     19-20      i2                      month
 !     21-22      i2                      day
-
+!
 subroutine CHECK_POL(polfile,snam,evyr,evmon,evdy,evhr,stpol)
-!f2py intent(in) polfile
-!f2py intent(in) snam
-!f2py intent(in) evyr  
-!f2py intent(in) evmon  
-!f2py intent(in) evday 
-!f2py intent(in) evhr 
-!f2py intent(out) stpol   
-    parameter(nsta0=300)
+    
+    integer, parameter :: nsta0 = 300
     character(len=100) :: polfile, polfileold
     character(len=4) ::  snam, statname(nsta0)
     character(len=*), parameter :: fmtpol = '(a4,1x,i8,1x,i8)'
@@ -152,7 +140,8 @@ subroutine CHECK_POL(polfile,snam,evyr,evmon,evdy,evhr,stpol)
     integer :: evyr, evmon, evdy, evhr, stpol
     integer :: i, i1, i2, count, itemp, nrev, evtime
     save polfileold, statname, begtime, endtime, nrev, nstat, nth
-
+    intent(in) :: polfile, snam, evyr, evmon, evdy, evhr
+    intent(out) :: stpol
 
     ! read in polarity reversal file - in alphabetical order
     if (polfile /= polfileold) then
@@ -206,13 +195,13 @@ subroutine CHECK_POL(polfile,snam,evyr,evmon,evdy,evhr,stpol)
     else
         i1 = i+1
     end if
-    goto 20
+    go to 20
 30  continue
     return
 end subroutine
-
 ! ------------------------------------------------------------------- !
-      
+
+
 ! GET_COR reads a file of station amplitude corrections
 !
 !   inputs:
@@ -233,12 +222,8 @@ end subroutine
 !
 !
 subroutine GET_COR(stlfile,snam,scom,snet,qcor)
-!f2py intent(in) stlfile  
-!f2py intent(in) snam
-!f2py intent(in) scom  
-!f2py intent(in) snet  
-!f2py intent(out) qcor       
-    parameter(nsta0=10000)
+    
+    integer, parameter :: nsta0 = 10000
     character(len=100) ::  stlfile
     character(len=4) :: snam,stname(nsta0)
     character(len=3) :: scom,scom2,scompt(nsta0)
@@ -248,6 +233,8 @@ subroutine GET_COR(stlfile,snam,scom,snet,qcor)
     logical :: firstcall
     save firstcall, stname, corr_val, nsta, scompt, snetwk
     data firstcall /.true./
+    intent(in) :: stlfile, snam, scom, snet
+    intent(out) :: qcor
       
 ! read in station list - in alphabetical order!
     if (firstcall) then

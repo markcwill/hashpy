@@ -22,41 +22,26 @@
 !           faults(3,min(maxout,nf)) = fault normal vector
 !           slips(3,min(maxout,nf))  = slip vector
 !
-
 subroutine FOCALAMP_MC(p_azi_mc, p_the_mc, sp_amp, p_pol, npsta, nmc, &
                        dang, maxout, nextra, ntotal, qextra, qtotal,  &
                        nf, strike, dip, rake, faults, slips)
-!f2py intent(in)  p_azi_mc
-!f2py intent(in)  p_the_mc
-!f2py intent(in)  sp_amp
-!f2py intent(in)  p_pol
-!f2py intent(in)  npsta
-!f2py intent(in)  nmc
-!f2py intent(in)  dang
-!f2py intent(in)  maxout
-!f2py intent(in)  nextra
-!f2py intent(in)  ntotal
-!f2py intent(in)  qextra
-!f2py intent(in)  qtotal
-!f2py intent(out)  nf
-!f2py intent(out)  strike
-!f2py intent(out)  dip
-!f2py intent(out)  rake
-!f2py intent(out)  faults
-!f2py intent(out)  slips
      
     include 'param.inc'
     include 'rot.inc'
-    parameter (ntab=180) 
+    integer, parameter :: ntab = 180
 
     ! input and output arrays
-    real, dimension(npick0,nmc0) :: p_azi_mc, p_the_mc
-    real, dimension(npsta) :: sp_amp
+    real, dimension(npick0,nmc0), intent(in) :: p_azi_mc, p_the_mc
+    real, dimension(npsta), intent(in) :: sp_amp
+    integer, dimension(npsta), intent(in) :: p_pol
+    integer, intent(in) :: npsta, nmc, nextra, ntotal, qextra, qtotal
+    real, intent(in) :: dang
+    integer, intent(in out) :: nf, maxout
+    real, dimension(nmax0), intent(out) :: strike, dip, rake
+    real, dimension(3,nmax0), intent(out) :: faults, slips
+    
     real, dimension(npick0) :: p_a1, p_a2, p_a3
     real, dimension(3) :: faultnorm, slip
-    real, dimension(3,nmax0) :: faults, slips
-    real, dimension(nmax0) :: strike, dip, rake
-    integer, dimension(npsta) :: p_pol
     save dangold, nrot, b1, b2, b3    
     save amptable, phitable, thetable
 
@@ -80,82 +65,82 @@ subroutine FOCALAMP_MC(p_azi_mc, p_the_mc, sp_amp, p_pol, npsta, nmc, &
     end if
 
     ! Set up array with direction cosines for all coordinate transformations
-    if (dang == dangold) go to 8  ! See fmech_subs for possible fix for this goto -MCW
-    irot = 0
-    d5: do ithe=0, int(90.1/dang)
-        the = real(ithe)*dang
-        rthe = the/degrad
-        costhe = cos(rthe)
-        sinthe = sin(rthe)
-        fnumang = 360./dang
-        numphi = nint(fnumang*sin(rthe))
-        if (numphi /= 0) then
-            dphi = 360./float(numphi)
-        else
-            dphi = 10000.
-        end if
-        d4: do iphi=0, int(359.9/dphi)
-            phi = real(iphi)*dphi
-            rphi = phi/degrad
-            cosphi = cos(rphi)
-            sinphi = sin(rphi)
-            bb3(3) = costhe
-            bb3(1) = sinthe*cosphi
-            bb3(2) = sinthe*sinphi
-            bb1(3) = -sinthe
-            bb1(1) = costhe*cosphi
-            bb1(2) = costhe*sinphi
-            call CROSS(bb3, bb1, bb2)
-            d3: do izeta = 0, int(179.9/dang)
-                zeta = real(izeta)*dang
-                rzeta = zeta/degrad
-                coszeta = cos(rzeta)
-                sinzeta = sin(rzeta)
-                irot = irot+1
-                if (irot > ncoor) then
-                    print *,'***FOCAL error: # of rotations too big'
-                    return
-                end if
-                b3(3,irot) = bb3(3)
-                b3(1,irot) = bb3(1)
-                b3(2,irot) = bb3(2)
-                b1(1,irot) = bb1(1)*coszeta + bb2(1)*sinzeta
-                b1(2,irot) = bb1(2)*coszeta + bb2(2)*sinzeta                
-                b1(3,irot) = bb1(3)*coszeta + bb2(3)*sinzeta
-                b2(1,irot) = bb2(1)*coszeta - bb1(1)*sinzeta
-                b2(2,irot) = bb2(2)*coszeta - bb1(2)*sinzeta                
-                b2(3,irot) = bb2(3)*coszeta - bb1(3)*sinzeta
-            end do d3
-        end do d4
-    end do d5
-    nrot = irot
-    dangold = dang
-      
-    astep = 1./real(ntab)
-    d150: do i=1, 2*ntab+1
-        bbb3 = -1. + real(i-1)*astep
-        thetable(i) = acos(bbb3)
-        d140: do j=1, 2*ntab+1
-            bbb1 = -1. + real(j-1)*astep
-            phitable(i,j) = atan2(bbb3, bbb1)
-            if (phitable(i,j) < 0.) then
-                phitable(i,j) = phitable(i,j) + 2.*pi
+    if (dang /= dangold) then  ! go to 8 == to /= -MCW
+        irot = 0
+        d5: do ithe=0, int(90.1/dang)
+            the = real(ithe)*dang
+            rthe = the/degrad
+            costhe = cos(rthe)
+            sinthe = sin(rthe)
+            fnumang = 360./dang
+            numphi = nint(fnumang*sin(rthe))
+            if (numphi /= 0) then
+                dphi = 360./float(numphi)
+            else
+                dphi = 10000.
             end if
-        end do d140
-    end do d150
+            d4: do iphi=0, int(359.9/dphi)
+                phi = real(iphi)*dphi
+                rphi = phi/degrad
+                cosphi = cos(rphi)
+                sinphi = sin(rphi)
+                bb3(3) = costhe
+                bb3(1) = sinthe*cosphi
+                bb3(2) = sinthe*sinphi
+                bb1(3) = -sinthe
+                bb1(1) = costhe*cosphi
+                bb1(2) = costhe*sinphi
+                call CROSS(bb3, bb1, bb2)
+                d3: do izeta = 0, int(179.9/dang)
+                    zeta = real(izeta)*dang
+                    rzeta = zeta/degrad
+                    coszeta = cos(rzeta)
+                    sinzeta = sin(rzeta)
+                    irot = irot+1
+                    if (irot > ncoor) then
+                        print *,'***FOCAL error: # of rotations too big'
+                        return
+                    end if
+                    b3(3,irot) = bb3(3)
+                    b3(1,irot) = bb3(1)
+                    b3(2,irot) = bb3(2)
+                    b1(1,irot) = bb1(1)*coszeta + bb2(1)*sinzeta
+                    b1(2,irot) = bb1(2)*coszeta + bb2(2)*sinzeta                
+                    b1(3,irot) = bb1(3)*coszeta + bb2(3)*sinzeta
+                    b2(1,irot) = bb2(1)*coszeta - bb1(1)*sinzeta
+                    b2(2,irot) = bb2(2)*coszeta - bb1(2)*sinzeta                
+                    b2(3,irot) = bb2(3)*coszeta - bb1(3)*sinzeta
+                end do d3
+            end do d4
+        end do d5
+        nrot = irot
+        dangold = dang
+          
+        astep = 1./real(ntab)
+        d150: do i=1, 2*ntab+1
+            bbb3 = -1. + real(i-1)*astep
+            thetable(i) = acos(bbb3)
+            d140: do j=1, 2*ntab+1
+                bbb1 = -1. + real(j-1)*astep
+                phitable(i,j) = atan2(bbb3, bbb1)
+                if (phitable(i,j) < 0.) then
+                    phitable(i,j) = phitable(i,j) + 2.*pi
+                end if
+            end do d140
+        end do d150
 
-    d250: do i=1, 2*ntab
-        phi = real(i-1)*pi*astep
-        d240: do j=1, ntab
-          theta = real(j-1)*pi*astep
-          amptable(1,j,i) = abs(sin(2*theta) * cos(phi))                
-          s1 = cos(2*theta) * cos(phi)  
-          s2 = -cos(theta) * sin(phi)
-          amptable(2,j,i) = sqrt(s1*s1+s2*s2)
-        end do d240
-    end do d250
+        d250: do i=1, 2*ntab
+            phi = real(i-1)*pi*astep
+            d240: do j=1, ntab
+              theta = real(j-1)*pi*astep
+              amptable(1,j,i) = abs(sin(2*theta) * cos(phi))                
+              s1 = cos(2*theta) * cos(phi)  
+              s2 = -cos(theta) * sin(phi)
+              amptable(2,j,i) = sqrt(s1*s1+s2*s2)
+            end do d240
+        end do d250
 
-8   continue  ! TODO: replace with endif? see above -MCW
+    end if  ! 8   continue ! see above -MCW
 
     do irot=1,nrot
         irotgood(irot)=0
@@ -169,7 +154,7 @@ subroutine FOCALAMP_MC(p_azi_mc, p_the_mc, sp_amp, p_pol, npsta, nmc, &
         end do
 
         ! find misfit for each solution and minimum misfit
-        nmis0min = 1e5
+        nmis0min = 100000
         qmis0min = 1.0e5
         d420 : do irot=1, nrot  
             qmis(irot) = 0.
@@ -314,7 +299,6 @@ subroutine FOCALAMP_MC(p_azi_mc, p_the_mc, sp_amp, p_pol, npsta, nmc, &
     end if
     return 
 end subroutine
-
 ! ------------------------------------------------------------------- !
       
 
@@ -329,25 +313,19 @@ end subroutine
 !    Outputs:   mfrac = weighted fraction misfit polarities
 !               mavg = average S/P misfit (log10)
 !               stdr = station distribution ratio
-
+!
 subroutine GET_MISF_AMP(npol, p_azi_mc, p_the_mc, sp_ratio, p_pol, &
                         str_avg, dip_avg, rak_avg, mfrac, mavg, stdr)
-!f2py intent(in)  npol
-!f2py intent(in)  p_azi_mc
-!f2py intent(in)  p_the_mc
-!f2py intent(in)  sp_ratio
-!f2py intent(in)  p_pol
-!f2py intent(in)  str_avg
-!f2py intent(in)  dip_avg
-!f2py intent(in)  rak_avg
-!f2py intent(out)  mfrac
-!f2py intent(out)  mavg
-!f2py intent(out)  stdr
+    
+    integer, intent(in) :: npol
+    real, dimension(npol), intent(in) :: p_azi_mc, p_the_mc, sp_ratio
+    integer, dimension(npol), intent(in) :: p_pol
+    real, intent(in) :: str_avg, dip_avg, rak_avg
+    real, intent(out) :: mfrac, mavg, stdr
 
-    real, dimension(npol) :: p_azi_mc, p_the_mc, sp_ratio
-    real :: str_avg, dip_avg, rak_avg, M(3,3)
-    real :: strike, dip, rake, mfrac, mavg, qcount, azi, toff, pol, wt, wo
-    integer :: k, npol, p_pol(npol)
+    real, dimension(3,3) :: M
+    real :: strike, dip, rake, qcount, azi, toff, pol, wt  ! wo
+    integer :: k
     real, dimension(3) :: a, b, bb1, bb2, bb3
     real, parameter :: rad = 3.14159265/180.
 

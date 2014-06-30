@@ -7,26 +7,19 @@
 !               str_avg,dip_avg,rak_avg = mechanism
 !    Outputs:   mfrac = weighted fraction misfit polarities (like FPFIT)
 !               stdr = station distribution ratio (like FPFIT)
-
+!
 subroutine GET_MISF(npol, p_azi_mc, p_the_mc, p_pol, p_qual, str_avg, &
                     dip_avg, rak_avg, mfrac, stdr)
-!f2py intent(in) npol
-!f2py intent(in) p_azi_mc      
-!f2py intent(in) p_the_mc  
-!f2py intent(in) p_pol  
-!f2py intent(in) p_qual
-!f2py intent(in) str_avg
-!f2py intent(in) dip_avg
-!f2py intent(in) rak_avg
-!f2py intent(out) mfrac      
-!f2py intent(out) stdr      
 
-    integer :: k, npol, p_pol(npol), p_qual(npol)
-    real :: str_avg, dip_avg, rak_avg
-    real :: strike, dip, rake, mfrac, qcount, azi, toff, pol, wt, wo
+    integer, intent(in) :: npol
+    integer, dimension(npol), intent(in) :: p_pol, p_qual
+    real, dimension(npol), intent(in) :: p_azi_mc, p_the_mc
+    real, intent(in) :: str_avg, dip_avg, rak_avg
+    real, intent(out) :: mfrac, stdr
+    integer :: k
+    real :: strike, dip, rake, qcount, azi, toff, pol, wt, wo
     real, dimension(3) :: a, b, bb1, bb2, bb3
     real, dimension(3, 3) :: M
-    real, dimension(npol) :: p_azi_mc, p_the_mc
     real, parameter :: rad = 3.14159265/180.
 
     strike = str_avg*rad
@@ -102,7 +95,6 @@ subroutine GET_MISF(npol, p_azi_mc, p_the_mc, p_pol, p_qual, str_avg, &
       
     return 
 end subroutine
-
 ! --------------------------------------------------------------- !
 
 
@@ -112,16 +104,13 @@ end subroutine
 !               p_the_mc(npol) = takeoff angles
 !    Outputs:   magap  = maximum azimuthal gap
 !               mpgap  = maximum takeoff angle gap
-
+!
 subroutine GET_GAP(npol, p_azi_mc, p_the_mc, magap, mpgap)
-!f2py intent(in) npol
-!f2py intent(in) p_azi_mc      
-!f2py intent(in) p_the_mc  
-!f2py intent(out) magap  
-!f2py intent(out) mpgap  
 
     include 'param.inc'
-    real, dimension(npol) :: p_azi_mc, p_the_mc
+    integer, intent(in) :: npol
+    real, dimension(npol), intent(in) :: p_azi_mc, p_the_mc
+    real, intent(out) :: magap, mpgap
     real, dimension(npick0) :: p2_azi, p2_the
 
     do k=1, npol
@@ -160,12 +149,13 @@ subroutine GET_GAP(npol, p_azi_mc, p_the_mc, magap, mpgap)
       
     return 
 end subroutine
-
 ! --------------------------------------------------------------- !
 
+
 subroutine sort(N, RA)
-      
-    real, dimension(N) :: RA
+    
+    integer, intent(in) :: N
+    real, dimension(N), intent(in out) :: RA
       
     if (n==0) then
         print *,'***n=0 in SORT'
@@ -199,8 +189,8 @@ subroutine sort(N, RA)
         else
             J = IR+1
         endif
-        goto 20
+        go to 20
     endif
     RA(I) = RRA
-    goto 10
+    go to 10
 end subroutine

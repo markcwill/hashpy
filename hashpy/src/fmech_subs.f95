@@ -28,33 +28,21 @@
 subroutine FOCALMC(p_azi_mc, p_the_mc, p_pol, p_qual, npsta, nmc, dang, &
                    maxout, nextra, ntotal, nf, strike, dip, rake, &
                    faults, slips)
-!f2py intent(in)  p_azi_mc
-!f2py intent(in)  p_the_mc
-!f2py intent(in)  p_pol
-!f2py intent(in)  p_qual
-!f2py intent(in)  npsta
-!f2py intent(in)  nmc
-!f2py intent(in)  dang
-!f2py intent(in)  maxout
-!f2py intent(in)  nextra
-!f2py intent(in)  ntotal
-!f2py intent(out) nf
-!f2py intent(out) strike
-!f2py intent(out) dip
-!f2py intent(out) rake
-!f2py intent(out) faults
-!f2py intent(out) slips
 
     include 'param.inc'
     include 'rot.inc'
      
     ! input and output arrays
-    real, dimension(npick0,nmc0) ::  p_azi_mc, p_the_mc
+    integer, dimension(npsta), intent(in) :: p_pol, p_qual
+    integer, intent(in) :: npsta, nmc, nextra, ntotal
+    real, intent(in) :: dang
+    real, dimension(npick0,nmc0), intent(in) ::  p_azi_mc, p_the_mc
+    integer, intent(in out) :: nf, maxout
+    real, dimension(nmax0), intent(out) ::  strike, dip, rake
+    real, dimension(3,nmax0), intent(out) :: faults, slips
+    
     real, dimension(npick0) ::  p_a1, p_a2, p_a3
     real, dimension(3) :: faultnorm, slip
-    real, dimension(3,nmax0) :: faults, slips
-    real, dimension(nmax0) ::  strike, dip, rake
-    integer, dimension(npsta) :: p_pol, p_qual
     save dangold, nrot, b1, b2, b3
 
     ! coordinate transformation arrays
@@ -74,57 +62,58 @@ subroutine FOCALMC(p_azi_mc, p_the_mc, p_pol, p_qual, npsta, nmc, dang, &
     end if
 
     ! Set up array with direction cosines for all coordinate transformations
-    if (dang == dangold) go to 8  ! TODO: replace w/ if(dang/=dangold)then, endif @ 8? -MCW
-    irot = 0
-    d5: do ithe=0, int(90.1/dang)
-        the = real(ithe)*dang
-        rthe = the/degrad
-        costhe = cos(rthe)
-        sinthe = sin(rthe)
-        fnumang = 360./dang
-        numphi = nint(fnumang*sin(rthe))
-        if (numphi /= 0) then
-            dphi = 360./float(numphi)
-        else
-            dphi = 10000.
-        end if
-        d4: do iphi=0, int(359.9/dphi)
-            phi = real(iphi)*dphi
-            rphi = phi/degrad
-            cosphi = cos(rphi)
-            sinphi = sin(rphi)
-            bb3(3) = costhe
-            bb3(1) = sinthe*cosphi
-            bb3(2) = sinthe*sinphi
-            bb1(3) = -sinthe
-            bb1(1) = costhe*cosphi
-            bb1(2) = costhe*sinphi
-            call CROSS(bb3, bb1, bb2)
-            d3: do izeta=0, int(179.9/dang)
-                zeta = real(izeta)*dang
-                rzeta = zeta/degrad
-                coszeta = cos(rzeta)
-                sinzeta = sin(rzeta)
-                irot = irot+1
-                if (irot > ncoor) then
-                    print *,'***FOCAL error: # of rotations too big'
-                    return
-                end if
-                b3(3,irot) = bb3(3)
-                b3(1,irot) = bb3(1)
-                b3(2,irot) = bb3(2)
-                b1(1,irot) = bb1(1)*coszeta + bb2(1)*sinzeta
-                b1(2,irot) = bb1(2)*coszeta + bb2(2)*sinzeta                
-                b1(3,irot) = bb1(3)*coszeta + bb2(3)*sinzeta
-                b2(1,irot) = bb2(1)*coszeta - bb1(1)*sinzeta
-                b2(2,irot) = bb2(2)*coszeta - bb1(2)*sinzeta                
-                b2(3,irot) = bb2(3)*coszeta - bb1(3)*sinzeta
-            end do d3
-        end do d4
-    end do d5
-    nrot = irot
-    dangold = dang
-8   continue
+    !if (dang == dangold) go to 8  ! -MCW
+    if (dang /= dangold) then
+        irot = 0
+        d5: do ithe=0, int(90.1/dang)
+            the = real(ithe)*dang
+            rthe = the/degrad
+            costhe = cos(rthe)
+            sinthe = sin(rthe)
+            fnumang = 360./dang
+            numphi = nint(fnumang*sin(rthe))
+            if (numphi /= 0) then
+                dphi = 360./float(numphi)
+            else
+                dphi = 10000.
+            end if
+            d4: do iphi=0, int(359.9/dphi)
+                phi = real(iphi)*dphi
+                rphi = phi/degrad
+                cosphi = cos(rphi)
+                sinphi = sin(rphi)
+                bb3(3) = costhe
+                bb3(1) = sinthe*cosphi
+                bb3(2) = sinthe*sinphi
+                bb1(3) = -sinthe
+                bb1(1) = costhe*cosphi
+                bb1(2) = costhe*sinphi
+                call CROSS(bb3, bb1, bb2)
+                d3: do izeta=0, int(179.9/dang)
+                    zeta = real(izeta)*dang
+                    rzeta = zeta/degrad
+                    coszeta = cos(rzeta)
+                    sinzeta = sin(rzeta)
+                    irot = irot+1
+                    if (irot > ncoor) then
+                        print *,'***FOCAL error: # of rotations too big'
+                        return
+                    end if
+                    b3(3,irot) = bb3(3)
+                    b3(1,irot) = bb3(1)
+                    b3(2,irot) = bb3(2)
+                    b1(1,irot) = bb1(1)*coszeta + bb2(1)*sinzeta
+                    b1(2,irot) = bb1(2)*coszeta + bb2(2)*sinzeta                
+                    b1(3,irot) = bb1(3)*coszeta + bb2(3)*sinzeta
+                    b2(1,irot) = bb2(1)*coszeta - bb1(1)*sinzeta
+                    b2(2,irot) = bb2(2)*coszeta - bb1(2)*sinzeta                
+                    b2(3,irot) = bb2(3)*coszeta - bb1(3)*sinzeta
+                end do d3
+            end do d4
+        end do d5
+        nrot = irot
+        dangold = dang
+    end if  ! 8   continue
 
     do irot=1, nrot
         irotgood(irot) = 0

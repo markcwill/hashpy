@@ -8,28 +8,29 @@
 !     depth(km) P_velocity(km/s)
       
 subroutine MK_TABLE(ntab)
-!f2py intent(in,out) ntab
 
     include 'vel.inc'
-    real :: table(nx0,nd0,nindex), delttab(nx0), deptab(nd0)
-    integer :: ndel, ndep
-
-!   common block:
-!       table(nx0,nd0,nindex)  =  takeoff angle table
-!           delttab(nx0)  =  list of ranges for tables
-!           deptab(nd0)  =  list of source depths for tables
-!           ndel       =  number of distance points in table
-!           ndep       =  number of source depths in table
-    common /angtable/ table, delttab, deptab, ndel, ndep
-
-    integer :: itab
     integer, parameter :: nray0 = 10001
     real, parameter :: degrad = 180./3.14159265
+
+    integer, intent(in out) :: ntab
+    integer :: itab
     real, dimension(1000) :: z , alpha, slow
     real, dimension(20000) ::  xsave, tsave, psave, usave
     real, dimension(nray0) :: deltab, tttab, ptab
     real, dimension(nray0, nd0) :: depxcor, depucor, deptcor, tt
     character(len=100) :: vmodel
+
+    !   common block:
+    !       table(nx0,nd0,nindex)  =  takeoff angle table
+    !       delttab(nx0)  =  list of ranges for tables
+    !       deptab(nd0)  =  list of source depths for tables
+    !       ndel       =  number of distance points in table
+    !       ndep       =  number of source depths in table
+    real :: table(nx0,nd0,nindex), delttab(nx0), deptab(nd0)
+    integer :: ndel, ndep
+    common /angtable/ table, delttab, deptab, ndel, ndep
+
 
     if (ntab /= 1) then
         print *,'Enter number of velocity models (max ',nindex,')'
@@ -41,7 +42,7 @@ d300: do itab=1, ntab
     print *,'Enter file name for velocity model ', itab
     read (*,'(a)') vmodel
 
-! set up table
+    ! set up table
     qtempdep2 = dep2 + dep3/20.
     ndep = int((qtempdep2-dep1)/dep3) + 1
     do idep=1, ndep
@@ -49,7 +50,7 @@ d300: do itab=1, ntab
         deptab(idep) = dep
     end do
 
-! read velocity model TODO: fix this Mark
+    ! read velocity model TODO: fix this Mark
     open (7, file=vmodel, status='old')
     do i=1, 1000
         read (7, *, end=30) z(i), alpha(i)
@@ -57,7 +58,7 @@ d300: do itab=1, ntab
     print *,'***1000 point maximum exceeded in model'
 30  close (7)
 
-! Start
+    ! Start
     z(i) = z(i-1)           
     alpha(i) = alpha(i-1)
     npts = i
@@ -84,7 +85,7 @@ d300: do itab=1, ntab
     pstep = (pmax-pmin)/float(nump)
 
 
-! do P-wave ray tracing
+    ! do P-wave ray tracing
     npmax = int((pmax+pstep/2.-pmin)/pstep) + 1
     d200: do np=1, npmax
         p = pmin + pstep*real(np-1)
@@ -131,28 +132,28 @@ d300: do itab=1, ntab
         tttab(np) = tmin
     end do d200 !  end loop on ray parameter p
 
-! create table
+    ! create table
     d250: do idep=1, ndep
         icount = 0
         xold = -999.
         if (deptab(idep)==0.) then
             i2 = np
-            go to 223
+        else
+            d220: do i=1, np  ! upgoing rays from source
+                x2 = depxcor(i, idep)
+                if (x2 == -999.) exit d220
+                if (x2 <= xold) exit d220     ! stop when heads inward
+                t2 = deptcor(i, idep)
+                icount = icount+1
+                xsave(icount) = x2
+                tsave(icount) = t2
+                psave(icount) = -ptab(i)
+                usave(icount) = depucor(i, idep)
+                xold = x2
+            end do d220
+            i2 = i-1
         end if
-        d220: do i=1, np  ! upgoing rays from source
-            x2 = depxcor(i, idep)
-            if (x2 == -999.) exit d220
-            if (x2 <= xold) exit d220     ! stop when heads inward
-            t2 = deptcor(i, idep)
-            icount = icount+1
-            xsave(icount) = x2
-            tsave(icount) = t2
-            psave(icount) = -ptab(i)
-            usave(icount) = depucor(i, idep)
-            xold = x2
-        end do d220
-        i2 = i-1
-223     continue
+
         d225: do i=i2, 1, -1  ! downgoing rays from source
             if (depxcor(i,idep) == -999.) cycle d225
             if (deltab(i) == -999.) cycle d225
@@ -204,8 +205,8 @@ end do d300
     return  ! 999
 
 end subroutine
-
 ! ------------------------------------------------------------ !
+
 
 ! subroutine GET_TTS obtains the takeoff angle for a velocity model
 ! at a specified range and earthquake depth by interpolating
@@ -219,22 +220,22 @@ end subroutine
 !                      =  1 for extrapolation in range
 !
 subroutine GET_TTS(ip, del, qdep, tt, iflag)
-!f2py intent(in) ip
-!f2py intent(in) del
-!f2py intent(in) qdep
-!f2py intent(out) tt
-!f2py intent(out) iflag
 
     include 'vel.inc'
+
+    integer, intent(in) :: ip
+    real, intent(in) :: del, qdep
+    real, intent(out) :: tt
+    integer, intent(out) :: iflag
+
+    !  common block:
+    !    t(nx0,nd0,nindex)  =  takeoff angle tables
+    !    x(nx0)  =  list of ranges for tables
+    !    d(nd0)  =  list of source depths for tables
+    !    nx     =  number of distance points in table
+    !    nd     =  number of source depths in table
     real :: t(nx0, nd0, nindex), x(nx0), d(nd0)
     integer :: nx, nd
-
-!  common block:
-!    t(nx0,nd0,nindex)  =  takeoff angle tables
-!          x(nx0)  =  list of ranges for tables
-!          d(nd0)  =  list of source depths for tables
-!           nx     =  number of distance points in table
-!           nd     =  number of source depths in table
     common /angtable/ t, x, d, nx, nd
 
     !
@@ -315,8 +316,8 @@ subroutine GET_TTS(ip, del, qdep, tt, iflag)
     tt = tt1 + dfrac*(tt2-tt1)
     return
 end subroutine
-
 ! ------------------------------------------------------------ !
+
 
 ! LAYERTRACE calculates the travel time and range offset
 ! for ray tracing through a single layer.
@@ -341,9 +342,10 @@ end subroutine
 ! Note:  This version does calculation in double precision,
 !        but all i/o is still single precision
 !
-subroutine LAYERTRACE(p1,h1,utop1,ubot1,imth,dx1,dt1,irtr)
+subroutine LAYERTRACE(p1, h1, utop1, ubot1, imth, dx1, dt1, irtr)
     implicit real(kind=8) (a-h,o-z)
     real(kind=4) :: p1, h1, utop1, ubot1, dx1, dt1
+    
     p = dble(p1)
     h = dble(h1)
     utop = dble(utop1)

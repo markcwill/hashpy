@@ -2,10 +2,8 @@
 !  cross product of two vectors, sets v3 = v1 x v2
 !
 subroutine CROSS(v1, v2, v3)
-!f2py intent(in) v1
-!f2py intent(in) v2
-!f2py intent(out) v3
-    real, dimension(3) :: v1, v2, v3
+    real, dimension(3), intent(in) :: v1, v2
+    real, dimension(3), intent(out) :: v3
 
     v3(1) = v1(2)*v2(3) - v1(3)*v2(2)   
     v3(2) = v1(3)*v2(1) - v1(1)*v2(3)
@@ -19,17 +17,14 @@ end subroutine
 !  transforms spherical co-ordinates to cartesian
 !
 subroutine TO_CAR(the, phi, r, x, y, z)
-!f2py intent(in) the
-!f2py intent(in) phi
-!f2py intent(in) r
-!f2py intent(out) x
-!f2py intent(out) y
-!f2py intent(out) z
-      degrad = 3.1415927/180.
-      z= -r * cos(the*degrad)
-      x= r * sin(the*degrad) * cos(phi*degrad)
-      y= r * sin(the*degrad) * sin(phi*degrad)
-      return
+    real, intent(in) :: the, phi, r
+    real, intent(out) :: x, y, z
+    real, parameter :: degrad = 3.1415927/180.
+
+    z = -r * cos(the*degrad)
+    x = r * sin(the*degrad) * cos(phi*degrad)
+    y = r * sin(the*degrad) * sin(phi*degrad)
+    return
 end subroutine
 !--------------------------------------------------------------!
 
@@ -40,17 +35,14 @@ end subroutine
 !   idir = c compute strike,dip,rake
 ! Reference:  Aki and Richards, p. 115
 !   uses (x,y,z) coordinate system with x=north, y=east, z=down
+!
 subroutine FPCOOR(strike, dip, rake, fnorm, slip, idir)
-!f2py intent(in) idir
-!f2py intent(in, out) strike
-!f2py intent(in, out) dip
-!f2py intent(in, out) rake
-!f2py intent(in, out) fnorm
-!f2py intent(in, out) slip
-    real ::  fnorm(3), slip(3), phi, del, lam, a, clam, slam
-    
-    degrad = 180./3.1415927
-    pi = 3.1415927
+    integer, intent(in) :: idir  ! Should be a logical...
+    real, intent(in out) :: strike, dip, rake, fnorm(3), slip(3)
+    real :: phi, del, lam, a, clam, slam
+    real, parameter :: pi = 3.1415927
+    real, parameter :: degrad = 180./pi
+
     phi = strike/degrad
     del = dip/degrad
     lam = rake/degrad
@@ -103,8 +95,9 @@ end subroutine
 ! normally-distributed random numbers, from numerical recipes      
 !
 subroutine RAN_NORM(fran)
-!f2py intent(out) fran
+    real, intent(out) :: fran
     save jran, ifirst
+
     im = 120050  ! overflow at 2**28
     ia = 2311
     ic = 25367
@@ -117,7 +110,7 @@ subroutine RAN_NORM(fran)
         jran = mod(jran*ia+ic,im)
         fran = fran + (float(jran)/float(im))
     end do
-    fran=fran-6.
+    fran = fran-6.
     return
 end subroutine
 

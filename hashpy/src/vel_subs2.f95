@@ -11,30 +11,30 @@
 !     depth(km) P_velocity(km/s)
       
 subroutine MK_TABLE_ADD(itab, vmodel)
-!f2py intent(in) itab
-!f2py intent(in) vmodel
 
     include 'vel.inc'
-    real :: table(nx0,nd0,nindex), delttab(nx0), deptab(nd0)
-    integer :: ndel, ndep
-!   common block:
-!       table(nx0,nd0,nindex)  =  takeoff angle table
-!           delttab(nx0)  =  list of ranges for tables
-!           deptab(nd0)  =  list of source depths for tables
-!           ndel       =  number of distance points in table
-!           ndep       =  number of source depths in table
-    common /angtable/ table, delttab, deptab, ndel, ndep
-    
-    integer :: itab
     integer, parameter :: nray0 = 10001
     real, parameter :: degrad = 180./3.14159265
+
+    integer, intent(in) :: itab
+    character(len=100), intent(in) :: vmodel
     real, dimension(1000) :: z , alpha, slow
     real, dimension(20000) ::  xsave, tsave, psave, usave
     real, dimension(nray0) :: deltab, tttab, ptab
     real, dimension(nray0, nd0) :: depxcor, depucor, deptcor, tt
-    character(len=100) :: vmodel
+    
+    !   common block:
+    !       table(nx0,nd0,nindex)  =  takeoff angle table
+    !           delttab(nx0)  =  list of ranges for tables
+    !           deptab(nd0)  =  list of source depths for tables
+    !           ndel       =  number of distance points in table
+    !           ndep       =  number of source depths in table
+    real :: table(nx0,nd0,nindex), delttab(nx0), deptab(nd0)
+    integer :: ndel, ndep
+    common /angtable/ table, delttab, deptab, ndel, ndep
+    
 
-! set up table
+    ! set up table
     qtempdep2 = dep2 + dep3/20.
     ndep = int((qtempdep2-dep1)/dep3) + 1
     do idep=1, ndep
@@ -42,7 +42,7 @@ subroutine MK_TABLE_ADD(itab, vmodel)
         deptab(idep) = dep
     end do
 
-! read velocity model TODO: fix this Mark
+    ! read velocity model TODO: fix this -MCW
     open (7, file=vmodel, status='old')
     do i=1, 1000
         read (7, *, end=30) z(i), alpha(i)
@@ -50,7 +50,7 @@ subroutine MK_TABLE_ADD(itab, vmodel)
     print *,'***1000 point maximum exceeded in model'
 30  close (7)
 
-! Start
+    ! Start
     z(i) = z(i-1)           
     alpha(i) = alpha(i-1)
     npts = i
@@ -77,7 +77,7 @@ subroutine MK_TABLE_ADD(itab, vmodel)
     pstep = (pmax-pmin)/float(nump)
 
 
-! do P-wave ray tracing
+    ! do P-wave ray tracing
     npmax = int((pmax+pstep/2.-pmin)/pstep) + 1
     two: do np=1, npmax
         p = pmin + pstep*real(np-1)
@@ -124,14 +124,14 @@ subroutine MK_TABLE_ADD(itab, vmodel)
         tttab(np) = tmin
     end do two !  end loop on ray parameter p
 
-! create table
+    ! create table
     twofifty: do idep=1, ndep
         icount = 0
         xold = -999.
         if (deptab(idep)==0.) then
             i2 = np
-            go to 223
-        end if
+            !go to 223
+        else !end if
         twotwenty: do i=1, np  ! upgoing rays from source
             x2 = depxcor(i, idep)
             if (x2 == -999.) exit twotwenty
@@ -145,7 +145,8 @@ subroutine MK_TABLE_ADD(itab, vmodel)
             xold = x2
         end do twotwenty
         i2 = i-1
-223     continue
+        end if  !223     continue
+        
         twotwofive: do i=i2, 1, -1  ! downgoing rays from source
             if (depxcor(i,idep) == -999.) cycle twotwofive
             if (deltab(i) == -999.) cycle twotwofive

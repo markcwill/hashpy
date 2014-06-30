@@ -17,30 +17,20 @@
 !           rms_diff(2,5)  = RMS angular difference of all planes to average 
 !                          plane (1=fault plane, 2=auxiliary plane)
 !
-
 subroutine MECH_PROB(nf, norm1in, norm2in, cangle, prob_max, nsltn, &
                      str_avg, dip_avg, rak_avg, prob, rms_diff)
-!f2py intent(in)  nf
-!f2py intent(in)  norm1
-!f2py intent(in)  norm2
-!f2py intent(in)  cangle
-!f2py intent(in)  prob_max
-!f2py intent(out) nsltn
-!f2py intent(out) str_avg
-!f2py intent(out) dip_avg
-!f2py intent(out) rak_avg
-!f2py intent(out) prob
-!f2py intent(out) rms_diff
 
     include 'param.inc'
-      
-    integer :: nf
-    real :: dd_rad, di_rad, a, b, slipol, rms_diff(2,5), stv(2)
-    real, dimension(3) :: temp1, temp2, norm1_avg, norm2_avg, udv
-    real, dimension(5) ::  str_avg, dip_avg, rak_avg, prob
-    real, dimension(3, nf) :: norm1in, norm2in
+    ! Unused commented out for now -MCW
+    integer, intent(in out) :: nf, nsltn
+    real, intent(in) :: cangle, prob_max
+    real, dimension(3, nf), intent(in) :: norm1in, norm2in
+    real, dimension(5), intent(out) ::  str_avg, dip_avg, rak_avg, prob
+    real, dimension(2,5), intent(out) :: rms_diff
+    real :: a, b, maxrot  ! dd_rad, di_rad, slipol, stv(2)
+    real, dimension(3) :: temp1, temp2, norm1_avg, norm2_avg  ! udv
     real, dimension(3, nmax0) :: norm1, norm2
-    real, dimension(nmax0) :: rota, ln_norm1, ln_norm2
+    real, dimension(nmax0) :: rota  !  ln_norm1, ln_norm2
     real, parameter :: pi = 3.1415927
     real, parameter :: degrad = 180./3.1415927
 
@@ -164,8 +154,8 @@ subroutine MECH_PROB(nf, norm1in, norm2in, cangle, prob_max, nsltn, &
           
     return 
 end subroutine
-
 ! ------------------------------------------------------------ c
+
 
 ! subroutine MECH_AVG determines the average focal mechanism of a set
 !   of mechanisms
@@ -180,17 +170,13 @@ end subroutine
 !    Modified 5/14/2001 by Jeanne Hardebeck                              
 !
 subroutine MECH_AVG(nf, norm1, norm2, norm1_avg, norm2_avg)
-!f2py intent(in)  nf
-!f2py intent(in)  norm1
-!f2py intent(in)  norm2
-!f2py intent(out) norm1_avg
-!f2py intent(out) norm2_avg
            
-    integer :: nf
+    integer, intent(in) :: nf
+    real, dimension(3, nf), intent(in) :: norm1, norm2
+    real, dimension(3), intent(out) :: norm1_avg, norm2_avg
     real :: dot1, fract1, misf, maxmisf, avang1, avang2, ln_norm1, ln_norm2, &
         theta1, theta2
-    real, dimension(3) :: norm1_avg, norm2_avg, temp1, temp2, ref1, ref2
-    real, dimension(3, nf) :: norm1, norm2
+    real, dimension(3) :: temp1, temp2, ref1, ref2
     real, parameter :: pi = 3.1415927
     real, parameter :: degrad = 180./3.1415927
       
@@ -303,8 +289,6 @@ subroutine MECH_AVG(nf, norm1, norm2, norm1_avg, norm2_avg)
 !120   continue      
     return 
 end subroutine
-      
-
 ! ------------------------------------------------------------ c
 
 
@@ -327,15 +311,12 @@ end subroutine
 !
 !
 subroutine MECH_ROT(norm1, norm2, slip1, slip2, rota)
-!f2py intent(in)  norm1
-!f2py intent(in)  slip1
-!f2py intent(in)  norm2
-!f2py intent(in)  slip2
-!f2py intent(out) rota
       
-    real, dimension(3) :: norm1, norm2, slip1, slip2, B1, B2, phi, & 
-        norm2_temp, slip2_temp, scale, R, qdot, theta, n1, n2
-    real :: rota, phi1, rotemp(4), n(3,3)
+    real, dimension(3), intent(in out) :: norm1, norm2, slip1, slip2
+    real, intent(out) :: rota
+    real, dimension(3) :: B1, B2, phi, norm2_temp, slip2_temp, &
+        scale, R, qdot, theta, n1, n2
+    real :: phi1, rotemp(4), n(3,3)
     real, parameter :: pi = 3.1415927
     real, parameter :: degrad = 180./3.1415927
 
