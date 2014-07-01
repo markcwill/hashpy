@@ -135,7 +135,7 @@ class FocalMechPlotter(object):
                 h_text = ax.rake(azi, toa+5, 90, marker='$   {0}$'.format(p.waveform_id.station_code), color='black',markersize=20)
         
         for comm in self.focm.comments:
-            if 'quality' in comm.resource_id.resource_id:
+            if 'quality' in str(comm.resource_id):
                 qual = comm.text
             else:
                 qual = None
