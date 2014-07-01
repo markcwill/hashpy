@@ -22,9 +22,10 @@ subroutine MECH_PROB(nf, norm1in, norm2in, cangle, prob_max, nsltn, &
 
     include 'param.inc'
     ! Unused commented out for now -MCW
-    integer, intent(in out) :: nf, nsltn
+    integer, intent(in out) :: nf
     real, intent(in) :: cangle, prob_max
     real, dimension(3, nf), intent(in) :: norm1in, norm2in
+    integer, intent(out) :: nsltn
     real, dimension(5), intent(out) ::  str_avg, dip_avg, rak_avg, prob
     real, dimension(2,5), intent(out) :: rms_diff
     real :: a, b, maxrot  ! dd_rad, di_rad, slipol, stv(2)

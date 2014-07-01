@@ -36,7 +36,8 @@ subroutine FOCALAMP_MC(p_azi_mc, p_the_mc, sp_amp, p_pol, npsta, nmc, &
     integer, dimension(npsta), intent(in) :: p_pol
     integer, intent(in) :: npsta, nmc, nextra, ntotal, qextra, qtotal
     real, intent(in) :: dang
-    integer, intent(in out) :: nf, maxout
+    integer, intent(in out) :: maxout
+    integer, intent(out) :: nf
     real, dimension(nmax0), intent(out) :: strike, dip, rake
     real, dimension(3,nmax0), intent(out) :: faults, slips
     

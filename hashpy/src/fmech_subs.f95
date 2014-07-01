@@ -37,7 +37,8 @@ subroutine FOCALMC(p_azi_mc, p_the_mc, p_pol, p_qual, npsta, nmc, dang, &
     integer, intent(in) :: npsta, nmc, nextra, ntotal
     real, intent(in) :: dang
     real, dimension(npick0,nmc0), intent(in) ::  p_azi_mc, p_the_mc
-    integer, intent(in out) :: nf, maxout
+    integer, intent(in out) :: maxout
+    integer, intent(out) :: nf
     real, dimension(nmax0), intent(out) ::  strike, dip, rake
     real, dimension(3,nmax0), intent(out) :: faults, slips
     
