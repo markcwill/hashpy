@@ -3,6 +3,4 @@ import sys
 from hashpy.scripts.dbhash import main
 
 if __name__ == '__main__':
-    #sys.exit(main()) # main should return retcode
-    ret = main()
-    sys.exit(0)
+    sys.exit(main())

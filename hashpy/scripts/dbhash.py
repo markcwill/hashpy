@@ -2,15 +2,28 @@
 """
 hashpy.scripts.dbhash
 
-Program to run HASH using antelope
+- Mark Williams (2013) 
+- Nevada Seismological Laboratory
+
+NSL's production CLI HASH program: BEWARE!!
+
+Example program to run HASH using antelope
+    This is esoteric to NSL, but pretty straighforward to modify. For
+    example, this version is hard-coded to not enforce minimum gap check.
+
+    In graphics mode, this program may create a folder and/or save an
+    image file. 
 
 Call by importing main() into external executable script
 """
+import sys
 import os
+import logging
 from argparse import ArgumentParser
 from hashpy.hashpype import HashPype, HashError
 from hashpy.io.antelopeIO import ( load_pf, eventfocalmech2db, dbloc_source_db, RowPointerDict )
 
+LOG = logging.getLogger()
 
 parser = ArgumentParser()
 parser.add_argument("dbin", help="Input database")
@@ -24,16 +37,17 @@ group.add_argument("--evid", help="Event ID", type=int)
 group.add_argument("--orid", help="Origin ID", type=int)
 
 
-def dbhash_run(dbname, orid=None, pf=None):
+def run_hash(dbname, orid=None, pf=None):
     """
-    Perform a HASH run using Database input and command line args
-    
+    Perform a 'driver2' HASH run using database input.
+
     Input
     -----
-    args : Namespace of command line args
+    dbname : str of db name
+    orid : int of ORID
+    pf : str of pf file name
     
     Returns : hp : a hashpy.HashPype object containing solutions
-
     """
     hp = HashPype()
     
@@ -46,14 +60,8 @@ def dbhash_run(dbname, orid=None, pf=None):
     # Grab data from the db...
     hp.input(dbname, format="ANTELOPE", orid=orid)
     
-    # Run and catch errors from the minimum requirements checks
-    try:
-        hp.driver2(check_for_maximum_gap_size=False)
-    except HashError as e:
-        print("Failed! " + e.message)
-    except:
-        raise
-    
+    # Run driver script method
+    hp.driver2(check_for_maximum_gap_size=False)
     return hp
     
 
@@ -79,7 +87,7 @@ class SaveFunction(object):
         fullname = os.path.join(imagedir, filename)
         figure.savefig(fullname)
     
-    def __init__(dbname, dump_bitmap):
+    def __init__(self, dbname, dump_bitmap):
         self.dbname = dbname
         self.dump_bitmap = dump_bitmap
 
@@ -95,15 +103,10 @@ class SaveFunction(object):
             self._dump_bitmap(figure=fmplotter.fig, directory=dbdir, uid=vers)
 
 
-def main():
+def dbhash(args):
     """
-    CLI program to run dbhash
-    
-    Handle input args, call function, handle output.
+    Run HASH using database given a namespace of arguments
     """
-    #--- INPUT --- CLI args ------------------------------------------#
-    args = parser.parse_args()
-    
     # Special 'dbloc2' settings
     if args.loc:
         from antelope.datascope import Dbptr
@@ -118,7 +121,7 @@ def main():
         args.image = True  # force saving image to db folder
     
     #--- Run HASH ----------------------------------------------------#
-    hp = dbhash_run(args.dbin, orid=args.orid, pf=args.pf)
+    hp = run_hash(args.dbin, orid=args.orid, pf=args.pf)
 
     #--- OUTPUT --- Launch plotter or spit out solution --------------#
     if args.plot:
@@ -132,28 +135,29 @@ def main():
         p = 0    
         if args.dbout:
             db = hp.output(format="ANTELOPE", dbout=args.dbout)
-    
     # Done, return HashPype and/or FocalMechPlotter for debugging
-    # TODO: return 0... catch errors, return 1, etc...
     return hp, p
 
-    # DEPRICATED
-    # ----------------------------------------------------------------#
-    #def save_plot_to_db_old(fmplotter, dbname=args.dbout, dump_bitmap=args.image):
-    #    focal_mech = fmplotter.event.focal_mechanisms[fmplotter._fm_index]
-    #    if focal_mech is not fmplotter.event.preferred_focal_mechanism():
-    #        fmplotter.event.preferred_focal_mechanism_id = focal_mech.resource_id.resource_id
-    #    
-    #    # Save to db        
-    #    eventfocalmech2db(event=fmplotter.event, database=dbname)
-    #    
-    #    if dump_bitmap:
-    #        vers = fmplotter.event.preferred_origin().creation_info.version
-    #        dbdir = os.path.dirname(dbname)
-    #        _dump_bitmap(figure=fmplotter.fig, directory=dbdir, uid=vers)
-    # ----------------------------------------------------------------#
+
+def main():
+    """
+    CLI program to run dbhash
+    
+    Handle input args, call function, handle output.
+    """
+    # Root logger to stderr for now
+    logging.basicConfig(format='[%(levelname)s]: %(message)s')
+    
+    try:
+        args = parser.parse_args()
+        out = dbhash(args)
+        return 0
+    except Exception as e:
+        LOG.exception(e)
+        LOG.critical("Uncaught error, exiting dbhash")
+        return 1
 
 
 #-- Testing only -----------------------------------------------------#
 if __name__ == '__main__':
-    ret = main()    
+    ret = main()
