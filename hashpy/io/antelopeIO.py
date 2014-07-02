@@ -22,10 +22,11 @@ except ImportError:
 degrad = 180. / np.pi
 rad = 1. / degrad
 
-# Non backwards compatible Antleope versions.
+# Non backwards compatible Antleope versions. Seriously.
+# ** depricate this to use RowPointerDict __len__ in future
 if not hasattr(Dbptr, 'nrecs'):
     def _nrecs(dbptr):
-        return dbptr.record_count
+        return dbptr.query(ds.dbRECORD_COUNT)
     Dbptr.nrecs = _nrecs
 
 
@@ -61,7 +62,6 @@ class RowPointerDict(dict):
         for i in dict_.items():
             args.extend(i)
         ds._dbputv(self._dbptr, self._tbl, *args)
-
 
 
 def input(hp, dbname, evid=None, orid=None):
@@ -430,6 +430,7 @@ def dbloc_source_db(db, pointer=True):
         db.close()
         return dbname
 
+
 def eventfocalmech2db(event=None, database=None):
     """
     Write the preferred HASH solution to Datascope database.
@@ -452,23 +453,24 @@ def eventfocalmech2db(event=None, database=None):
         # save solution as a new mechid
         mechid = db.nextid('mechid')
         # in fplane...
-        dbfpln = db.lookup(table='fplane')
-        dbfpln.record = dbfpln.addnull()
-        dbfpln.putv('orid', orid,
-            'str1', round(plane1.strike,1) ,
-            'dip1', round(plane1.dip,1) ,
-            'rake1',round(plane1.rake,1),
-            'str2', round(plane2.strike,1) ,
-            'dip2', round(plane2.dip,1) ,
-            'rake2',round(plane2.rake,1),
-            'taxazm',round(T.azimuth,1),
-            'taxplg',round(T.plunge,1),
-            'paxazm',round(P.azimuth,1),
-            'paxplg',round(P.plunge,1),
-            'algorithm', focm.method_id.resource_id,
-            'auth', focm.creation_info.author,
-            'mechid', mechid,
-            )
+        recnum = dbfpln.addnull()
+        dbout = RowPointerDict(dbfpln, recnum)
+        dbout.update({
+            'orid': orid,
+            'str1': round(plane1.strike,1) ,
+            'dip1': round(plane1.dip,1) ,
+            'rake1':round(plane1.rake,1),
+            'str2': round(plane2.strike,1) ,
+            'dip2': round(plane2.dip,1) ,
+            'rake2': round(plane2.rake,1),
+            'taxazm': round(T.azimuth,1),
+            'taxplg': round(T.plunge,1),
+            'paxazm': round(P.azimuth,1),
+            'paxplg': round(P.plunge,1),
+            'algorithm': focm.method_id.resource_id,
+            'auth': focm.creation_info.author,
+            'mechid': mechid,
+            })
         dbpmec = db.lookup(table='predmech')
         dbparr = db.lookup(table='predarr')
         for av in o.arrivals:
@@ -483,25 +485,30 @@ def eventfocalmech2db(event=None, database=None):
             arid = int(av.creation_info.version)
             
             # ..and predmech
-            dbpmec.record = dbpmec.addnull()
-            dbpmec.putv('arid', arid,
-                        'orid', orid,
-                        'mechid', mechid,
-                        'fm', fm,
-                        )
+            recnum = dbpmec.addnull()
+            dbout = RowPointerDict(dbpmec, recnum)
+            dbout.update({
+                'arid': arid,
+                'orid': orid,
+                'mechid': mechid,
+                'fm': fm,
+                })
             # if there are entries for this arrival already, write over it...
-            dbparr.record = dbparr.find('arid=={0} && orid=={1}'.format(arid, orid))
+            recnum = dbparr.find('arid=={0} && orid=={1}'.format(arid, orid))
             if dbparr.record < 0:
-                dbparr.record = dbparr.addnull()
-            dbparr.putv('arid', arid,
-                        'orid', orid, 
-                        'esaz', av.azimuth, 
-                        'dip' , av.takeoff_angle,
-                        )
+                recnum = dbparr.addnull()
+            dbout = RowPointerDict(dbparr, recnum)
+            dbout.update({
+                'arid': arid,
+                'orid': orid, 
+                'esaz': av.azimuth, 
+                'dip' : av.takeoff_angle,
+                })
     except Exception as e:
         raise e
     finally:
         db.close()
+
 
 def get_first_motions(dbname, orid=None):
     """
