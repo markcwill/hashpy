@@ -1,44 +1,67 @@
 # -*- coding: utf-8 -*-
-#
-# dbhashpype.py
-#
-# by Mark Williams 2012.313
-#
-# Class to run HASHpy using Antelope database I/O
-#
+"""
+hashpy.io.antelopeIO
+
+by Mark Williams 2012.313
+
+Class to run HASHpy using Antelope database I/O
+
+"""
 import os
 import numpy as np
 try:
-    from antelope.datascope import Dbptr, dbtmp, dblookup, dbprocess
+    from antelope import _datascope as ds
+    from antelope.datascope import dbtmp, dbopen, Dbptr
 except ImportError:
     import sys
     sys.path.append(os.path.join(os.environ['ANTELOPE'], 'data', 'python'))
-    from antelope.datascope import Dbptr, dbtmp, dblookup, dbprocess
+    from antelope import _datascope as ds
+    from antelope.datascope import dbtmp, dbopen, Dbptr
 
 # for HASH compatiblity, change later.
 degrad = 180. / np.pi
 rad = 1. / degrad
 
+# Non backwards compatible Antleope versions.
+if not hasattr(Dbptr, 'nrecs'):
+    def _nrecs(dbptr):
+        return dbptr.record_count
+    Dbptr.nrecs = _nrecs
+
 
 class RowPointerDict(dict):
-    
+    """Quickie class to map db fields to dict keys""" 
     _dbptr = None
+    _tbl = None
 
-    def __init__(self, dbptr=None, record=None):
-        self._dbptr = Dbptr(dbptr)
+    def __init__(self, db=None, record=None):
+        self._dbptr = [db.database, db.table, db.field, db.record]
+        self._tbl = ds._dbquery(self._dbptr, ds.dbTABLE_NAME)
         if record is not None:
-            self._dbptr.record = record
-        if self._dbptr.record < 0:
-            self._dbptr.record = 0
+            self._dbptr[3] = record
+        if self._dbptr[3] < 0:
+            self._dbptr[3] = 0
 
     def __getitem__(self, key):
-        return self._dbptr.getv(key)[0]
+        out = ds._dbgetv(self._dbptr, self._tbl, key)
+        # Non-backwards compatibility strikes again.
+        if len(out) > 1:
+            return out[1][0]
+        else:
+            return out[0]
 
     def __setitem__(self, key, value):
-        self._dbptr.putv(key, value)
+        ds._dbputv(self._dbptr, self._tbl, key, value)
 
     def __len__(self):
-        return self._dbptr.nrecs()
+        return ds._dbquery(self._dbptr, ds.dbRECORD_COUNT)
+
+    def update(self, dict_):
+        args = []
+        for i in dict_.items():
+            args.extend(i)
+        ds._dbputv(self._dbptr, self._tbl, *args)
+
 
 
 def input(hp, dbname, evid=None, orid=None):
@@ -55,13 +78,13 @@ def input(hp, dbname, evid=None, orid=None):
     evid    :   int of EVID
     '''
     
-    db = Dbptr(dbname)
+    db = dbopen(dbname)
 
     if orid is None:
-        dbv = dbprocess(db,['dbopen event', 'dbsubset evid == '+str(evid)])
+        dbv = db.process(['dbopen event', 'dbsubset evid == '+str(evid)])
         orid = RowPointerDict(dbv)['prefor']
     
-    db = dbprocess(db,['dbopen origin', 'dbsubset orid == '+str(orid),
+    db = db.process(['dbopen origin', 'dbsubset orid == '+str(orid),
                     'dbjoin origerr', 'dbjoin assoc',  'dbjoin arrival',
                     'dbjoin affiliation', 'dbjoin site',
                     'dbsubset iphase =~ /.*[Pp].*/',
@@ -97,7 +120,7 @@ def input(hp, dbname, evid=None, orid=None):
         hp.sname[k] = ph['sta']
         hp.snet[k] = ph['net']
         hp.scomp[k] = ph['chan']
-        hp.pickonset[k] = ph['qual'].strip('.')
+        hp.pickonset[k] = ph['qual'] #.strip('.')
         hp.pickpol[k] = ph['fm']
         hp.arid[k] = ph['arid']
         
@@ -171,51 +194,56 @@ def output(hp, dbout=None, solution=0, schema="css3.0"):
     axes = dc.axis
     
     if dbout is not None:
-        db = Dbptr(dbout, perm='r+')
+        db = dbopen(dbout, perm='r+')
     else:
         db = dbtmp(schema)
 
     mechid = db.nextid('mechid')
     
-    dbfpln = dblookup(db,table='fplane')
+    dbfpln = db.lookup(table='fplane')
     
-    dbfpln.record = dbfpln.addnull()
-    dbfpln.putv(
-            'orid', hp.icusp,
-            'str1', round(str1,1) ,
-            'dip1', round(dip1,1) ,
-            'rake1', round(rak1,1),
-            'algorithm', "HASH",
-            'mechid', mechid,
-            'auth', 'hashpy:'+ hp.author,
-            'str2', round(str2,1) ,
-            'dip2', round(dip2,1) ,
-            'rake2', round(rak2,1),
-            'taxazm', round(axes['T']['azimuth'],1),
-            'taxplg', round(axes['T']['dip'],1),
-            'paxazm', round(axes['P']['azimuth'],1),
-            'paxplg', round(axes['P']['dip'],1),
-            )
+    recnum = dbfpln.addnull()
+    dbout = RowPointerDict(dbfpln, recnum)
+    dbout.update({
+            'orid': hp.icusp,
+            'str1': round(str1,1) ,
+            'dip1': round(dip1,1) ,
+            'rake1': round(rak1,1),
+            'algorithm': "HASH",
+            'mechid': mechid,
+            'auth': 'hashpy:'+ hp.author,
+            'str2': round(str2,1) ,
+            'dip2': round(dip2,1) ,
+            'rake2': round(rak2,1),
+            'taxazm': round(axes['T']['azimuth'],1),
+            'taxplg': round(axes['T']['dip'],1),
+            'paxazm': round(axes['P']['azimuth'],1),
+            'paxplg': round(axes['P']['dip'],1),
+            })
     
-    dbpmec = dblookup(db,table='predmech')
-    dbparr = dblookup(db,table='predarr')
+    dbpmec = db.lookup(table='predmech')
+    dbparr = db.lookup(table='predarr')
     for k in range(hp.npol):
         if hp.p_pol[k] > 0:
             fm = 'U'
         else:
             fm = 'D'
-        dbpmec.record = dbpmec.addnull()
-        dbpmec.putv('arid', int(hp.arid[k]) ,
-                    'orid', hp.icusp,
-                    'mechid', mechid,
-                    'fm', fm,
-                    )
-        dbparr.record = dbparr.addnull()
-        dbparr.putv('arid', int(hp.arid[k]),
-                    'orid', hp.icusp, 
-                    'esaz', hp.qazi[k], 
-                    'dip' , hp.p_the_mc[k,0],
-                    )
+        recnum = dbpmec.addnull()
+        dbout = RowPointerDict(dbpmec, recnum)
+        dbout.update({
+            'arid': int(hp.arid[k]) ,
+            'orid': hp.icusp,
+            'mechid': mechid,
+            'fm': fm,
+            })
+        recnum = dbparr.addnull()
+        dbout = RowPointerDict(dbparr, recnum)
+        dbout.update({
+            'arid': int(hp.arid[k]),
+            'orid': hp.icusp, 
+            'esaz': hp.qazi[k], 
+            'dip' : hp.p_the_mc[k,0],
+            })
     return db
 
 
@@ -240,16 +268,17 @@ def load_pf(hp, pffile='dbhash.pf'):
     # Version change 5.2->5.3 broke Antelope API, quick fix for now
     # TODO: 1) use Mark's version agnostic 'pfgetter' function
     #       2) man up and use JSON/ini/native python for your configs
-    try:
-        from antelope.stock import pfget
-    except ImportError:
-        from antelope.stock import pfread as pfget
+    import antelope.stock as stock
     
-    pf_settings = pfget(pffile)
-    pf_keys = list(pf_settings.keys()) # b/c v5.3 broke backwards dict compat
+    if hasattr(stock, 'pfread'):
+        pf_settings = stock.pfread(pffile).pf2dict()
+    elif hasattr(stock, 'pfget'):
+        pf_settings = stock.pfget(pffile)
+    else:
+        raise AttributeError("No pf function")
 
     # Little hack to do type conversions 
-    for key in pf_keys:
+    for key in pf_settings:
         pfi = pf_settings[key]
         if key in ['badfrac','prob_max']:
             pfi = float(pfi)
@@ -259,7 +288,7 @@ def load_pf(hp, pffile='dbhash.pf'):
             pass
         hp.__setattr__(key, pfi)
     
-    if 'vmodel_dir' in pf_keys and 'vmodels' in pf_keys:
+    if 'vmodel_dir' in pf_settings and 'vmodels' in pf_settings:
         hp.vmodels = [os.path.join(hp.vmodel_dir, table) for table in hp.vmodels]
 
 ##############################################################################
@@ -369,14 +398,19 @@ def dbloc_source_db(db, pointer=True):
     INPUT: Dbptr of current temp database in dbloc2
     OUTPUT: Dbptr to database that dbloc2 is using.
     """
-    try:
-        from antelope.stock import pfget
-    except ImportError:
-        from antelope.stock import pfread as pfget
+    import antelope.stock as stock
     
-    db = Dbptr(db, perm='r+') 
+    pffile = 'dbloc2'
+
+    if hasattr(stock, 'pfread'):
+        pf_settings = stock.pfread(pffile).pf2dict()
+    elif hasattr(stock, 'pfget'):
+        pf_settings = stock.pfget(pffile)
+    else:
+        raise AttributeError("No pf function")
+    
+    db = dbopen(db, perm='r+') 
     dbname = db.query('dbDATABASE_NAME')
-    pf_settings = pfget('dbloc2')
     pfdef = pf_settings['Define']
     tempdb = pfdef['Temporary_db']
     workdir = pfdef['Work_dir']
@@ -389,7 +423,7 @@ def dbloc_source_db(db, pointer=True):
         # full absolute path database name to source
         dbname = os.path.abspath(os.path.join(dbcwd, dbpath0))
         db.close()
-        db = Dbptr(dbname, perm='r+')
+        db = dbopen(dbname, perm='r+')
     if pointer:
         return db
     else:
@@ -411,14 +445,14 @@ def eventfocalmech2db(event=None, database=None):
     P = focm.principal_axes.p_axis
     orid = int(o.creation_info.version)
     
-    db = Dbptr(database, perm='r+')
+    db = dbopen(database, perm='r+')
     try:
         # Use the original db if in a dbloc2 'tmp/trial' db
         #db = dbloc_source_db(db)
         # save solution as a new mechid
         mechid = db.nextid('mechid')
         # in fplane...
-        dbfpln = dblookup(db,table='fplane')
+        dbfpln = db.lookup(table='fplane')
         dbfpln.record = dbfpln.addnull()
         dbfpln.putv('orid', orid,
             'str1', round(plane1.strike,1) ,
@@ -435,8 +469,8 @@ def eventfocalmech2db(event=None, database=None):
             'auth', focm.creation_info.author,
             'mechid', mechid,
             )
-        dbpmec = dblookup(db,table='predmech')
-        dbparr = dblookup(db,table='predarr')
+        dbpmec = db.lookup(table='predmech')
+        dbparr = db.lookup(table='predarr')
         for av in o.arrivals:
             pk = av.pick_id.getReferredObject()
             if pk.polarity is 'positive':
@@ -475,8 +509,8 @@ def get_first_motions(dbname, orid=None):
     
     Right now, gets origin, arrival info, and joins wfdisc for filenames to the waveform
     """
-    db = Dbptr(dbname)
-    db = dbprocess(db ,['dbopen origin', 'dbsubset orid=={0}'.format(orid),
+    db = dbopen(dbname)
+    db = db.process(['dbopen origin', 'dbsubset orid=={0}'.format(orid),
             'dbjoin origerr', 'dbjoin assoc',  'dbjoin arrival', 'dbsubset iphase =~ /.*[Pp].*/',
             'dbsubset fm =~ /.*[UuCcDdRr.].*/',
             'dbjoin wfdisc', 'dbsubset chan==wfdisc.chan', 'dbsort arrival.time'])
