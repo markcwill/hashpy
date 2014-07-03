@@ -8,64 +8,32 @@ Class to run HASHpy using Antelope database I/O
 
 """
 import os
-import numpy as np
-try:
-    from antelope import _datascope as ds
-    from antelope.datascope import dbtmp, dbopen, Dbptr
-except ImportError:
-    import sys
-    sys.path.append(os.path.join(os.environ['ANTELOPE'], 'data', 'python'))
-    from antelope import _datascope as ds
-    from antelope.datascope import dbtmp, dbopen, Dbptr
+import math
+
+import curds2.dbapi2 as dbapi2
+from curds2.cursors import InteractiveCursor
+
+from antelope import stock
 
 # for HASH compatiblity, change later.
-degrad = 180. / np.pi
+degrad = 180. / math.pi
 rad = 1. / degrad
 
-# Non backwards compatible Antleope versions. Seriously.
-# ** depricate this to use RowPointerDict __len__ in future
-if not hasattr(Dbptr, 'nrecs'):
-    def _nrecs(dbptr):
-        return dbptr.query(ds.dbRECORD_COUNT)
-    Dbptr.nrecs = _nrecs
 
-
-class RowPointerDict(dict):
-    """Quickie class to map db fields to dict keys""" 
-    _dbptr = None
-    _tbl = None
-
-    def __init__(self, db=None, record=None):
-        self._dbptr = [db.database, db.table, db.field, db.record]
-        self._tbl = ds._dbquery(self._dbptr, ds.dbTABLE_NAME)
-        if record is not None:
-            self._dbptr[3] = record
-        if self._dbptr[3] < 0:
-            self._dbptr[3] = 0
-
-    def __getitem__(self, key):
-        out = ds._dbgetv(self._dbptr, self._tbl, key)
-        # Non-backwards compatibility strikes again.
-        if len(out) > 1:
-            return out[1][0]
-        else:
-            return out[0]
-
-    def __setitem__(self, key, value):
-        ds._dbputv(self._dbptr, self._tbl, key, value)
-
-    def __len__(self):
-        return ds._dbquery(self._dbptr, ds.dbRECORD_COUNT)
-
-    def update(self, dict_):
-        args = []
-        for i in dict_.items():
-            args.extend(i)
-        ds._dbputv(self._dbptr, self._tbl, *args)
+# Ported from nsl.commons
+def get_pf(pfname):
+    """Return a dict from a pf file"""
+    if hasattr(stock, 'pfread'):
+        return stock.pfread(pfname).pf2dict()
+    elif hasattr(stock, 'pfget'):
+        return stock.pfget(pfname)
+    else:
+        raise AttributeError("No pf function available")
 
 
 def input(hp, dbname, evid=None, orid=None):
-    '''Input HASH data from Antelope database
+    """
+    Input HASH data from Antelope database
     
     This will accept a database name OR Antelope Dbptr, and either
     an ORID, or an EVID, in which case the 'prefor' ORID is looked
@@ -76,101 +44,101 @@ def input(hp, dbname, evid=None, orid=None):
     dbname  :   str or antelope.datascope.Dbptr
     orid    :   int of ORID
     evid    :   int of EVID
-    '''
+    """
     
-    db = dbopen(dbname)
+    with dbapi2.connect(dbname) as conn:
+        conn.cursor_factory = InteractiveCursor
+        curs = conn.cursor()
 
-    if orid is None:
-        dbv = db.process(['dbopen event', 'dbsubset evid == '+str(evid)])
-        orid = RowPointerDict(dbv)['prefor']
-    
-    db = db.process(['dbopen origin', 'dbsubset orid == '+str(orid),
-                    'dbjoin origerr', 'dbjoin assoc',  'dbjoin arrival',
-                    'dbjoin affiliation', 'dbjoin site',
-                    'dbsubset iphase =~ /.*[Pp].*/',
-                    'dbsubset (ondate <= time)',
-                    'dbsubset (time <= offdate) || (offdate == -1)']
-                    )
-    
-    ph = RowPointerDict(db, record=0)
+        if orid is None:
+            n = curs.execute.process(['dbopen event', 'dbsubset evid == '+str(evid)])
+            orid = curs.fetchone()['prefor']
+        
+        n = curs.execute.process([
+            'dbopen origin', 'dbsubset orid == '+str(orid),
+            'dbjoin origerr', 'dbjoin assoc',  'dbjoin arrival',
+            'dbjoin affiliation', 'dbjoin site',
+            'dbsubset iphase =~ /.*[Pp].*/',
+            'dbsubset (ondate <= time)',
+            'dbsubset (time <= offdate) || (offdate == -1)',
+            ])
+        
+        if n <= 0:
+            raise ValueError("No picks for this ORID: {0}".format(orid) )
+        
+        ph = curs.fetchone()
+            
+        hp.tstamp = ph['origin.time']
+        hp.qlat = ph['origin.lat']
+        hp.qlon = ph['origin.lon']
+        hp.qdep = ph['origin.depth']
+        hp.qmag = ph['origin.ml']
+        hp.icusp = ph['origin.orid']
+        hp.seh = ph['origerr.smajax']
+        hp.sez = ph['origerr.sdepth']
+        hp.nrecs = n
+        
+        aspect = math.cos(hp.qlat / degrad) # convert using python later.
+        
+        # The index 'k' is deliberately non-Pythonic to deal with the fortran
+        # subroutines which need to be called and the structure of the original HASH code.
+        # May be able to update with a rewrite... YMMV
+        k = 0
+        for ph in curs:
+            # Extract pick data from the db 
+            hp.sname[k] = ph['sta']
+            hp.snet[k] = ph['net']
+            hp.scomp[k] = ph['chan']
+            hp.pickonset[k] = ph['qual'] #.strip('.')
+            hp.pickpol[k] = ph['fm']
+            hp.arid[k] = ph['arid']
+            
+            flat, flon, felv = ph['site.lat'],ph['site.lon'],ph['site.elev']
+            hp.esaz[k] = ph['esaz']
 
-    hp.nrecs = len(ph)
-    if len(ph) <= 0:
-        raise ValueError("No picks for this ORID: {0}".format(orid) )
-        
-    hp.tstamp = ph['origin.time']
-    hp.qlat = ph['origin.lat']
-    hp.qlon = ph['origin.lon']
-    hp.qdep = ph['origin.depth']
-    hp.qmag = ph['origin.ml']
-    hp.icusp = ph['origin.orid']
-    hp.seh = ph['origerr.smajax']
-    hp.sez = ph['origerr.sdepth']
-    
-    aspect = np.cos(hp.qlat / degrad) # convert using python later.
-    
-    # The index 'k' is deliberately non-Pythonic to deal with the fortran
-    # subroutines which need to be called and the structure of the original HASH code.
-    # May be able to update with a rewrite... YMMV
-    k = 0
-    for n in range(len(ph)):
-        # Extract pick data from the db 
-        ph = RowPointerDict(db, record=n)
+            # Distance and Azimuth filtering
+            dx = (flon - hp.qlon) * 111.2 * aspect
+            dy = (flat - hp.qlat) * 111.2
+            dist = math.sqrt(dx**2 + dy**2)
+            qazi = 90. - math.atan2(dy,dx) * degrad
+            
+            if (qazi < 0.):
+                qazi = qazi + 360.
+            
+            if (dist > hp.delmax):
+                continue
 
-        hp.sname[k] = ph['sta']
-        hp.snet[k] = ph['net']
-        hp.scomp[k] = ph['chan']
-        hp.pickonset[k] = ph['qual'] #.strip('.')
-        hp.pickpol[k] = ph['fm']
-        hp.arid[k] = ph['arid']
-        
-        flat, flon, felv = ph['site.lat'],ph['site.lon'],ph['site.elev']
-        hp.esaz[k] = ph['esaz']
+            # Try to get an up/down polarity
+            if not hp.pickpol[k].lower():
+                continue
+            if (hp.pickpol[k].lower() in 'cu'):
+                hp.p_pol[k] = 1
+            elif (hp.pickpol[k].lower() in 'dr'):
+                hp.p_pol[k] = -1
+            else:
+                continue
 
-        # Distance and Azimuth filtering
-        dx = (flon - hp.qlon) * 111.2 * aspect
-        dy = (flat - hp.qlat) * 111.2
-        dist = np.sqrt(dx**2 + dy**2)
-        qazi = 90. - np.arctan2(dy,dx) * degrad
-        
-        if (qazi < 0.):
-            qazi = qazi + 360.
-        
-        if (dist > hp.delmax):
-            continue
-
-        # Try to get an up/down polarity
-        if not hp.pickpol[k].lower():
-            continue
-        if (hp.pickpol[k].lower() in 'cu'):
-            hp.p_pol[k] = 1
-        elif (hp.pickpol[k].lower() in 'dr'):
-            hp.p_pol[k] = -1
-        else:
-            continue
-
-        # Save them for other functions
-        hp.dist[k] = dist
-        hp.qazi[k] = qazi
-        hp.flat[k] = flat
-        hp.flon[k] = flon
-        hp.felv[k] = felv
-        
-        # Try to get the onset, impulsive if none
-        if (hp.pickonset[k].lower() == 'i'):
-            hp.p_qual[k] = 0
-        elif (hp.pickonset[k].lower() == 'e'):
-            hp.p_qual[k] = 1
-        elif (hp.pickonset[k].lower() == 'w'):
-            hp.p_qual[k] = 1
-        else:
-            hp.p_qual[k] = 0
-        
-        # polarity check in original code... doesn't work here
-        #hp.p_pol[k] = hp.p_pol[k] * hp.spol
-        k += 1
-    hp.npol = k # k is zero indexed in THIS loop
-    db.close()
+            # Save them for other functions
+            hp.dist[k] = dist
+            hp.qazi[k] = qazi
+            hp.flat[k] = flat
+            hp.flon[k] = flon
+            hp.felv[k] = felv
+            
+            # Try to get the onset, impulsive if none
+            if (hp.pickonset[k].lower() == 'i'):
+                hp.p_qual[k] = 0
+            elif (hp.pickonset[k].lower() == 'e'):
+                hp.p_qual[k] = 1
+            elif (hp.pickonset[k].lower() == 'w'):
+                hp.p_qual[k] = 1
+            else:
+                hp.p_qual[k] = 0
+            
+            # polarity check in original code... doesn't work here
+            #hp.p_pol[k] = hp.p_pol[k] * hp.spol
+            k += 1
+        hp.npol = k # k is zero indexed in THIS loop
 
 
 def output(hp, dbout=None, solution=0, schema="css3.0"):
@@ -194,17 +162,23 @@ def output(hp, dbout=None, solution=0, schema="css3.0"):
     axes = dc.axis
     
     if dbout is not None:
-        db = dbopen(dbout, perm='r+')
+        args = tuple(dbout,) 
+        kwargs = dict(perm='r+')
     else:
-        db = dbtmp(schema)
+        args = tuple(':memory:',)
+        kwargs = dict()
+    
+    conn = dbapi2.connect(*args, **kwargs)
+    conn.cursor_factory = InteractiveCursor
 
-    mechid = db.nextid('mechid')
+    mechid = curs.execute.nextid('mechid')
     
-    dbfpln = db.lookup(table='fplane')
+    n = curs.execute.lookup(table='fplane')
     
-    recnum = dbfpln.addnull()
-    dbout = RowPointerDict(dbfpln, recnum)
-    dbout.update({
+    recnum = curs.execute.addnull()
+    curs.scroll(recnum, 'absolute')
+    row = curs.fetchone()
+    row.update({
             'orid': hp.icusp,
             'str1': round(str1,1) ,
             'dip1': round(dip1,1) ,
@@ -221,30 +195,34 @@ def output(hp, dbout=None, solution=0, schema="css3.0"):
             'paxplg': round(axes['P']['dip'],1),
             })
     
-    dbpmec = db.lookup(table='predmech')
-    dbparr = db.lookup(table='predarr')
+    curs_m = conn.cursor()
+    curs_a = conn.cursor()
+    nm = curs_m.execute.lookup(table='predmech')
+    na = curs_a.execute.lookup(table='predarr')
     for k in range(hp.npol):
         if hp.p_pol[k] > 0:
             fm = 'U'
         else:
             fm = 'D'
-        recnum = dbpmec.addnull()
-        dbout = RowPointerDict(dbpmec, recnum)
-        dbout.update({
+        recnum = curs_m.execute.addnull()
+        curs_m.scroll(recnum, 'absolute')
+        row = curs.fetchone()
+        row.update({
             'arid': int(hp.arid[k]) ,
             'orid': hp.icusp,
             'mechid': mechid,
             'fm': fm,
             })
-        recnum = dbparr.addnull()
-        dbout = RowPointerDict(dbparr, recnum)
-        dbout.update({
+        recnum = curs_a.execute.addnull()
+        curs_a.scroll(recnum, 'absolute')
+        row = curs.fetchone()
+        row.update({
             'arid': int(hp.arid[k]),
             'orid': hp.icusp, 
             'esaz': hp.qazi[k], 
             'dip' : hp.p_the_mc[k,0],
             })
-    return db
+    return conn
 
 
 #
@@ -265,17 +243,9 @@ def load_pf(hp, pffile='dbhash.pf'):
      pffile : string of full path to pf file
      
     '''
-    # Version change 5.2->5.3 broke Antelope API, quick fix for now
-    # TODO: 1) use Mark's version agnostic 'pfgetter' function
-    #       2) man up and use JSON/ini/native python for your configs
-    import antelope.stock as stock
-    
-    if hasattr(stock, 'pfread'):
-        pf_settings = stock.pfread(pffile).pf2dict()
-    elif hasattr(stock, 'pfget'):
-        pf_settings = stock.pfget(pffile)
-    else:
-        raise AttributeError("No pf function")
+    # 1) use Mark's version agnostic 'pfgetter' function
+    # 2) TODO: man up and use JSON/YAML for configs, get typing for free
+    pf_settings = get_pf(pffile)    
 
     # Little hack to do type conversions 
     for key in pf_settings:
@@ -291,6 +261,7 @@ def load_pf(hp, pffile='dbhash.pf'):
     if 'vmodel_dir' in pf_settings and 'vmodels' in pf_settings:
         hp.vmodels = [os.path.join(hp.vmodel_dir, table) for table in hp.vmodels]
 
+
 ##############################################################################
 # Antelope <-> ObsPy utilities
 ##############################################################################
@@ -298,96 +269,6 @@ def load_pf(hp, pffile='dbhash.pf'):
 # These are not necessary to run Antelope with HASH, for interactive/GUI
 # scripts and housekeeping utils. 
 #
-def readANTELOPE(database, station=None, channel=None, starttime=None, endtime=None):
-    """
-    Reads a portion of a Antelope wfdisc table to a Stream.
-    
-    Attempts to return one Trace per line of the 'wfdisc' view passed.  
-    Additionally, will filter and cut with respect to any of the fields
-    in the primary key IF specified. (sta chan time::endtime)
-    
-    NOTE: Currently MUST have both times (start/end) or neither.
-    the returned Traces will have a new attribute, 'db'
-
-    :type database: string or antelope.datascope.Dbptr
-    :param database: Antelope database name or pointer
-    :type station: string
-    :param station: Station expression to subset
-    :type channel: string
-    :param channel: Channel expression to subset
-    :type starttime: :class: `~obspy.core.utcdatetime.UTCDateTime`
-    :param starttime: Desired start time
-    :type endtime: :class: `~obspy.core.utcdatetime.UTCDateTime`
-    :param endtime: Desired end time
-        
-    :rtype: :class: `~obspy.core.stream.Stream'
-    :return: Stream with one Trace for each row of the database view
-    
-    .. rubric:: Example
-    
-    >>> st = readANTELOPE('/opt/antelope/example/db', station='TOLO', channel='LH.',
-                        starttime=UTCDateTime(2008,6,13), endtime=UTCDateTime(2008,6,14))
-    >>> print(st)
-    6 Trace(s) in Stream:
-    XA.TOL0..LHE | 2008-06-12T23:59:59.640000Z - 2008-06-13T00:04:11.640000Z | 1.0 Hz, 253 samples
-    XA.TOL0..LHE | 2008-06-13T00:04:12.640000Z - 2008-06-13T23:59:59.640000Z | 1.0 Hz, 86148 samples
-    XA.TOL0..LHN | 2008-06-12T23:59:59.640000Z - 2008-06-13T00:04:11.640000Z | 1.0 Hz, 253 samples
-    XA.TOL0..LHN | 2008-06-13T00:04:12.640000Z - 2008-06-13T23:59:59.640000Z | 1.0 Hz, 86148 samples
-    XA.TOL0..LHZ | 2008-06-12T23:59:59.640000Z - 2008-06-13T00:04:21.640000Z | 1.0 Hz, 263 samples
-    XA.TOL0..LHZ | 2008-06-13T00:04:22.640000Z - 2008-06-13T23:59:59.640000Z | 1.0 Hz, 86138 samples
-    
-    Also adds a Dbrecord as an attribute of the Trace
-    
-    >>> st[0].db
-    Dbrecord('View43' -> TOL0 LHE 1213229044.64::1213315451.64)
- 
-    """
-    from obspy.core import read, Stream, UTCDateTime
-
-    if isinstance(database,Dbptr):
-        db = Dbptr(database)
-        db = db.lookup(table='wfdisc')
-    else:
-        raise TypeError("Must input a string or pointer to a valid database")
-        
-    if station is not None:
-        db = db.subset('sta=~/{0}/'.format(station))
-    if channel is not None:
-        db = db.subset('chan=~/{0}/'.format(channel))
-    if starttime is not None and endtime is not None:
-        ts = starttime.timestamp
-        te = endtime.timestamp
-        db = db.subset('endtime > {0} && time < {1}'.format(ts,te) )
-    else:
-        ts = starttime
-        te = endtime
-    assert db.nrecs() is not 0, "No records for given time period"
-    
-    st = Stream()
-    for db.record in range(db.nrecs() ):
-        fname = db.filename() 
-        dbr = RowPointerDict(db)
-        t0 = UTCDateTime(dbr['time'])
-        t1 = UTCDateTime(dbr['endtime'])
-        if dbr['time'] < ts:
-            t0 = starttime
-        if dbr['endtime'] > te:
-            t1 = endtime
-        if os.path.exists(fname):
-            _st = read(fname, starttime=t0, endtime=t1)      # add format?
-            _st = _st.select(station=dbr['sta'], channel=dbr['chan']) #not location aware
-            #_st[0].db = dbr
-            if dbr['calib'] < 0:
-                _st[0].data *= -1
-            st += _st
-    # Close what we opened, BUT garbage collection may take care of this:
-    # if you have an open pointer but pass db name as a string, global
-    # use of your pointer won't work if this is uncommented:
-    #
-    #if isinstance(database,str):
-    #   db.close()
-    return st
-
 def dbloc_source_db(db, pointer=True):
     """
     Checks if you are in a dbloc2 'trial' db and returns the source
@@ -398,19 +279,11 @@ def dbloc_source_db(db, pointer=True):
     INPUT: Dbptr of current temp database in dbloc2
     OUTPUT: Dbptr to database that dbloc2 is using.
     """
-    import antelope.stock as stock
-    
-    pffile = 'dbloc2'
+    pf_settings = get_pf('dbloc2')
 
-    if hasattr(stock, 'pfread'):
-        pf_settings = stock.pfread(pffile).pf2dict()
-    elif hasattr(stock, 'pfget'):
-        pf_settings = stock.pfget(pffile)
-    else:
-        raise AttributeError("No pf function")
-    
-    db = dbopen(db, perm='r+') 
-    dbname = db.query('dbDATABASE_NAME')
+    conn = dbapi2.connect(db, perm='r+')
+    curs = conn.cursor()
+    dbname = curs.execute.query('dbDATABASE_NAME')
     pfdef = pf_settings['Define']
     tempdb = pfdef['Temporary_db']
     workdir = pfdef['Work_dir']
@@ -419,15 +292,15 @@ def dbloc_source_db(db, pointer=True):
         # path of trial db from dbloc2
         dbcwd = os.path.dirname(dbname)
         # relative name of 1st db in 'trial' database decriptor file
-        dbpath0 = db.query('dbDBPATH').split(':')[0].translate(None,'{}')
+        dbpath0 = curs.execute.query('dbDBPATH').split(':')[0].translate(None,'{}')
         # full absolute path database name to source
         dbname = os.path.abspath(os.path.join(dbcwd, dbpath0))
-        db.close()
-        db = dbopen(dbname, perm='r+')
+        conn.close()
+        conn = dbapi2.connect(dbname, perm='r+')
     if pointer:
-        return db
+        return conn
     else:
-        db.close()
+        conn.close()
         return dbname
 
 
@@ -446,16 +319,19 @@ def eventfocalmech2db(event=None, database=None):
     P = focm.principal_axes.p_axis
     orid = int(o.creation_info.version)
     
-    db = dbopen(database, perm='r+')
+    conn = dbapi2.connect(database, perm='r+')
     try:
         # Use the original db if in a dbloc2 'tmp/trial' db
         #db = dbloc_source_db(db)
         # save solution as a new mechid
-        mechid = db.nextid('mechid')
+        mechid = curs.execute.nextid('mechid')
         # in fplane...
-        recnum = dbfpln.addnull()
-        dbout = RowPointerDict(dbfpln, recnum)
-        dbout.update({
+        n = curs.execute.lookup(table='fplane')
+        
+        recnum = curs.execute.addnull()
+        curs.scroll(recnum, 'absolute')
+        row = curs.fetchone()
+        row.update({
             'orid': orid,
             'str1': round(plane1.strike,1) ,
             'dip1': round(plane1.dip,1) ,
@@ -471,8 +347,10 @@ def eventfocalmech2db(event=None, database=None):
             'auth': focm.creation_info.author,
             'mechid': mechid,
             })
-        dbpmec = db.lookup(table='predmech')
-        dbparr = db.lookup(table='predarr')
+        curs_m = conn.cursor()
+        curs_a = conn.cursor()
+        nm = curs_m.execute.lookup(table='predmech')
+        na = curs_a.execute.lookup(table='predarr')
         for av in o.arrivals:
             pk = av.pick_id.getReferredObject()
             if pk.polarity is 'positive':
@@ -484,10 +362,10 @@ def eventfocalmech2db(event=None, database=None):
             
             arid = int(av.creation_info.version)
             
-            # ..and predmech
-            recnum = dbpmec.addnull()
-            dbout = RowPointerDict(dbpmec, recnum)
-            dbout.update({
+            recnum = curs_m.execute.addnull()
+            curs_m.scroll(recnum, 'absolute')
+            row = curs.fetchone()
+            row.update({
                 'arid': arid,
                 'orid': orid,
                 'mechid': mechid,
@@ -496,9 +374,10 @@ def eventfocalmech2db(event=None, database=None):
             # if there are entries for this arrival already, write over it...
             recnum = dbparr.find('arid=={0} && orid=={1}'.format(arid, orid))
             if dbparr.record < 0:
-                recnum = dbparr.addnull()
-            dbout = RowPointerDict(dbparr, recnum)
-            dbout.update({
+                recnum = curs_a.execute.addnull()
+            curs_a.scroll(recnum, 'absolute')
+            row = curs.fetchone()
+            row.update({
                 'arid': arid,
                 'orid': orid, 
                 'esaz': av.azimuth, 
@@ -507,7 +386,7 @@ def eventfocalmech2db(event=None, database=None):
     except Exception as e:
         raise e
     finally:
-        db.close()
+        conn.close()
 
 
 def get_first_motions(dbname, orid=None):
@@ -516,16 +395,19 @@ def get_first_motions(dbname, orid=None):
     
     Right now, gets origin, arrival info, and joins wfdisc for filenames to the waveform
     """
-    db = dbopen(dbname)
-    db = db.process(['dbopen origin', 'dbsubset orid=={0}'.format(orid),
-            'dbjoin origerr', 'dbjoin assoc',  'dbjoin arrival', 'dbsubset iphase =~ /.*[Pp].*/',
-            'dbsubset fm =~ /.*[UuCcDdRr.].*/',
-            'dbjoin wfdisc', 'dbsubset chan==wfdisc.chan', 'dbsort arrival.time'])
-            #'dbjoin -o affiliation', 'dbjoin -o site',
-            #
-            #
-            #'dbsubset (ondate <= time)',
-            #'dbsubset (time <= offdate) || (offdate == -1)']
-            #)
-    return db
+    conn = dbapi2.connect(dbname)
+    curs = conn.cursor()
+    n = curs.execute.process([
+        'dbopen origin', 'dbsubset orid=={0}'.format(orid),
+        'dbjoin origerr', 'dbjoin assoc',  'dbjoin arrival', 'dbsubset iphase =~ /.*[Pp].*/',
+        'dbsubset fm =~ /.*[UuCcDdRr.].*/',
+        'dbjoin wfdisc', 'dbsubset chan==wfdisc.chan', 'dbsort arrival.time'
+        ])
+        #'dbjoin -o affiliation', 'dbjoin -o site',
+        #
+        #
+        #'dbsubset (ondate <= time)',
+        #'dbsubset (time <= offdate) || (offdate == -1)']
+        #)
+    return curs
 

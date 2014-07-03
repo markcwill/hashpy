@@ -21,7 +21,7 @@ import os
 import logging
 from argparse import ArgumentParser
 from hashpy.hashpype import HashPype, HashError
-from hashpy.io.antelopeIO import ( load_pf, eventfocalmech2db, dbloc_source_db, RowPointerDict )
+from hashpy.io.antelopeIO import load_pf, eventfocalmech2db, dbloc_source_db
 
 LOG = logging.getLogger()
 
@@ -109,17 +109,20 @@ def dbhash(args):
     """
     # Special 'dbloc2' settings
     if args.loc:
-        from antelope.datascope import Dbptr
+        import curds2.dbapi2 as dbapi2
+        from curds2.cursors import InteractiveCursor
         # alter args b/c dbloc2 passes a db and a row number
         args.dbin = args.dbin.rstrip('.origin')
-        db = Dbptr(args.dbin)
-        db = db.lookup(table='origin')
-        db.record = int(args.dbout)
-        args.orid = db.getv('orid')[0]
+        curs = dbapi2.connect(args.dbin, cursor_factory=InteractiveCursor).cursor()
+        n = curs.execute.lookup(table='origin')
+        rec = int(args.dbout)
+        curs.scroll(rec, 'absolute')
+        args.orid = curs.fetchone()['orid']
         args.dbout = dbloc_source_db(args.dbin, pointer=False)
         args.plot = True   # force plot
         args.image = True  # force saving image to db folder
-    
+        curs.close()
+
     #--- Run HASH ----------------------------------------------------#
     hp = run_hash(args.dbin, orid=args.orid, pf=args.pf)
 
