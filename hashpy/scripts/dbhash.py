@@ -109,10 +109,10 @@ def dbhash(args):
     """
     # Special 'dbloc2' settings
     if args.loc:
-        from antelope.datascope import Dbptr
+        from antelope.datascope import dbopen
         # alter args b/c dbloc2 passes a db and a row number
         args.dbin = args.dbin.rstrip('.origin')
-        db = Dbptr(args.dbin)
+        db = dbopen(args.dbin)
         db = db.lookup(table='origin')
         db.record = int(args.dbout)
         args.orid = db.getv('orid')[0]
