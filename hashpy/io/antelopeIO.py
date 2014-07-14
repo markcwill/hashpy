@@ -447,11 +447,14 @@ def eventfocalmech2db(event=None, database=None):
     orid = int(o.creation_info.version)
     
     db = dbopen(database, perm='r+')
+    dbfpln = db.lookup(table='fplane')
     try:
         # Use the original db if in a dbloc2 'tmp/trial' db
         #db = dbloc_source_db(db)
         # save solution as a new mechid
         mechid = db.nextid('mechid')
+        if mechid < 0:
+            raise IOError("Error writing to database, check permissions")
         # in fplane...
         recnum = dbfpln.addnull()
         dbout = RowPointerDict(dbfpln, recnum)
@@ -467,7 +470,7 @@ def eventfocalmech2db(event=None, database=None):
             'taxplg': round(T.plunge,1),
             'paxazm': round(P.azimuth,1),
             'paxplg': round(P.plunge,1),
-            'algorithm': focm.method_id.resource_id,
+            'algorithm': "HASHpy",
             'auth': focm.creation_info.author,
             'mechid': mechid,
             })
