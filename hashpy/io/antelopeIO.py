@@ -325,6 +325,8 @@ def eventfocalmech2db(event=None, database=None):
         #db = dbloc_source_db(db)
         # save solution as a new mechid
         mechid = curs.execute.nextid('mechid')
+        if mechid < 0:
+            raise IOError("Error writing to database, check permissions")
         # in fplane...
         n = curs.execute.lookup(table='fplane')
         
@@ -343,7 +345,7 @@ def eventfocalmech2db(event=None, database=None):
             'taxplg': round(T.plunge,1),
             'paxazm': round(P.azimuth,1),
             'paxplg': round(P.plunge,1),
-            'algorithm': focm.method_id.resource_id,
+            'algorithm': "HASHpy",
             'auth': focm.creation_info.author,
             'mechid': mechid,
             })

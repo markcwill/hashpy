@@ -177,8 +177,19 @@ class HashPype(object):
     
     # polarity reversals, [-1,1] stub for now. This should be checked
     # per pick in any input routines, this class doesn't use it.
-    spol = 1
+    spol = None
     
+
+    def __setattr__(self, name, value):
+        """
+        Force typed class attr to their types
+        (This is for setting variables from non-typed configs, i.e. web-query strings)
+        """
+        if hasattr(self.__class__, name) and getattr(self.__class__, name) is not None:
+            value = type(getattr(self.__class__, name))(value)
+        super(HashPype, self).__setattr__(name, value)
+
+
     def __init__(self, **kwargs):
         """
         Make an empty HASH run object.

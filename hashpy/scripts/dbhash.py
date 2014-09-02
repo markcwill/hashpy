@@ -109,6 +109,7 @@ def dbhash(args):
     """
     # Special 'dbloc2' settings
     if args.loc:
+<<<<<<< HEAD
         import curds2.dbapi2 as dbapi2
         from curds2.cursors import InteractiveCursor
         # alter args b/c dbloc2 passes a db and a row number
@@ -118,6 +119,15 @@ def dbhash(args):
         rec = int(args.dbout)
         curs.scroll(rec, 'absolute')
         args.orid = curs.fetchone()['orid']
+=======
+        from antelope.datascope import dbopen
+        # alter args b/c dbloc2 passes a db and a row number
+        args.dbin = args.dbin.rstrip('.origin')
+        db = dbopen(args.dbin)
+        db = db.lookup(table='origin')
+        db.record = int(args.dbout)
+        args.orid = db.getv('orid')[0]
+>>>>>>> dev
         args.dbout = dbloc_source_db(args.dbin, pointer=False)
         args.plot = True   # force plot
         args.image = True  # force saving image to db folder
