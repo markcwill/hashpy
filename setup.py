@@ -63,7 +63,7 @@ setup_args = {
     'description'  : 'Routines for running HASH algorithms',
     'author'       : 'Mark Williams',
     'url'          : 'https//github.com/markcwill/hashpy',
-    'packages'     : ['hashpy', 'hashpy.io', 'hashpy.plotting'],
+    'packages'     : ['hashpy', 'hashpy.io', 'hashpy.plotting', 'hashpy.util'],
     'package_data' : {'hashpy': [
                         'RELEASE-VERSION',
                         'src/*.inc','src/Makefile','data/*',
