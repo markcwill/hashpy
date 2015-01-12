@@ -62,11 +62,15 @@ COMMON blocks:
 
 ### Input/Output
 
-Data can be input into HASH in various formats. This is currently handled in HASHpy by registering a format in the `hashpy.io` module by adding a module/functions to the dictionary in `hashpy.io.core`. (May change in future releases). I/O functions are then called by the HashPype methods `HashPype.input()` and `HashPype.output()`. If the 'output' method is called with no format it will return a simple string with the event ID with the best strike/dip/rake
+Data can be input into HASH in various formats. There are some I/O routine submodules in the `hashpy.io` module. I/O functions can be imported from here and used directly, or set to the class attributes `input_factory` and `output_factory`. The functions will then called by the HashPype methods `HashPype.input()` and `HashPype.output()`.
 
-Currently Supports:
-* ObsPy Event object I/O
-* Antelope Datascope database I/O
+Current IO submodules:
+* `hashpy.io.obspyIO` - ObsPy Event object I/O (`inputOBSPY` and `outputOBSPY`)
+* `hashpy.io.antelopeIO - Antelope Datascope database and other I/O (`input`, `output`, plus other fxns)
+* `hashpy.io.fpfitIO` - Old style FPFIT file I/O (still in develoment)
+
+The default I/O functions input keyword arguments as HashPype attribute and output a string of the "best" solution.
+
 
 ```python
 # Usage example:
@@ -74,6 +78,7 @@ Currently Supports:
 # Using the ObsPy Event format as input for origin, picks, and arrivals
 
 from hashpy import HashPype, HashError
+from hashpy.io.obspyIO import inputOBSPY, outputOBSPY
 
 # Make an ObsPy Event, or get from a QuakeML file
 from obspy.core.event import readEvents
@@ -88,8 +93,8 @@ config = { "npolmin" : 10,
                        ] 
            }
 
-hp = HashPype(**config)
-hp.input(event, format="OBSPY")
+hp = HashPype(input_factory=inputOBSPY, **config)
+hp.input(event)
 hp.load_velocity_models()
 hp.generate_trial_data()
 hp.calculate_takeoff_angles()
@@ -106,13 +111,13 @@ else:
 
 ```
 
-### Plotting
+### Plotting (Experimental)
 
 A trial implementation of plotting exists, using `matplotlib` and the `mplstereonet` package, as the  `hashpy.plotting.focalmechplotter.FocalMechPlotter` class. It accepts an ObsPy Event containing Picks, Origin/Arrivals, FocalMechanism, etc, objects (as output from HashPype) and generates a stereonet plot. Multiple FocalMechansim solutions from HASH are accessible through the navigation toolbar 'back' and 'forward' arrows.
 
 ```python
 # Get an obspy Event object as output
->>> event = hp.output(format="OBSPY")
+>>> event = outputOBSPY(hp)
 # Pass to plotter class as constructor variable
 >>> fmp = FocalMechPlotter(event)
 # Plots a figure, accessible as 'fmp.fig'
@@ -128,7 +133,8 @@ A trial implementation of plotting exists, using `matplotlib` and the `mplstereo
 #### Optional
 * [ObsPy](https://github.com/obspy/obspy.git) (Only for plotting and ObsPy I/O))
 * [mplstereonet](https://github.com/joferkington/mplstereonet.git) (Only for plotting)
-* [Antelope](http://www.brtt.com) (Only for Antelope database I/O)
+* [curds2](http://github.com/NVSeismoLab/curds2.git) (Only for Antelope database I/O)
+* [Antelope](http://www.brtt.com) (Required by curds2)
 
 ### HASH references
 

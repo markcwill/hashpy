@@ -170,7 +170,8 @@ def output(hp, dbout=None, solution=0, schema="css3.0"):
     
     conn = dbapi2.connect(*args, **kwargs)
     conn.cursor_factory = InteractiveCursor
-
+    
+    curs = conn.cursor()
     mechid = curs.execute.nextid('mechid')
     
     n = curs.execute.lookup(table='fplane')
@@ -320,10 +321,12 @@ def eventfocalmech2db(event=None, database=None):
     orid = int(o.creation_info.version)
     
     conn = dbapi2.connect(database, perm='r+')
+    conn.cursor_factory = InteractiveCursor
     try:
         # Use the original db if in a dbloc2 'tmp/trial' db
         #db = dbloc_source_db(db)
         # save solution as a new mechid
+        curs = conn.cursor()
         mechid = curs.execute.nextid('mechid')
         if mechid < 0:
             raise IOError("Error writing to database, check permissions")
@@ -366,7 +369,7 @@ def eventfocalmech2db(event=None, database=None):
             
             recnum = curs_m.execute.addnull()
             curs_m.scroll(recnum, 'absolute')
-            row = curs.fetchone()
+            row = curs_m.fetchone()
             row.update({
                 'arid': arid,
                 'orid': orid,
@@ -374,11 +377,14 @@ def eventfocalmech2db(event=None, database=None):
                 'fm': fm,
                 })
             # if there are entries for this arrival already, write over it...
-            recnum = dbparr.find('arid=={0} && orid=={1}'.format(arid, orid))
-            if dbparr.record < 0:
+            try:
+                recnum = curs_a.execute.find('arid=={0} && orid=={1}'.format(arid, orid))
+            except:
+                recnum = -1
+            if recnum < 0:
                 recnum = curs_a.execute.addnull()
             curs_a.scroll(recnum, 'absolute')
-            row = curs.fetchone()
+            row = curs_m.fetchone()
             row.update({
                 'arid': arid,
                 'orid': orid, 

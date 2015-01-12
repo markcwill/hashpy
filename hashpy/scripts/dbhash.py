@@ -20,21 +20,25 @@ import sys
 import os
 import logging
 from argparse import ArgumentParser
-from hashpy.hashpype import HashPype, HashError
-from hashpy.io.antelopeIO import load_pf, eventfocalmech2db, dbloc_source_db
+from hashpy.hashpype import HashPype, HashError, output_string
+from hashpy.io.antelopeIO import load_pf, eventfocalmech2db, dbloc_source_db, input as inputANTELOPE, output as outputANTELOPE
+from hashpy.io.obspyIO import inputOBSPY, outputOBSPY
 
 LOG = logging.getLogger()
 
-parser = ArgumentParser()
-parser.add_argument("dbin", help="Input database")
-parser.add_argument("dbout", help="Output database", nargs='?')
-parser.add_argument("-p", "--plot", help="Plot result", action='store_true')
-parser.add_argument("-l", "--loc", help="dbloc2 mode", action='store_true')
-parser.add_argument("-i", "--image", help="Save image with db", action='store_true')
-parser.add_argument("--pf",   help="Parameter file")
-group = parser.add_mutually_exclusive_group() #required=True)
-group.add_argument("--evid", help="Event ID", type=int)
-group.add_argument("--orid", help="Origin ID", type=int)
+
+def cli_parser():
+    parser = ArgumentParser()
+    parser.add_argument("dbin", help="Input database")
+    parser.add_argument("dbout", help="Output database", nargs='?')
+    parser.add_argument("-p", "--plot", help="Plot result", action='store_true')
+    parser.add_argument("-l", "--loc", help="dbloc2 mode", action='store_true')
+    parser.add_argument("-i", "--image", help="Save image with db", action='store_true')
+    parser.add_argument("--pf",   help="Parameter file")
+    group = parser.add_mutually_exclusive_group() #required=True)
+    group.add_argument("--evid", help="Event ID", type=int)
+    group.add_argument("--orid", help="Origin ID", type=int)
+    return parser
 
 
 def run_hash(dbname, orid=None, pf=None):
@@ -49,7 +53,7 @@ def run_hash(dbname, orid=None, pf=None):
     
     Returns : hp : a hashpy.HashPype object containing solutions
     """
-    hp = HashPype()
+    hp = HashPype(input_factory=inputANTELOPE)
     
     # Load settings data from a pf file...
     if pf:
@@ -58,7 +62,7 @@ def run_hash(dbname, orid=None, pf=None):
         load_pf(hp)
     
     # Grab data from the db...
-    hp.input(dbname, format="ANTELOPE", orid=orid)
+    hp.input(dbname, orid=orid)
     
     # Run driver script method
     hp.driver2(check_for_maximum_gap_size=False)
@@ -109,7 +113,6 @@ def dbhash(args):
     """
     # Special 'dbloc2' settings
     if args.loc:
-<<<<<<< HEAD
         import curds2.dbapi2 as dbapi2
         from curds2.cursors import InteractiveCursor
         # alter args b/c dbloc2 passes a db and a row number
@@ -119,15 +122,6 @@ def dbhash(args):
         rec = int(args.dbout)
         curs.scroll(rec, 'absolute')
         args.orid = curs.fetchone()['orid']
-=======
-        from antelope.datascope import dbopen
-        # alter args b/c dbloc2 passes a db and a row number
-        args.dbin = args.dbin.rstrip('.origin')
-        db = dbopen(args.dbin)
-        db = db.lookup(table='origin')
-        db.record = int(args.dbout)
-        args.orid = db.getv('orid')[0]
->>>>>>> dev
         args.dbout = dbloc_source_db(args.dbin, pointer=False)
         args.plot = True   # force plot
         args.image = True  # force saving image to db folder
@@ -140,14 +134,15 @@ def dbhash(args):
     if args.plot:
         from hashpy.plotting.focalmechplotter import FocalMechPlotter
         save_plot_to_db = SaveFunction(args.dbout, args.image)
-        ev = hp.output(format="OBSPY")
+        ev = outputOBSPY(hp)
         p = FocalMechPlotter(ev, save=save_plot_to_db)
     else:
         # quick orid/strike/dip/rake line
+       # print(output_string(hp))
         print(hp.output())
         p = 0    
         if args.dbout:
-            db = hp.output(format="ANTELOPE", dbout=args.dbout)
+            db = outputANTELOPE(hp, dbout=args.dbout)
     # Done, return HashPype and/or FocalMechPlotter for debugging
     return hp, p
 
@@ -160,7 +155,7 @@ def main():
     """
     # Root logger to stderr for now
     logging.basicConfig(format='[%(levelname)s]: %(message)s')
-    
+    parser = cli_parser() 
     try:
         args = parser.parse_args()
         out = dbhash(args)

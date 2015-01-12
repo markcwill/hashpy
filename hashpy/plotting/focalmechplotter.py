@@ -134,11 +134,12 @@ class FocalMechPlotter(object):
             if True:
                 h_text = ax.rake(azi, toa+5, 90, marker='$   {0}$'.format(p.waveform_id.station_code), color='black',markersize=20)
         
-        for comm in self.focm.comments:
-            if 'quality' in str(comm.resource_id):
-                qual = comm.text
-            else:
-                qual = None
+        if hasattr(self._focm, 'extra'):
+            qual = self._focm.extra.get('qual', {})
+            qual = qual.get('value')
+        else:
+            qual = None
+        
         plane_str = "STRIKE1:{0: > 7.1f}\nDIP1:{1: > 7.1f}\nRAKE1:{2: > 7.1f}\n\nSTRIKE2:{3: > 7.1f}\nDIP2:{4: > 7.1f}\nRAKE2:{5: > 7.1f}"
         h_text = self.fig.text(0.25, 0.88, plane_str.format(strike1, dip1, rake1, strike2, dip2, rake2), ha='right', va='top', family='monospace')
         h_text = self.fig.text(0.25, 0.11, 'Quality:  {0}\n# of picks: {1}'.format(qual, len(self._orig.arrivals)), ha='right', va='top', family='monospace')  

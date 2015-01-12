@@ -16,10 +16,12 @@ using this version of HASH.
 """
 import os
 from pwd import getpwuid
+from inspect import isfunction
 
 import numpy as np
 
-from hashpy.io.core import IOFunction
+#from hashpy.io.core import IOFunction
+# Compiled Fortran routines from original HASH from extension module
 from hashpy.libhashpy import (mk_table_add, angtable, ran_norm, get_tts, get_gap,
     focalmc, mech_prob, get_misf, focalamp_mc, get_misf_amp)
 
@@ -52,8 +54,30 @@ def fortran_include(fname):
             else:
                 pass
     return inc_params
+
+
+def input_kwargs(hp, **kwargs):
+    """
+    Default input function - adds keywords args to attributes
+    """
+    for k in kwargs:
+        if hasattr(hp, k):
+            setattr(hp, k, kwargs[k])
+
+
+def output_string(hp, *args, **kwargs):
+    """
+    Simple string line output of best solution
     
-    
+    Uses the hp._best_quality_index method, from the original HASH code,
+    so this is easily modified to a custom quality assessment/output
+    """
+    x = hp._best_quality_index
+    s, d, r = hp.str_avg[x], hp.dip_avg[x], hp.rak_avg[x]
+    return 'Solution:{orid} |  STRIKE: {st:0.1f}  DIP: {dp:0.1f}  RAKE: {rk:0.1f}  | Quality:{q}'.format(orid=hp.icusp,
+        st=float(s), dp=float(d), rk=float(r), q=hp.qual[x])
+
+
 class HashPype(object):
     """
     Object which holds all data from a HASH instance for one event
@@ -143,6 +167,8 @@ class HashPype(object):
     #----------------------------------------------------------------
     
     # HashPype object variables
+    input_factory = input_kwargs  # Function called by the input method
+    output_factory = output_string  # Function called by the output method
     vmodel_dir = None # string of directory containing velocity models
     vmodels = []      # list of string names of velocity model files
     vtables = None    # array of actual travel time tables in common block
@@ -185,8 +211,11 @@ class HashPype(object):
         Force typed class attr to their types
         (This is for setting variables from non-typed configs, i.e. web-query strings)
         """
-        if hasattr(self.__class__, name) and getattr(self.__class__, name) is not None:
-            value = type(getattr(self.__class__, name))(value)
+        if not isfunction(value):
+            if hasattr(self.__class__, name):
+                attr = getattr(self.__class__, name)
+                if attr is not None:
+                    value = type(attr)(value)
         super(HashPype, self).__setattr__(name, value)
 
 
@@ -276,54 +305,43 @@ class HashPype(object):
         self.author = getpwuid(os.getuid()).pw_name
         
         if kwargs:
-            self.__dict__.update(kwargs)
+            input_kwargs(self, **kwargs)
     
+    @classmethod
+    def from_input(cls, **kwargs):
+        """
+        Initialize an instance of HashPype and explicitly call the 
+        class's input_factory
+        """
+        hp = cls(**kwargs)
+        out = hp.input(**kwargs)
+        return hp
+
     def __repr__(self):
         """
         String saying what you are
         """
         return '{0}(icusp={1})'.format(self.__class__.__name__, self.icusp)
     
-    def input(self, data, format=None, *args, **kwargs):
+    def input(self, *args, **kwargs):
         """
-        Input data using a formatting standard from the 'io' module
+        Input data using a custom function.
         
-        An input function is passed the current HashPype, the object for
-        input (could be object instance, open file handle, string of filename, etc)
-        and any other args and kwargs required. New inputs can be added to the
-        `hashpy.io` module and registered in `hashpy.io.core`
+        1) Function is the value of the attribute 'input_factory'
+        2) First argument passed is current HashPype instance
+        """
+        if self.input_factory:
+            return self.input_factory(self, *args, **kwargs)
 
-        :param data: The picks/data to be input into a HashPype run, format
-            depends on the input function
-        :param str format: A  format type registered in `hashpy.io` module
-        
-        :param args:    Additional arguments are passed to the input function
-        :param kwargs:  Additioanl keywords are passed to the input function
-        
+    def output(self, *args, **kwargs):
         """
-        try:
-            inputter = IOFunction('input', format=format)
-        except ImportError as ierr:
-            raise ImportError("Couldn't import module for the format {0}: {1}".format(format, ierr.message))
-        inputter(self, data, *args, **kwargs)
-
-    def output(self, format=None, *args, **kwargs):
-        """
-        Output data using a formatting standard from the 'io' module
+        Output data using a custom function
         
-        The current module will output a simple one-line string of the
-        best solution stored in the run.
-        
-        :params str format: A format type registered in `hashpy.io` module
-
+        1) Function is the value of the attribute 'output_factory'
+        2) First argument passed is current HashPype instance
         """
-        if format is None:
-            format = 'hashpy.io.core'
-        try:
-            outputter = IOFunction('output', format=format)
-        except ImportError as ierr:
-            raise IOError("Failed getting output function for the format {0}: {1}".format(format, ierr.message))
-        return outputter(self, *args, **kwargs)
+        if self.output_factory:
+            return self.output_factory(self, *args, **kwargs)
         
     def load_velocity_models(self, model_list=None):
         """
