@@ -11,3 +11,5 @@ test2.out2
 *.json
 examples
 build
+dist
+MANIFEST
