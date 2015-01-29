@@ -384,7 +384,7 @@ def eventfocalmech2db(event=None, database=None):
             if recnum < 0:
                 recnum = curs_a.execute.addnull()
             curs_a.scroll(recnum, 'absolute')
-            row = curs_m.fetchone()
+            row = curs_a.fetchone()
             row.update({
                 'arid': arid,
                 'orid': orid, 
