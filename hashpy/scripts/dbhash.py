@@ -117,15 +117,15 @@ def dbhash(args):
         from curds2.cursors import InteractiveCursor
         # alter args b/c dbloc2 passes a db and a row number
         args.dbin = args.dbin.rstrip('.origin')
-        curs = dbapi2.connect(args.dbin, cursor_factory=InteractiveCursor).cursor()
-        n = curs.execute.lookup(table='origin')
-        rec = int(args.dbout)
-        curs.scroll(rec, 'absolute')
-        args.orid = curs.fetchone()['orid']
-        args.dbout = dbloc_source_db(args.dbin, pointer=False)
-        args.plot = True   # force plot
-        args.image = True  # force saving image to db folder
-        curs.close()
+        with dbapi2.connect(args.dbin, cursor_factory=InteractiveCursor) as c:
+            curs = c.cursor()
+            n = curs.execute.lookup(table='origin')
+            rec = int(args.dbout)
+            curs.scroll(rec, 'absolute')
+            args.orid = curs.fetchone()['orid']
+            args.dbout = dbloc_source_db(args.dbin, pointer=False)
+            args.plot = True   # force plot
+            args.image = True  # force saving image to db folder
 
     #--- Run HASH ----------------------------------------------------#
     hp = run_hash(args.dbin, orid=args.orid, pf=args.pf)
