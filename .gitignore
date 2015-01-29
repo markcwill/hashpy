@@ -13,3 +13,4 @@ examples
 build
 dist
 MANIFEST
+Makefile
