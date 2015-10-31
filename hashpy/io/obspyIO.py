@@ -37,7 +37,7 @@ def inputOBSPY(hp, event):
     hp.sez    = _o.origin_uncertainty.confidence_ellipsoid.semi_intermediate_axis_length
     if _m:
 	hp.qmag   = _m.mag
-    
+        
     # The index 'k' is deliberately non-Pythonic to deal with the fortran
     # subroutines which need to be called and the structure of the original HASH code.
     # May be able to update with a rewrite... YMMV
@@ -63,21 +63,22 @@ def inputOBSPY(hp, event):
 	if arrv.phase not in 'Pp':
 	    continue
 	
-	if (pick.polarity is 'positive'):
+	if  (pick.onset == 'impulsive'):
+	    hp.p_qual[k] = 0
+	elif (pick.onset == 'emergent'):
+	    hp.p_qual[k] = 1
+	elif (pick.onset == 'questionable'):
+	    hp.p_qual[k] = 1
+	else:
+	    hp.p_qual[k] = 0
+
+	if (pick.polarity == 'positive'):
 	    hp.p_pol[k] = 1
-	elif (pick.polarity is 'negative'):
+	elif (pick.polarity == 'negative'):
 	    hp.p_pol[k] = -1
 	else:
 	    continue
 	
-	if  (pick.onset is 'impulsive'):
-	    hp.p_qual[k] = 0
-	elif (pick.onset is 'emergent'):
-	    hp.p_qual[k] = 1
-	elif (pick.onset is 'questionable'):
-	    hp.p_qual[k] = 1
-	else:
-	    hp.p_qual[k] = 0
 	    
 	# polarity check in original code... doesn't work here
 	#hp.p_pol[k] = hp.p_pol[k] * hp.spol

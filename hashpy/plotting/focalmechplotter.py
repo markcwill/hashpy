@@ -110,6 +110,7 @@ class FocalMechPlotter(object):
                        'markeredgewidth' : 2,
                        }
         for ind, a in enumerate(self._orig.arrivals):
+            plotit = True
             p = a.pick_id.getReferredObject()
             # Calculate strike azi from direct (dip-pointing) azi 
             azi = a.azimuth - 90.
@@ -122,16 +123,17 @@ class FocalMechPlotter(object):
             elif 90. <= a.takeoff_angle <= 180.:
                 toa = 270. - a.takeoff_angle  # project upward angles
             else:
+                plotit = False
                 raise ValueError("Takeoff angle ({0}) must be in [0, 180]".format(a.azimuth))
             
-            if p.polarity is 'positive':
+            if p.polarity == 'positive' and plotit == True:
                 #plot_specs.update({'markeredgecolor' : 'black', 'markerfacecolor' : 'red'   })
                 h += ax.rake(azi, toa, 90, 'o', markeredgecolor='black', markerfacecolor='red', **plot_specs)
-            if p.polarity is 'negative':
+            if p.polarity == 'negative' and plotit == True:
                 #plot_specs.update({'markeredgecolor' : 'blue', 'markerfacecolor' : 'white' })
                 h += ax.rake(azi, toa, 90, 'o', markeredgecolor='blue', markerfacecolor='white', **plot_specs)
             index.append(ind)
-            if True:
+            if plotit:
                 h_text = ax.rake(azi, toa+5, 90, marker='$   {0}$'.format(p.waveform_id.station_code), color='black',markersize=20)
         
         for comm in self.focm.comments:
