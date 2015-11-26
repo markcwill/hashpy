@@ -86,6 +86,7 @@ def inputOBSPY(hp, event):
 	k += 1
     hp.npol = k # k is zero indexed in THIS loop
 
+
 def outputOBSPY(hp, event=None, only_fm_picks=False):
     """
     Make an Event which includes the current focal mechanism information from HASH
