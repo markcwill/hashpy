@@ -25,8 +25,10 @@ def inputOBSPY(hp, event):
          event.origins you want to use
     """
     # Takes an obspy event and loads FM data into HASH
-    _o = event.preferred_origin()
-    _m = event.preferred_magnitude()
+#    _o = event.preferred_origin()
+    _o = event.preferred_origin
+#    _m = event.preferred_magnitude()
+    _m = event.preferred_magnitude
     
     hp.tstamp = _o.time.timestamp
     hp.qlat   = _o.latitude
@@ -86,6 +88,7 @@ def inputOBSPY(hp, event):
 	k += 1
     hp.npol = k # k is zero indexed in THIS loop
 
+# ===============================================================
 
 def outputOBSPY(hp, event=None, only_fm_picks=False):
     """
@@ -109,6 +112,7 @@ def outputOBSPY(hp, event=None, only_fm_picks=False):
     
     Event will be new if no event was input, FocalMech added to existing event
     """
+
     # Returns new (or updates existing) Event with HASH solution
     n = hp.npol
     if event is None:
@@ -139,6 +143,7 @@ def outputOBSPY(hp, event=None, only_fm_picks=False):
 	    event.picks.append(p)
 	event.origins.append(origin)
 	event.preferred_origin_id = str(origin.resource_id)
+
     else: # just update the changes
 	origin = event.preferred_origin()
 	picks = []
@@ -153,8 +158,10 @@ def outputOBSPY(hp, event=None, only_fm_picks=False):
 	if only_fm_picks:
 	    origin.arrivals = arrivals
 	    event.picks = picks
+
     # Use me double couple calculator and populate planes/axes etc
     x = hp._best_quality_index
+
     # Put all the mechanisms into the 'focal_mechanisms' list, mark "best" as preferred
     for s in range(hp.nmult):
         dc = DoubleCouple([hp.str_avg[s], hp.dip_avg[s], hp.rak_avg[s]])
@@ -181,5 +188,6 @@ def outputOBSPY(hp, event=None, only_fm_picks=False):
         event.focal_mechanisms.append(focal_mech)
         if s == x:
             event.preferred_focal_mechanism_id = str(focal_mech.resource_id)
+
     return event
     
