@@ -66,7 +66,7 @@ Data can be input into HASH in various formats. There are some I/O routine submo
 
 Current IO submodules:
 * `hashpy.io.obspyIO` - ObsPy Event object I/O (`inputOBSPY` and `outputOBSPY`)
-* `hashpy.io.antelopeIO - Antelope Datascope database and other I/O (`input`, `output`, plus other fxns)
+* `hashpy.io.antelopeIO` - Antelope Datascope database and other I/O (`input`, `output`, plus other fxns)
 * `hashpy.io.fpfitIO` - Old style FPFIT file I/O (still in develoment)
 
 The default I/O functions input keyword arguments as HashPype attribute and output a string of the "best" solution.
@@ -146,7 +146,7 @@ A trial implementation of plotting exists, using `matplotlib` and the `mplstereo
   Seismological Society of America, 93, 2434-2444, 2003.
 
 ### Future
-Redo the structure of some of the Fortran subroutines (already started this with vel-subs2) and rewrite them in Fortran 90/95/2003. Probably couldn't ditch the common blocks without a full rewrite, but at least try and get rid of the GOTOs. Biggest improvement would be allocatable arrays, so you could avoid the includes and max-size arrays.
+Redo the structure of some of the Fortran subroutines (already started this with vel-subs2) to use Fortran 90/95/2003 new features. Probably couldn't ditch the common blocks without a full rewrite, but at least try and get rid of the GOTOs. Biggest improvement would be allocatable arrays, so you could avoid the includes and max-size arrays.
 
 There will probably be small adjustments to the locations and structure of what functions are in what files, but the HashPype class and methods will be the main way to interact with HASH.
 
