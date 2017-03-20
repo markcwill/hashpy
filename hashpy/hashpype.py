@@ -17,7 +17,7 @@ Module to call and run HASH subroutines in Fortran
 
 import numpy as np
 import os
-from pwd import getpwuid
+from getpass import getuser
 from hashpy.io.core import Inputter, Outputter
 from hashpy.libhashpy import (mk_table_add, angtable, ran_norm, get_tts, get_gap,
     focalmc, mech_prob, get_misf, focalamp_mc, get_misf_amp)
@@ -262,7 +262,7 @@ class HashPype(object):
         self.esaz    = np.empty(npick0, float)
         self.arid    = np.empty(npick0, int) * 0
         
-        self.author = getpwuid(os.getuid()).pw_name
+        self.author = getuser()
         
         if kwargs:
             self.__dict__.update(kwargs)
