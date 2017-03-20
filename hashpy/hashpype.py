@@ -15,7 +15,7 @@ the inline docs contain information on the methods and issues/caveats when
 using this version of HASH.
 """
 import os
-from pwd import getpwuid
+from getpass import getuser
 
 import numpy as np
 
@@ -262,7 +262,7 @@ class HashPype(object):
         self.esaz    = np.empty(npick0, float)
         self.arid    = np.empty(npick0, int) * 0
         
-        self.author = getpwuid(os.getuid()).pw_name
+        self.author = getuser()
         
         if kwargs:
             self.__dict__.update(kwargs)

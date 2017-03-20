@@ -53,7 +53,7 @@ def dbhash_run(dbname, orid=None, pf=None):
     try:
         hp.driver2(check_for_maximum_gap_size=False)
     except HashError as e:
-        print "Failed! " + e.message
+        print("Failed! " + e.message)
     except:
         raise
     
@@ -115,7 +115,7 @@ def main():
         p = FocalMechPlotter(ev, save=save_plot_to_db)
     else:
         # quick orid/strike/dip/rake line
-        print hp.output()
+        print(hp.output())
         p = 0    
         if args.dbout:
             db = hp.output(format="ANTELOPE", dbout=args.dbout)
@@ -128,4 +128,4 @@ if __name__ == '__main__':
     import time
     t0 = time.time()
     ret = main()
-    print time.time() - t0
+    print(time.time() - t0)

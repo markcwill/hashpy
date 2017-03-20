@@ -4,6 +4,7 @@
 import sys
 import os
 import inspect
+import setuptools #enables develop
 
 from numpy.distutils.core import setup, Extension
 
