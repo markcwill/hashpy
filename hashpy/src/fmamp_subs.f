@@ -35,11 +35,16 @@ c input and output arrays
       dimension p_azi_mc(npick0,nmc0),p_the_mc(npick0,nmc0)
       real sp_amp(npsta)
       real p_a1(npick0),p_a2(npick0),p_a3(npick0)
-      real faultnorm(3),slip(3),faults(3,nmax0),slips(3,nmax0)
+      real faultnorm(3),slip(3),faults(3,nmax0)
       real strike(nmax0),dip(nmax0),rake(nmax0)
       integer p_pol(npsta)
+
+      real,intent(out) ::  slips(3,nmax0)
+
       save dangold,nrot,b1,b2,b3    
       save amptable,phitable,thetable
+
+       
 cf2py intent(in)  p_azi_mc
 cf2py intent(in)  p_the_mc
 cf2py intent(in)  sp_amp
@@ -57,7 +62,7 @@ cf2py intent(out)  strike
 cf2py intent(out)  dip
 cf2py intent(out)  rake
 cf2py intent(out)  faults
-cf2py intent(out)  slips
+
 
 c coordinate transformation arrays
       real b1(3,ncoor),bb1(3)
@@ -171,7 +176,7 @@ c  Convert data to Cartesian coordinates
 40    continue
 
 c  find misfit for each solution and minimum misfit
-         nmis0min=1e5
+         nmis0min=100000
          qmis0min=1.0e5
          do 420 irot=1,nrot  
            qmis(irot)=0.

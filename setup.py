@@ -3,6 +3,7 @@
 #
 import sys
 import os
+import setuptools #enables setup.py develop
 from numpy.distutils.core import setup, Extension
 
 
