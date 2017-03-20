@@ -2,16 +2,14 @@ c
 c  cross product of two vectors, sets v3 = v1 x v2
 c
       subroutine CROSS(v1,v2,v3)
-      real v1(3),v2(3),v3(3)
-
-cf2py intent(in) v1
-cf2py intent(in) v2
-cf2py intent(out) v3
+      implicit none
+      real,intent(in) :: v1(3),v2(3)
+      real,intent(out) :: v3(3)
 
       v3(1)=v1(2)*v2(3)-v1(3)*v2(2)   
       v3(2)=v1(3)*v2(1)-v1(1)*v2(3)
       v3(3)=v1(1)*v2(2)-v1(2)*v2(1)
-      return
+
       end   
 
 c ------------------------------------------------------------ c
@@ -24,8 +22,8 @@ c
       z=-r*cos(the*degrad)
       x=r*sin(the*degrad)*cos(phi*degrad)
       y=r*sin(the*degrad)*sin(phi*degrad)
-      return
-      end
+
+      end subroutine TO_CAR
 
 
 c ------------------------------------------------------------ c
@@ -78,8 +76,7 @@ c          print *,'***FPCOOR warning, horz fault, strike undefined'
          if (rake.le.-180.) rake=rake+360.
          if (rake.gt.180.) rake=rake-360.
       end if
-      return
-      end
+      end subroutine FPCOOR
 
 
 c ------------------------------------------------------------ c
@@ -87,7 +84,9 @@ c ------------------------------------------------------------ c
 c normally-distributed random numbers, from numerical recipes      
       subroutine RAN_NORM(fran)
       save jran,ifirst
-cf2py intent(out) fran
+
+      real,intent(out) :: fran
+
       im=120050                          !overflow at 2**28
       ia=2311
       ic=25367
@@ -95,12 +94,13 @@ cf2py intent(out) fran
          jran=314159
          ifirst=12345
       end if
-      fran=0
+
+      fran=0.
       do 10 i=1,12
         jran=mod(jran*ia+ic,im)
         fran=fran+(float(jran)/float(im))
 10    continue
       fran=fran-6.
-      return
-      end
+
+      end subroutine RAN_NORM
 
