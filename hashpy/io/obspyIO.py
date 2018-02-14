@@ -10,6 +10,9 @@ from obspy.core.event import (Catalog, Event, Origin, CreationInfo, Magnitude,
     PrincipalAxes, Axis, NodalPlane, SourceTimeFunction, Tensor, DataUsed,
     ResourceIdentifier, StationMagnitudeContribution)
 
+#TODO:rm - Quick fix for version compat - MCW
+if hasattr(ResourceIdentifier, "get_referred_object"):
+    ResourceIdentifier.getReferredObject = ResourceIdentifier.get_referred_object
 
 def _get_pick(arrival, picks, pick_ids):
     """

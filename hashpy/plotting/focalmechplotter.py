@@ -16,6 +16,9 @@ from matplotlib.backend_bases import NavigationToolbar2
 from matplotlib.backends.backend_tkagg import NavigationToolbar2TkAgg
 import mplstereonet
 
+#TODO:rm - Quick fix for version compat - MCW
+if hasattr(ResourceIdentifier, "get_referred_object"):
+    ResourceIdentifier.getReferredObject = ResourceIdentifier.get_referred_object
 
 class FocalMechPlotter(object):
     """
