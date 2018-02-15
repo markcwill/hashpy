@@ -65,6 +65,8 @@ setup_args = {
     'url'          : 'https//github.com/markcwill/hashpy',
     'packages'     : ['hashpy',
                       'hashpy.io',
+                      'hashpy.io.obspy',
+                      'hashpy.io.fpfit',
                       'hashpy.plotting',
                       'hashpy.util',
                       'hashpy.scripts',
