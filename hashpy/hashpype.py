@@ -17,7 +17,6 @@ using this version of HASH.
 import os
 from inspect import isfunction
 import logging
-from pwd import getpwuid
 
 import numpy as np
 
@@ -307,11 +306,19 @@ class HashPype(object):
         self.esaz    = np.empty(npick0, float)
         self.arid    = np.empty(npick0, int) * 0
         
-        self.author = getpwuid(os.getuid()).pw_name
+        self.author = os.environ.get('USER', 'nobody')
         
         if kwargs:
             input_kwargs(self, **kwargs)
-    
+   
+    @property
+    def settings_str(self):
+        kw = ("npolmin", "max_agap", "max_pgap", "dang", "nmc", "maxout",
+            "badfrac", "delmax", "cangle", "prob_max", "ratmin", "qbadfrac",
+            "npick0", "nmc0", "nmax0", "dang0", "ncoor")
+        s = ','.join(['='.join([k, str(getattr(self, k))]) for k in kw if hasattr(self, k)])
+        return s
+
     @classmethod
     def from_input(cls, **kwargs):
         """

@@ -2,6 +2,7 @@
 import os
 
 from obspy.core.event import read_events
+from obspy.io.quakeml.core import Pickler, Catalog
 
 from hashpy.hashpype import HashPype
 import hashpy.io.obspy as opio
@@ -10,6 +11,12 @@ PWD = os.path.dirname(__file__)
 
 QMLFILE = PWD+"/data/nn00450180_phase.xml"
 VZFILE = PWD+"/data/vz.pickema2"
+
+
+def test_rid():
+    opio.PREFIX = "smi:local.test-server"
+    ri = opio.rid("RID")
+    assert str(ri) == "smi:local.test-server/RID"
 
 
 def test_obspyinput():
@@ -43,4 +50,6 @@ def test_full_integration():
     # deterministic, but HASH is weird that way.
     assert len(fmevent.picks) == 34
     assert hp.qual[0] == "B"
+    qml = Pickler().dumps(Catalog(events=[fmevent]))
+    print qml
 
