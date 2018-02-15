@@ -28,7 +28,7 @@ except Exception as e:
 
 from hashpy.hashpype import HashPype, HashError, output_string
 from hashpy.io.antelopeIO import load_pf, eventfocalmech2db, dbloc_source_db, input as inputANTELOPE, output as outputANTELOPE
-from hashpy.io.obspyIO import inputOBSPY, outputOBSPY
+from hashpy.io.obspy import input_event as inputOBSPY, output_event as outputOBSPY
 
 LOG = logging.getLogger()
 

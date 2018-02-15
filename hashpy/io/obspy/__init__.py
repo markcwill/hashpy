@@ -10,6 +10,8 @@ from obspy.core.event import (Catalog, Event, Origin, CreationInfo, Magnitude,
     PrincipalAxes, Axis, NodalPlane, SourceTimeFunction, Tensor, DataUsed,
     ResourceIdentifier, StationMagnitudeContribution)
 
+PREFIX = "smi:local.hashserver"
+
 #TODO:rm - Quick fix for version compat - MCW
 if hasattr(ResourceIdentifier, "get_referred_object"):
     ResourceIdentifier.getReferredObject = ResourceIdentifier.get_referred_object
@@ -30,7 +32,14 @@ def _get_pick(arrival, picks, pick_ids):
     return pick
 
 
-def inputOBSPY(hp, event):
+def rid(resource_id, prefix=""):
+    if prefix is not None:
+        p = prefix or PREFIX
+        resource_id = "/".join([p, resource_id])
+    return ResourceIdentifier(resource_id)
+
+
+def input_event(hp, event):
     """
     Load Event into HASH
     
@@ -78,9 +87,11 @@ def inputOBSPY(hp, event):
     hp.p_index = []
     k = 0
     for _i, arrv in enumerate(_o.arrivals):
-        
+        hp.logger.debug("Got arrival: {}".format(_i))
+
         pick = _get_pick(arrv, event.picks, _pids)
         if pick is None:
+            hp.logger.debug("Couldn't find pick for: {}".format(_i))
             continue
 
         hp.sname[k] = pick.waveform_id.station_code
@@ -95,23 +106,26 @@ def inputOBSPY(hp, event):
             hp.qazi[k] += 360.
         
         if (hp.dist[k] > hp.delmax):
+            hp.logger.debug("Pick failed delta: {}".format(_i))
             continue
             
         if arrv.phase not in 'Pp':
+            hp.logger.debug("Pick not P phase: {}".format(_i))
             continue
         
-        if (pick.polarity is 'positive'):
+        if (pick.polarity == 'positive'):
             hp.p_pol[k] = 1
-        elif (pick.polarity is 'negative'):
+        elif (pick.polarity == 'negative'):
             hp.p_pol[k] = -1
         else:
+            hp.logger.debug("Pick not pos/neg: {}".format(_i))
             continue
         
-        if  (pick.onset is 'impulsive'):
+        if  (pick.onset == 'impulsive'):
             hp.p_qual[k] = 0
-        elif (pick.onset is 'emergent'):
+        elif (pick.onset == 'emergent'):
             hp.p_qual[k] = 1
-        elif (pick.onset is 'questionable'):
+        elif (pick.onset == 'questionable'):
             hp.p_qual[k] = 1
         else:
             hp.p_qual[k] = 0
@@ -123,7 +137,7 @@ def inputOBSPY(hp, event):
     hp.npol = k # k is zero indexed in THIS loop
 
 
-def outputOBSPY(hp, event=None, only_fm_picks=False):
+def output_event(hp, event=None, only_fm_picks=False):
     """
     Make an Event which includes the current focal mechanism information from HASH
     
@@ -155,11 +169,11 @@ def outputOBSPY(hp, event=None, only_fm_picks=False):
         origin.longitude = hp.qlon
         origin.depth = hp.qdep * 1000.
         origin.creation_info = CreationInfo(version=hp.icusp)
-        origin.resource_id = ResourceIdentifier('smi:hash/Origin/{0}'.format(hp.icusp))
+        origin.resource_id = rid('Origin/{0}'.format(hp.icusp))
         for _i in range(n):
             p = Pick()
             p.creation_info = CreationInfo(version=hp.arid[_i])
-            p.resource_id = ResourceIdentifier('smi:hash/Pick/{0}'.format(p.creation_info.version))
+            p.resource_id = rid('Pick/{0}'.format(p.creation_info.version))
             p.waveform_id = WaveformStreamID(network_code=hp.snet[_i], station_code=hp.sname[_i], channel_code=hp.scomp[_i])
             if hp.p_pol[_i] > 0:
                 p.polarity = 'positive'
@@ -167,7 +181,7 @@ def outputOBSPY(hp, event=None, only_fm_picks=False):
                 p.polarity = 'negative'
             a = Arrival()
             a.creation_info = CreationInfo(version=hp.arid[_i])
-            a.resource_id = ResourceIdentifier('smi:hash/Arrival/{0}'.format(p.creation_info.version))
+            a.resource_id = rid('Arrival/{0}'.format(p.creation_info.version))
             a.azimuth = hp.p_azi_mc[_i,0]
             a.takeoff_angle = 180. - hp.p_the_mc[_i,0]
             a.pick_id = p.resource_id
@@ -195,11 +209,22 @@ def outputOBSPY(hp, event=None, only_fm_picks=False):
     for s in range(hp.nmult):
         dc = DoubleCouple([hp.str_avg[s], hp.dip_avg[s], hp.rak_avg[s]])
         ax = dc.axis
+        fmid = 'FocalMechanism/{0}-{1}'.format(hp.icusp, s+1)
+        cmts = [
+            Comment(
+                text = hp.settings_str,
+                resource_id = rid(fmid+"#hash-settings"),
+            ),
+            Comment(
+                text = str(hp.qual[s]),
+                resource_id = rid(fmid+"#hash-qual"),
+            ),
+        ]
         focal_mech = FocalMechanism()
         focal_mech.creation_info = CreationInfo(creation_time=UTCDateTime(), author=hp.author)
         focal_mech.triggering_origin_id = origin.resource_id
-        focal_mech.resource_id = ResourceIdentifier('smi:hash/FocalMechanism/{0}/{1}'.format(hp.icusp, s+1))
-        focal_mech.method_id = ResourceIdentifier('HASH')
+        focal_mech.resource_id = rid(fmid)
+        focal_mech.method_id = rid('Method/HASH')
         focal_mech.nodal_planes = NodalPlanes()
         focal_mech.nodal_planes.nodal_plane_1 = NodalPlane(*dc.plane1)
         focal_mech.nodal_planes.nodal_plane_2 = NodalPlane(*dc.plane2)
@@ -210,7 +235,7 @@ def outputOBSPY(hp, event=None, only_fm_picks=False):
         focal_mech.azimuthal_gap = hp.magap
         focal_mech.misfit = hp.mfrac[s]
         focal_mech.station_distribution_ratio = hp.stdr[s]
-        focal_mech.extra = {'qual': {'value': hp.qual[s]}}
+        focal_mech.comments += cmts
         #----------------------------------------
         event.focal_mechanisms.append(focal_mech)
         if s == x:
