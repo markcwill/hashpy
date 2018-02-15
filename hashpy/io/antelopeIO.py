@@ -66,6 +66,9 @@ def input(hp, dbname, evid=None, orid=None):
         if n <= 0:
             raise ValueError("No picks for this ORID: {0}".format(orid) )
         
+
+        hp.logger.warn("N picks from antelope db: {}".format(n))
+
         ph = curs.fetchone()
             
         hp.tstamp = ph['origin.time']
@@ -106,16 +109,19 @@ def input(hp, dbname, evid=None, orid=None):
                 qazi = qazi + 360.
             
             if (dist > hp.delmax):
+                hp.logger.debug("Missed del max")
                 continue
 
             # Try to get an up/down polarity
             if not hp.pickpol[k].lower():
+                hp.logger.debug("No polarity")
                 continue
             if (hp.pickpol[k].lower() in 'cu'):
                 hp.p_pol[k] = 1
             elif (hp.pickpol[k].lower() in 'dr'):
                 hp.p_pol[k] = -1
             else:
+                hp.logger.debug("No recognized polarity")
                 continue
 
             # Save them for other functions

@@ -15,8 +15,9 @@ the inline docs contain information on the methods and issues/caveats when
 using this version of HASH.
 """
 import os
-from pwd import getpwuid
 from inspect import isfunction
+import logging
+from pwd import getpwuid
 
 import numpy as np
 
@@ -25,6 +26,8 @@ import numpy as np
 from hashpy.libhashpy import (mk_table_add, angtable, ran_norm, get_tts, get_gap,
     focalmc, mech_prob, get_misf, focalamp_mc, get_misf_amp)
 
+# Module logger
+LOG = logging.getLogger('hashpy')
 
 def fortran_include(fname):
     """
@@ -109,6 +112,8 @@ class HashPype(object):
       driver2(check_for_minimum_picks=True, check_for_maximum_gap_size=True)
 
     """
+    logger = LOG
+
     # These MUST be the same as the fortran includes!!
     # (They are compiled into the Fortran subroutines)
     #--- param.inc ---#
@@ -396,7 +401,7 @@ class HashPype(object):
             for nm in range(self.nmc):
                 self.p_azi_mc[k,nm] = self.qazi[k]
                 self.p_the_mc[k,nm], iflag = get_tts(self.index[nm],self.dist[k],self.qdep2[nm])
-        self.magap, self.mpgap = get_gap(self.p_azi_mc[:self.npol,0],self.p_the_mc[:self.npol,0],self.npol)
+        self.magap, self.mpgap = get_gap(self.p_azi_mc[:self.npol,0],self.p_the_mc[:self.npol,0]) #,self.npol)
     
     def view_polarity_data(self):
         """
@@ -511,24 +516,29 @@ class HashPype(object):
         trial data, and takeoff angles from velocity models, don't use it if you make your own.
         
         """
-        # Generate preliminary data for run
-        self.load_velocity_models() # file list in 'self.vmodels'
-        if not self.ntab:
-            raise RuntimeWarning("No velocity tables loaded, continuing would be futile!")
-        self.generate_trial_data()
-        self.calculate_takeoff_angles()
+        try:
+            # Generate preliminary data for run
+            self.load_velocity_models() # file list in 'self.vmodels'
+            if not self.ntab:
+                raise RuntimeWarning("No velocity tables loaded, continuing would be futile!")
+            self.generate_trial_data()
+            self.calculate_takeoff_angles()
+            
+            pass1 = self.check_minimum_polarity()
+            pass2 = self.check_maximum_gap()
+            
+            # If it passes checks, run HASH
+            if check_for_minimum_picks and not pass1:
+                raise ValueError("Didn't pass check: # picks = {0} | Minimum = {1}".format(self.npol, self.npolmin))
+            if check_for_maximum_gap_size and not pass2:
+                raise ValueError("Didn't pass check: agap/pgap = {0}/{1} | Max allowed = {2}/{3}".format(self.magap, self.mpgap, self.max_agap, self.max_pgap))
         
-        pass1 = self.check_minimum_polarity()
-        pass2 = self.check_maximum_gap()
+            self.calculate_hash_focalmech()
+            self.calculate_quality()
         
-        # If it passes checks, run HASH
-        if check_for_minimum_picks and not pass1:
-            raise ValueError("Didn't pass check: # picks = {0} | Minimum = {1}".format(self.npol, self.npolmin))
-        if check_for_maximum_gap_size and not pass2:
-            raise ValueError("Didn't pass check: agap/pgap = {0}/{1} | Max allowed = {2}/{3}".format(self.magap, self.mpgap, self.max_agap, self.max_pgap))
+        except Exception as e:
+            LOG.exception(e)
 
-        self.calculate_hash_focalmech()
-        self.calculate_quality()
     
     def driver3(self, check_for_minimum_picks=True, check_for_maximum_gap_size=True):
         """

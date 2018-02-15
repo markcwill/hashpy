@@ -20,6 +20,12 @@ import sys
 import os
 import logging
 from argparse import ArgumentParser
+
+try:
+    import antutil.sitecustomize
+except Exception as e:
+    pass
+
 from hashpy.hashpype import HashPype, HashError, output_string
 from hashpy.io.antelopeIO import load_pf, eventfocalmech2db, dbloc_source_db, input as inputANTELOPE, output as outputANTELOPE
 from hashpy.io.obspyIO import inputOBSPY, outputOBSPY
