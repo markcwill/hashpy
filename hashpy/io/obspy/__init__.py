@@ -30,7 +30,7 @@ def _get_pick(arrival, picks, pick_ids):
     return pick
 
 
-def inputOBSPY(hp, event):
+def input_event(hp, event):
     """
     Load Event into HASH
     
@@ -78,9 +78,11 @@ def inputOBSPY(hp, event):
     hp.p_index = []
     k = 0
     for _i, arrv in enumerate(_o.arrivals):
-        
+        hp.logger.debug("Got arrival: {}".format(_i))
+
         pick = _get_pick(arrv, event.picks, _pids)
         if pick is None:
+            hp.logger.debug("Couldn't find pick for: {}".format(_i))
             continue
 
         hp.sname[k] = pick.waveform_id.station_code
@@ -95,23 +97,26 @@ def inputOBSPY(hp, event):
             hp.qazi[k] += 360.
         
         if (hp.dist[k] > hp.delmax):
+            hp.logger.debug("Pick failed delta: {}".format(_i))
             continue
             
         if arrv.phase not in 'Pp':
+            hp.logger.debug("Pick not P phase: {}".format(_i))
             continue
         
-        if (pick.polarity is 'positive'):
+        if (pick.polarity == 'positive'):
             hp.p_pol[k] = 1
-        elif (pick.polarity is 'negative'):
+        elif (pick.polarity == 'negative'):
             hp.p_pol[k] = -1
         else:
+            hp.logger.debug("Pick not pos/neg: {}".format(_i))
             continue
         
-        if  (pick.onset is 'impulsive'):
+        if  (pick.onset == 'impulsive'):
             hp.p_qual[k] = 0
-        elif (pick.onset is 'emergent'):
+        elif (pick.onset == 'emergent'):
             hp.p_qual[k] = 1
-        elif (pick.onset is 'questionable'):
+        elif (pick.onset == 'questionable'):
             hp.p_qual[k] = 1
         else:
             hp.p_qual[k] = 0
@@ -123,7 +128,7 @@ def inputOBSPY(hp, event):
     hp.npol = k # k is zero indexed in THIS loop
 
 
-def outputOBSPY(hp, event=None, only_fm_picks=False):
+def output_event(hp, event=None, only_fm_picks=False):
     """
     Make an Event which includes the current focal mechanism information from HASH
     

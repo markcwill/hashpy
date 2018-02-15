@@ -14,3 +14,5 @@ build
 dist
 MANIFEST
 Makefile
+.cache
+.pytest_cache

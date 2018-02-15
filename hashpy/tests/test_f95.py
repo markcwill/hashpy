@@ -1,6 +1,6 @@
 
 import hashpy
-from hashpy.io.antelopeIO import load_pf
+#from hashpy.io.antelopeIO import load_pf
 # 
 def test_f95():
     assert True
