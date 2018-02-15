@@ -14,10 +14,11 @@ SETUP_DIRECTORY = os.path.dirname(os.path.abspath(inspect.getfile(
 # Import the version string.
 UTIL_PATH = os.path.join(SETUP_DIRECTORY, "hashpy", "util")
 sys.path.insert(0, UTIL_PATH)
-from version import get_git_version  # @UnresolvedImport
+from version import get_git_version
 sys.path.pop(0)
 
-#
+# NOTE: unused
+# TODO: rm, virtualenvs seem to work fine now.
 # For non-system python installs, or non-activated virtualenvs.
 #
 def get_linker_args_for_virtualenv(virtualenv=None):
@@ -26,69 +27,50 @@ def get_linker_args_for_virtualenv(virtualenv=None):
                           'include')
     inc_dirs = [os.path.join(virtualenv, inc) for inc in ('include', np_inc)]
     lib_dirs = [os.path.join(virtualenv, lib) for lib in ('lib',)]
-    return  {
+    return {
         'include_dirs': inc_dirs,
         'library_dirs': lib_dirs,
-        }
+    }
+
 
 #--- libhashpy Fortran extension --------------------------------------------#
 #
 # Build extension from FORTRAN source of HASH subroutines
 # (based on the fucntion numpy.f2py.f2py2e.run_compile)
 #
-def get_extension_args():
+def hash_extension_args():
     srcdir = os.path.join('hashpy', 'src')
     srcf = ['fmamp_subs.f95', 'fmech_subs.f95', 'uncert_subs.f95', 'util_subs.f95',
             'pol_subs.f95', 'vel_subs.f95', 'station_subs.f95', 'vel_subs2.f95']
     src_list = [os.path.join(srcdir, src) for src in srcf]
     ext_args = {'sources': src_list}
-
-    # Have to link against antelope libs if installing to Antelope python
-    #
-    if 'antelope' in sys.executable:
-        python_folder = sys.executable.rstrip("/bin/python")
-        ANT_EXT_ARGS = get_linker_args_for_virtualenv(python_folder)
-        ext_args.update(ANT_EXT_ARGS)
-
     return ext_args
-#----------------------------------------------------------------------------#
 
 
 ### SETUP ####################################################################
-ext_args = get_extension_args()
+#
+libhashpy_extension = Extension('hashpy.libhashpy', **hash_extension_args())
 
 setup_args = {
-    'name'         : 'HASHpy',
-    'version'      : get_git_version(),
-    'description'  : 'Routines for running HASH algorithms',
-    'author'       : 'Mark Williams',
-    'url'          : 'https//github.com/markcwill/hashpy',
-    'packages'     : ['hashpy',
-                      'hashpy.io',
-                      'hashpy.io.obspy',
-                      'hashpy.io.fpfit',
-                      'hashpy.plotting',
-                      'hashpy.util',
-                      'hashpy.scripts',
-                      ],
-    'package_data' : {'hashpy': [
-                        'RELEASE-VERSION',
-                        'src/*.inc','src/Makefile','data/*',
-                        'scripts/dbhash', 'src/*.f95'
-                        ]
-                    },
-    'ext_modules'  : [Extension('hashpy.libhashpy', **ext_args)],
+    'name': 'hashpy',
+    'version': get_git_version(),
+    'description': 'Python wrapper for HASH first-motion focal mech lib',
+    'author': 'Mark Williams',
+    'url': 'https//github.com/markcwill/hashpy',
+    'packages': [
+        'hashpy', 
+        'hashpy.io', 
+        'hashpy.io.obspy', 
+        #'hashpy.plotting', 
+        'hashpy.util', 
+        'hashpy.scripts',
+    ],
+    'package_data': {
+        'hashpy': [
+            'RELEASE-VERSION', 'src/*.inc','src/Makefile','data/*', 'src/*.f95',
+        ],
+    },
+    'ext_modules': [libhashpy_extension],
 }
-
-# dbhash --------------------------------------------------------------------#
-# Copy pf and bins to antelope if available
-if 'ANTELOPE' in os.environ:
-    ant_bin = os.path.join(os.environ['ANTELOPE'], 'bin')
-    ant_pf = os.path.join(os.environ['ANTELOPE'], 'data', 'pf')
-    setup_args['data_files'] = [(ant_bin, ['hashpy/scripts/dbhash']),
-                                (ant_pf,  ['hashpy/data/dbhash.pf'])]
-#----------------------------------------------------------------------------#
-
-##############################################################################
 
 setup(**setup_args)
