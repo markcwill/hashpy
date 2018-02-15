@@ -124,21 +124,21 @@ class FocalMechPlotter(object):
             else:
                 raise ValueError("Takeoff angle ({0}) must be in [0, 180]".format(a.azimuth))
             
-            if p.polarity is 'positive':
+            if p.polarity == 'positive':
                 #plot_specs.update({'markeredgecolor' : 'black', 'markerfacecolor' : 'red'   })
                 h += ax.rake(azi, toa, 90, 'o', markeredgecolor='black', markerfacecolor='red', **plot_specs)
-            if p.polarity is 'negative':
+            if p.polarity == 'negative':
                 #plot_specs.update({'markeredgecolor' : 'blue', 'markerfacecolor' : 'white' })
                 h += ax.rake(azi, toa, 90, 'o', markeredgecolor='blue', markerfacecolor='white', **plot_specs)
             index.append(ind)
             if True:
                 h_text = ax.rake(azi, toa+5, 90, marker='$   {0}$'.format(p.waveform_id.station_code), color='black',markersize=20)
         
-        if hasattr(self._focm, 'extra'):
-            qual = self._focm.extra.get('qual', {})
-            qual = qual.get('value')
-        else:
-            qual = None
+        qual = None
+        if hasattr(self._focm, 'comments'):
+            for cmt in self._focm.get('comments', []):
+                if str(cmt.resource_id).endswith('#hash-qual'):
+                    qual = cmt.text
         
         plane_str = "STRIKE1:{0: > 7.1f}\nDIP1:{1: > 7.1f}\nRAKE1:{2: > 7.1f}\n\nSTRIKE2:{3: > 7.1f}\nDIP2:{4: > 7.1f}\nRAKE2:{5: > 7.1f}"
         h_text = self.fig.text(0.25, 0.88, plane_str.format(strike1, dip1, rake1, strike2, dip2, rake2), ha='right', va='top', family='monospace')
