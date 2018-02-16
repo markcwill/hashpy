@@ -7,32 +7,6 @@ import inspect
 
 from numpy.distutils.core import setup, Extension
 
-
-SETUP_DIRECTORY = os.path.dirname(os.path.abspath(inspect.getfile(
-    inspect.currentframe())))
-
-# Import the version string.
-UTIL_PATH = os.path.join(SETUP_DIRECTORY, "hashpy", "util")
-sys.path.insert(0, UTIL_PATH)
-from version import get_git_version
-sys.path.pop(0)
-
-# NOTE: unused
-# TODO: rm, virtualenvs seem to work fine now.
-# For non-system python installs, or non-activated virtualenvs.
-#
-def get_linker_args_for_virtualenv(virtualenv=None):
-    """Return linker args relative to a virtual env"""
-    np_inc = os.path.join('lib', 'python2.7', 'site-packages', 'numpy', 'core',
-                          'include')
-    inc_dirs = [os.path.join(virtualenv, inc) for inc in ('include', np_inc)]
-    lib_dirs = [os.path.join(virtualenv, lib) for lib in ('lib',)]
-    return {
-        'include_dirs': inc_dirs,
-        'library_dirs': lib_dirs,
-    }
-
-
 #--- libhashpy Fortran extension --------------------------------------------#
 #
 # Build extension from FORTRAN source of HASH subroutines
@@ -46,14 +20,14 @@ def hash_extension_args():
     ext_args = {'sources': src_list}
     return ext_args
 
+libhashpy_extension = Extension('hashpy.libhashpy', **hash_extension_args())
+
 
 ### SETUP ####################################################################
 #
-libhashpy_extension = Extension('hashpy.libhashpy', **hash_extension_args())
-
 setup_args = {
     'name': 'hashpy',
-    'version': get_git_version(),
+    'version': '1.0.0-beta',
     'description': 'Python wrapper for HASH first-motion focal mech lib',
     'author': 'Mark Williams',
     'url': 'https//github.com/markcwill/hashpy',
@@ -61,13 +35,10 @@ setup_args = {
         'hashpy', 
         'hashpy.io', 
         'hashpy.io.obspy', 
-        #'hashpy.plotting', 
-        #'hashpy.util', 
-        #'hashpy.scripts',
     ],
     'package_data': {
         'hashpy': [
-            'RELEASE-VERSION', 'src/*.inc','src/Makefile','data/*', 'src/*.f95',
+            'src/*.f95', 'src/*.inc', 'src/Makefile', 'data/*',
         ],
     },
     'ext_modules': [libhashpy_extension],
