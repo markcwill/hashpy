@@ -80,6 +80,11 @@ def output_string(hp, *args, **kwargs):
         st=float(s), dp=float(d), rk=float(r), q=hp.qual[x])
 
 
+class HashError(Exception):
+    """Throw this if something happens while running"""
+    pass
+
+
 class HashPype(object):
     """
     Object which holds all data from a HASH instance for one event
@@ -516,13 +521,17 @@ class HashPype(object):
     # -----------------------------------------------------------------------------------
     def driver2(self, check_for_minimum_picks=True, check_for_maximum_gap_size=True):
         """
-        Convenience method for hash_driver2
+        Convenience script/method for hash_driver2
         
         This approximately acts like the "hash_driver2.f" program in the original HASH code.
         One must first input data from one's chosen sources. This method will generate tables,
         trial data, and takeoff angles from velocity models, don't use it if you make your own.
         
+        Raises HashError for any error raised while running the series of
+        methods.
         """
+        if self.npol == 0:
+            raise HashError("No first-motion picks: NPOL is 0")
         try:
             # Generate preliminary data for run
             self.load_velocity_models() # file list in 'self.vmodels'
@@ -544,40 +553,46 @@ class HashPype(object):
             self.calculate_quality()
         
         except Exception as e:
-            LOG.exception(e)
+            self.logger.exception(e)
+            raise HashError("Error running driver programs: check log")
 
     
     def driver3(self, check_for_minimum_picks=True, check_for_maximum_gap_size=True):
         """
-        Convenience method for hash_driver3
+        Convenience script/method for hash_driver3
         
         This approximately acts like the "hash_driver3.f" program in the original HASH code.
         One must first input data from one's chosen sources. This method will generate tables,
         trial data, and takeoff angles from velocity models, don't use it if you make your own.
         
+        Raises HashError for any error raised while running the series of
+        methods.
+        
         NOT TESTED!!
         """
-        # Generate preliminary data for run
-        self.load_velocity_models() # file list in 'self.vmodels'
-        if not self.ntab:
-            raise RuntimeWarning("No velocity tables loaded, continuing would be futile!")
-        self.generate_trial_data()
-        self.calculate_takeoff_angles()
-        
-        pass1 = self.check_minimum_polarity()
-        pass2 = self.check_maximum_gap()
-        
-        # If it passes checks, run HASH
-        if check_for_minimum_picks and not pass1:
-            raise ValueError("Didn't pass check: # picks = {0} | Minimum = {1}".format(self.npol, self.npolmin))
-        if check_for_maximum_gap_size and not pass2:
-            raise ValueError("Didn't pass check: agap/pgap = {0}/{1} | Max allowed = {2}/{3}".format(self.magap, self.mpgap, self.max_agap, self.max_pgap))
+        if self.npol == 0:
+            raise HashError("No first-motion picks: NPOL is 0")
+        try:
+            # Generate preliminary data for run
+            self.load_velocity_models() # file list in 'self.vmodels'
+            if not self.ntab:
+                raise RuntimeWarning("No velocity tables loaded, continuing would be futile!")
+            self.generate_trial_data()
+            self.calculate_takeoff_angles()
+            
+            pass1 = self.check_minimum_polarity()
+            pass2 = self.check_maximum_gap()
+            
+            # If it passes checks, run HASH
+            if check_for_minimum_picks and not pass1:
+                raise ValueError("Didn't pass check: # picks = {0} | Minimum = {1}".format(self.npol, self.npolmin))
+            if check_for_maximum_gap_size and not pass2:
+                raise ValueError("Didn't pass check: agap/pgap = {0}/{1} | Max allowed = {2}/{3}".format(self.magap, self.mpgap, self.max_agap, self.max_pgap))
 
-        self.calculate_hash_focalmech(use_amplitudes=True)
-        self.calculate_quality(use_amplitudes=True)
+            self.calculate_hash_focalmech(use_amplitudes=True)
+            self.calculate_quality(use_amplitudes=True)
 
-
-class HashError(StandardError):
-    """Throw this if something happens while running"""
-    pass
+        except Exception as e:
+            self.logger.exception(e)
+            raise HashError(e.__class__.__name__ + ":" + str(e))
 

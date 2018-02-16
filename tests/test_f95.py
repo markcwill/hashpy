@@ -1,7 +1,8 @@
-
+#
 import hashpy
-#from hashpy.io.antelopeIO import load_pf
-# 
+
+ 
+# Import will fail if build/linking to Fortran ext is bad
 def test_f95():
     assert True
     script = '''

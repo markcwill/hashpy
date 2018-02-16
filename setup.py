@@ -62,8 +62,8 @@ setup_args = {
         'hashpy.io', 
         'hashpy.io.obspy', 
         #'hashpy.plotting', 
-        'hashpy.util', 
-        'hashpy.scripts',
+        #'hashpy.util', 
+        #'hashpy.scripts',
     ],
     'package_data': {
         'hashpy': [

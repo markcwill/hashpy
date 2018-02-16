@@ -1,3 +1,0 @@
-#
-from focalmechplotter import FocalMechPlotter
-

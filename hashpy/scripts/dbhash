@@ -1,6 +1,0 @@
-#!/usr/bin/python
-import sys
-from hashpy.scripts.dbhash import main
-
-if __name__ == '__main__':
-    sys.exit(main())
