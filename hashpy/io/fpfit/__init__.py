@@ -1,5 +1,12 @@
 # -*- coding: utf-8 -*-
+"""
+This is a WIP for inputting the old-fashioned FPFIT-format files into hashpy.
 
+Can be used for old-old-backwards compat, but mostly useful for running unit
+tests with the original published input/output files to prevent regressions in
+Fortran code changes
+
+"""
 # INPUT FILE: "fpfile" FPFIT-like format - ** YOU MAY NEED TO CHANGE THE INPUT FORMAT **
 #
 # event line:

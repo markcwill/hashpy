@@ -1,6 +1,9 @@
 #
-# HashPype class which uses ObsPy Event as I/O for focal mech data
-# 
+"""
+hashpy.io.obspy
+
+HashPype input/output funcs which use ObsPy Event objects
+"""
 from hashpy.doublecouple import DoubleCouple
 from obspy.core.utcdatetime import UTCDateTime
 from obspy.core.event import (Catalog, Event, Origin, CreationInfo, Magnitude,

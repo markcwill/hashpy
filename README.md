@@ -1,9 +1,6 @@
-HASHpy
+hashpy
 ------
-
-[![DOI](https://zenodo.org/badge/3723/markcwill/hashpy.png)](http://dx.doi.org/10.5281/zenodo.9808)
-
-This is a fork of HASH v1.2, the first motion focal mechanism program by Hardebeck and Shearer. The original Fortran subroutines are compiled into a python module, 'libhashpy.so', which will import all the subs and common blocks into the python namespace. There is a base class, HashPype, that contains attributes which hold data for a HASH calculation, and methods which can be called to do the HASH calculation. This class facilitates easily writing a 'hash driver' script in python. See below for details.
+This is a fork of HASH v1.2, the first motion focal mechanism program by Hardebeck and Shearer. Refactored Fortran subroutines are compiled into a python module, 'libhashpy.so', which will import all the subs and common blocks into the python namespace. There is a base class, HashPype, that contains attributes which hold data for a HASH calculation, and methods which can be called to do the HASH calculation. This class facilitates easily writing a 'hash driver' script in python. See below for details.
 
 The code base has been forked at HASH 1.2, and re-syntaxed from Fortran 77 to Fortran 95. More work is needed to take advantage of F95 features (allocatable arrays, etc) but many GOTOs have been removed from the base subroutines. A more complete refactor would involve changing the Python wrapper code as well, and will be reserved for a '2.0' hashpy version.
 
@@ -20,6 +17,18 @@ python setup.py install
 
 # or use pip
 pip install git+https://github.com/markcwill/hashpy.git
+
+```
+
+For building for disribution, wheels are possible, but can be problematic with different versions of libfortran. When in doubt, compile on the same arch with the same libraries you intend to run on. The best way to do this is to build a source distribution.
+
+```shell
+# Build zipped tarball
+python setup.py sdist
+
+# This produces a source artifact that can be compliled installed with pip.
+# NOTE: you need to have numpy/Fortran compiler on the target machine to do this.
+pip install dist/hashpy-1.0.0-beta.tar.gz
 
 ```
 
@@ -64,10 +73,7 @@ COMMON blocks:
 
 Data can be input into HASH in various formats. There are some I/O routine submodules in the `hashpy.io` module. I/O functions can be imported from here and used directly, or set to the class attributes `input_factory` and `output_factory`. The functions will then called by the HashPype methods `HashPype.input()` and `HashPype.output()`.
 
-Current IO submodules:
-* `hashpy.io.obspyIO` - ObsPy Event object I/O (`inputOBSPY` and `outputOBSPY`)
-* `hashpy.io.antelopeIO` - Antelope Datascope database and other I/O (`input`, `output`, plus other fxns)
-* `hashpy.io.fpfitIO` - Old style FPFIT file I/O (still in develoment)
+Currently only `obspy` I/O is supported, via `hashpy.io.obspy.input_event` and `hashpy.io.obspy.output_event`. These methods accept `obspy.Event` objects which can be serialized/deserialized as QuakeML objects.
 
 The default I/O functions input keyword arguments as HashPype attribute and output a string of the "best" solution.
 
@@ -76,53 +82,40 @@ The default I/O functions input keyword arguments as HashPype attribute and outp
 # Usage example:
 # Typical "hash_driver2" style script
 # Using the ObsPy Event format as input for origin, picks, and arrivals
+from obspy.core.event import read_events
 
 from hashpy import HashPype, HashError
-from hashpy.io.obspyIO import inputOBSPY, outputOBSPY
+import hashpy.io.obspy as opio
 
-# Make an ObsPy Event, or get from a QuakeML file
-from obspy.core.event import readEvents
-event = readEvents('my_quakeml_file.xml').events[0]
+my_event = read_events('my_quakeml_file.xml').events[0]
 
 # Set configuration at creation with a dict...
-# ...can from file or interactively, etc
-config = { "npolmin" : 10,
-           "max_agap": 90,
-           "vmodels" : ['/path/to/my/vmodel/file1.vz', 
-                        '/new/picking/model/file2.vz',
-                       ] 
-           }
+config = { 
+	"npolmin": 10,
+    "max_agap": 90,
+    "vmodels": [
+		'/path/to/my/vmodel/file1.vz', 
+        '/new/picking/model/file2.vz',
+    ] 
+}
 
-hp = HashPype(input_factory=inputOBSPY, **config)
-hp.input(event)
-hp.load_velocity_models()
-hp.generate_trial_data()
-hp.calculate_takeoff_angles()
+hp = HashPype(
+	input_factory=opio.input_event,
+	output_factory=opio.output_event,
+	**config,
+)
 
-pass1 = hp.check_minimum_polarity()
-pass2 = hp.check_maximum_gap()
+try:
+	hp.input(my_event)
+	hp.driver2(False, False)
+except Exception as e:
+	raise HashError("Error running HASH: {}".format(str(e)))
 
-if pass1 and pass2:
-    hp.calculate_hash_focalmech()
-    hp.calculate_quality()
-    print hp.output() # default output is a simple string
-else:
-    raise HashError("Didn't pass user checks!")
+# This will be an obspy Event object with the HASH solutions as FocalMechanism 
+# objects
+fmevent = hp.output()
 
 ```
-
-### Plotting (Experimental)
-
-A trial implementation of plotting exists, using `matplotlib` and the `mplstereonet` package, as the  `hashpy.plotting.focalmechplotter.FocalMechPlotter` class. It accepts an ObsPy Event containing Picks, Origin/Arrivals, FocalMechanism, etc, objects (as output from HashPype) and generates a stereonet plot. Multiple FocalMechansim solutions from HASH are accessible through the navigation toolbar 'back' and 'forward' arrows.
-
-```python
-# Get an obspy Event object as output
->>> event = outputOBSPY(hp)
-# Pass to plotter class as constructor variable
->>> fmp = FocalMechPlotter(event)
-# Plots a figure, accessible as 'fmp.fig'
-```
-![](http://markcwill.github.io/hashpy/images/979567_focalmech.png)
 
 ### Dependencies
 
@@ -131,10 +124,7 @@ A trial implementation of plotting exists, using `matplotlib` and the `mplstereo
 * NumPy (main dependancy, for numerical arrays and f2py compiling)
 
 #### Optional
-* [ObsPy](https://github.com/obspy/obspy.git) (Only for plotting and ObsPy I/O))
-* [mplstereonet](https://github.com/joferkington/mplstereonet.git) (Only for plotting)
-* [curds2](http://github.com/NVSeismoLab/curds2.git) (Only for Antelope database I/O)
-* [Antelope](http://www.brtt.com) (Required by curds2)
+* [ObsPy](https://github.com/obspy/obspy.git) (Only for plotting and obspy I/O)
 
 ### HASH references
 
