@@ -9,9 +9,6 @@ using Python and HASH
     Mark C. Williams
 
 """
-from hashpy.util.version import get_git_version
 from hashpy.hashpype import HashPype, HashError
 from hashpy.doublecouple import DoubleCouple
-
-__version__ = get_git_version()
 
