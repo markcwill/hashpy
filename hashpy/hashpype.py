@@ -514,7 +514,7 @@ class HashPype(object):
         self.calculate_quality(use_amplitudes=True)
 
 
-class HashError(StandardError):
+class HashError(Exception):
     """Throw this if something happens while running"""
     pass
 
