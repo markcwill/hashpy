@@ -2,18 +2,18 @@ HASHpy
 ------
 
 This fork contains two minor bug fixes that are necessary to get hashpy up and running smoothly in 2021:
-. in hashpy/hashpype.py, change 'class HashError(StandardError):' to 'class HashError(Exception):'
-. in hashpy/__init__.py, add a dot before 'hashpype' and 'doublecouple'
+* in hashpy/hashpype.py, change 'class HashError(StandardError):' to 'class HashError(Exception):'
+* in hashpy/__init__.py, add a dot before 'hashpype' and 'doublecouple'
 
-That's it. Thank you Luca Scarabello for figuring this out. Now let's go compute some FMs :)
-
-
-
+That's it. Thank you Luca Scarabello for figuring this out. Now let's go compute some FMs (\\__/)
+- - - -
 
 
 
 
 
+
+#### Original README: ####
 
 [![DOI](https://zenodo.org/badge/3723/markcwill/hashpy.png)](http://dx.doi.org/10.5281/zenodo.9808)
 
